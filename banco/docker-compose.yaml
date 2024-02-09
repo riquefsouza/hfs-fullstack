@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+
+  postgres:
+    image: postgres:latest
+    container_name: postgresql
+    ports:
+      - 5434:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=abcd1234
+      - POSTGRES_DB=hfsfullstack
+    volumes:
+      - ../infra/postgres/data:/var/lib/postgresql/data
+      - ../infra/postgres:/docker-entrypoint-initdb.d

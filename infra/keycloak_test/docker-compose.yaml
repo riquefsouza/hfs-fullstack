@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  
+  keycloak_test:
+    image: jboss/keycloak:16.1.1
+    container_name: keycloak_test
+    ports:
+      - 8080:8080
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - DB_VENDOR=h2
+      - KEYCLOAK_IMPORT=/tmp/realm-test.json
+    volumes:
+      - ./teste/hfs-realm-test.json:/tmp/realm-test.json
+    command: ["-Dkeycloak.profile.feature.upload_scripts=enabled"]

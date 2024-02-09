@@ -1,0 +1,159 @@
+<div class="grid">
+    <div class="col-12">
+
+        <div class="card px-6 py-6" [style]="mostrarListar()">
+            <p-toast></p-toast>
+            <p-panel header="Página" styleClass="p-mb-2">
+                <app-report-panel (typeReportChange)="onChangedTypeReport($event)" (forceDownloadChange)="onChangedForceDownload($event)"></app-report-panel>
+            </p-panel>            
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="Adicionar" icon="pi pi-plus" class="p-button-success mr-2" (click)="onInsert()"></button>
+                        <button pButton pRipple label="Excluir" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelected()" 
+                        [disabled]="!selectedAdmPage || !selectedAdmPage.length"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <button pButton pRipple label="Exportar" icon="pi pi-upload" class="p-button-help" (click)="onExport()"></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-menu #popupMenu [model]="itemsMenuLinha" [popup]="true"></p-menu>
+
+            <p-table #dt [value]="listaAdmPage" [columns]="cols" responsiveLayout="scroll" [rows]="10" 
+                [globalFilterFields]="['url']" paginatorPosition="both"
+                [paginator]="true" [rowsPerPageOptions]="[10,30,50,100,150,200]" [showCurrentPageReport]="true" 
+                currentPageReportTemplate="Mostrando {first} até {last} de {totalRecords} entradas" 
+                [(selection)]="selectedAdmPage" selectionMode="multiple" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Gerenciar parâmetros</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Procurar..."  class="w-full sm:w-auto"/>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>                        
+                        <th pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon></th>
+                        <th pSortableColumn="url">Página <p-sortIcon field="url"></p-sortIcon></th>
+                        <th pSortableColumn="description">Descrição <p-sortIcon field="description"></p-sortIcon></th>
+                        <th pSortableColumn="pageProfiles">Perfil(s) da página <p-sortIcon field="pageProfiles"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-admPage>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="admPage"></p-tableCheckbox>
+                        </td>
+                        <td style="width:5%; min-width:5rem;"><span class="p-column-title">Id</span>
+                            {{admPage.id}}
+                        </td>
+                        <td style="min-width:10rem;">
+                            <span class="p-column-title">Página</span>
+                            {{admPage.url}}
+                        </td>
+                        <td style="min-width:8rem;">
+                            <span class="p-column-title">Descrição</span>
+                            {{admPage.description}}
+                        </td>
+                        <td style="min-width:8rem;">
+                            <span class="p-column-title">Perfil(s) da página</span>
+                            {{admPage.pageProfiles}}
+                        </td>
+                        <td style="width: 10px;">
+                            <div class="flex">                                
+                                <a *ngIf="itemsMenuLinha" (click)="toggleMenu(popupMenu, $event, admPage)" style="cursor: pointer;">
+                                    <i class="pi pi-ellipsis-v"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="summary">
+                    <div class="p-d-flex p-ai-center p-jc-between">
+                        No total existem {{listaAdmPage ? listaAdmPage.length : 0 }} paginas.
+                    </div>
+                </ng-template>            
+            </p-table>
+        </div>        
+
+        <div [style]="mostrarEditar()">
+
+            <p-panel header="Detalhes da página" styleClass="p-mb-2">
+                <p-toast></p-toast>
+                <p-toolbar styleClass="mb-4">
+                    <ng-template pTemplate="left">
+                    </ng-template>
+                    <ng-template pTemplate="right">
+                        <div class="my-2">
+                            <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-secondary mr-2" (click)="hideDialog()"></button>
+                            <button pButton pRipple label="Limpar" icon="pi pi-star-o" class="p-button-primary mr-2" (click)="onClean()"></button>
+                            <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-success" (click)="onSave()"></button>        
+                        </div>
+                    </ng-template>
+                </p-toolbar>
+    
+                <div class="card p-fluid">
+                    <div class="field">
+                        <label for="url">Página:</label>
+                        <input type="text" pInputText id="url" [(ngModel)]="admPage.url" required 
+                            [ngClass]="{'ng-invalid ng-dirty' : submitted && !admPage.url}" />
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !admPage.url">A página é obrigatória.</small>
+                    </div>
+                    <div class="field">
+                        <label for="description">Descrição</label>
+                        <input type="text" pInputText id="description" [(ngModel)]="admPage.description" required
+                            [ngClass]="{'ng-invalid ng-dirty' : submitted && !admPage.description}" />
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !admPage.description">A descrição é obrigatória.</small>
+                    </div>
+                    <div class="field">
+                        <label for="pageProfiles">Perfil(s) da página:</label>
+            
+                        <p-pickList id="pageProfiles" 
+                            [source]="sourceProfiles" [target]="targetProfiles" sourceHeader="Disponível" targetHeader="Selecionada" [dragdrop]="true"
+                            [responsive]="true" [sourceStyle]="{'height':'30rem'}" [targetStyle]="{'height':'30rem'}" filterBy="description"
+                            sourceFilterPlaceholder="Pesquisar por descrição" targetFilterPlaceholder="Pesquisar por descrição">
+                            <ng-template let-profile pTemplate="item">
+                                <div class="profile-item">
+                                    <div>{{profile.description}}</div>
+                                </div>
+                            </ng-template>
+                        </p-pickList>
+                    </div>
+                </div>
+            </p-panel>              
+
+        </div>        
+
+        <p-dialog [(visible)]="deleteAdmPageDialog" header="Confirme" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="admPage">Tem certeza de que deseja excluir <b>{{admPage.description}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Não" (click)="deleteAdmPageDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Sim" (click)="confirmDelete()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteAdmPagesDialog" header="Confirme" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span>Tem certeza de que deseja excluir as páginas selecionados?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Não" (click)="deleteAdmPagesDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Sim" (click)="confirmDeleteSelected()"></button>
+            </ng-template>
+        </p-dialog>
+
+    </div>
+</div>

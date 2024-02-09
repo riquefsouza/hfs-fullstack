@@ -1,0 +1,53 @@
+[
+    {
+        "id": 1,
+        "administrator": true,
+        "description": "Administrador",
+        "general": false,
+        "admPages": [
+            {
+                "id": 1,
+                "description": "Categoria dos Parâmetros",
+                "url": "/admin/admParameterCategory"
+            },
+            {
+                "id": 2,
+                "description": "Parâmetros",
+                "url": "/admin/admParameter"
+            },
+            {
+                "id": 3,
+                "description": "Perfis",
+                "url": "/admin/admProfile"
+            },
+            {
+                "id": 4,
+                "description": "Páginas",
+                "url": "/admin/admPage"
+            },
+            {
+                "id": 5,
+                "description": "Menus",
+                "url": "/admin/admMenu"
+            },
+            {
+                "id": 6,
+                "description": "Funcionários",
+                "url": "/hfs/funcionario"
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "administrator": false,
+        "description": "Gestor",
+        "general": true,
+        "admPages": [
+            {
+                "id": 6,
+                "description": "Funcionários",
+                "url": "/hfs/funcionario"
+            }
+        ]
+    }
+]

@@ -1,0 +1,58 @@
+[
+    {
+        "id": 1,
+        "description": "Administrativo",
+        "order": 1,
+        "idPage": null,
+        "idMenuParent": null
+    },
+    {
+        "id": 2,
+        "description": "Categoria dos Parâmetros",
+        "order": 2,
+        "idPage": 1,
+        "idMenuParent": 1
+    },
+    {
+        "id": 3,
+        "description": "Parâmetros",
+        "order": 3,
+        "idPage": 2,
+        "idMenuParent": 1
+    },
+    {
+        "id": 4,
+        "description": "Perfis",
+        "order": 4,
+        "idPage": 3,
+        "idMenuParent": 1
+    },
+    {
+        "id": 5,
+        "description": "Páginas",
+        "order": 5,
+        "idPage": 4,
+        "idMenuParent": 1
+    },
+    {
+        "id": 6,
+        "description": "Menus",
+        "order": 6,
+        "idPage": 5,
+        "idMenuParent": 1
+    },
+    {
+        "id": 7,
+        "description": "Cadastros",
+        "order": 2,
+        "idPage": null,
+        "idMenuParent": null
+    },
+    {
+        "id": 8,
+        "description": "Funcionários",
+        "order": 1,
+        "idPage": 6,
+        "idMenuParent": 7
+    }
+]

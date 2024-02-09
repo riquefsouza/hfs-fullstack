@@ -1,0 +1,14 @@
+<div class="p-fluid formgrid grid">
+    <div class="field col-4 md-4">
+        <label for="cmbTypeReport">Escolha o tipo de relatório:</label>    
+        <p-dropdown id="cmbTypeReport" [options]="typeReport" [(ngModel)]="selectedTypeReport" [group]="true" 
+            (onChange)="typeReportChangedSource.next($event.value)"></p-dropdown>
+    </div>
+    <!--
+    <div class="field col-4 md-4">
+        <label for="forceDownload" style="margin: 4px;">Forçar download:</label>
+        <p-checkbox id="forceDownload" [(ngModel)]="selectedForceDownload" binary="true" inputId="forceDownload" 
+            (onChange)="forceDownloadChangedSource.next($event.checked)"></p-checkbox>    
+    </div>
+    -->
+</div>

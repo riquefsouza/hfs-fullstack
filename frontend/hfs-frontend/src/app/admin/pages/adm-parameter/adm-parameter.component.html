@@ -1,0 +1,147 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-panel header="Parâmetro de configuração" styleClass="p-mb-2">
+                <app-report-panel (typeReportChange)="onChangedTypeReport($event)" (forceDownloadChange)="onChangedForceDownload($event)"></app-report-panel>
+            </p-panel>            
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="Adicionar" icon="pi pi-plus" class="p-button-success mr-2" (click)="onInsert()"></button>
+                        <button pButton pRipple label="Excluir" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelected()" 
+                        [disabled]="!selectedAdmParameter || !selectedAdmParameter.length"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <button pButton pRipple label="Exportar" icon="pi pi-upload" class="p-button-help" (click)="onExport()"></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-menu #popupMenu [model]="itemsMenuLinha" [popup]="true"></p-menu>
+
+            <p-table #dt [value]="listaAdmParameter" [columns]="cols" responsiveLayout="scroll" [rows]="10" 
+                [globalFilterFields]="['code']" paginatorPosition="both"
+                [paginator]="true" [rowsPerPageOptions]="[10,30,50,100,150,200]" [showCurrentPageReport]="true" 
+                currentPageReportTemplate="Mostrando {first} até {last} de {totalRecords} entradas" 
+                [(selection)]="selectedAdmParameter" selectionMode="multiple" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Gerenciar parâmetros</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Procurar..."  class="w-full sm:w-auto"/>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>                        
+                        <th pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon></th>
+                        <th pSortableColumn="admParameterCategory.description">Categoria do parâmetro <p-sortIcon field="admParameterCategory.description"></p-sortIcon></th>
+                        <th pSortableColumn="code">Parâmetro <p-sortIcon field="code"></p-sortIcon></th>
+                        <th pSortableColumn="value">Valor <p-sortIcon field="value"></p-sortIcon></th>
+                        <th pSortableColumn="description">Descrição <p-sortIcon field="description"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-admParameter>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="admParameter"></p-tableCheckbox>
+                        </td>
+                        <td style="width:5%; min-width:5rem;"><span class="p-column-title">Id</span>
+                            {{admParameter.id}}
+                        </td>
+                        <td style="min-width:10rem;">
+                            <span class="p-column-title">Categoria do parâmetro</span>
+                            {{admParameter.admParameterCategory.description}}
+                        </td>
+                        <td style="min-width:5rem;">
+                            <span class="p-column-title">Parâmetro</span>
+                            {{admParameter.code}}
+                        </td>
+                        <td style="min-width:8rem;">
+                            <span class="p-column-title">Valor</span>
+                            {{admParameter.value}}
+                        </td>
+                        <td style="min-width:8rem;">
+                            <span class="p-column-title">Descrição</span>
+                            {{admParameter.description}}
+                        </td>
+                        <td style="width: 10px;">
+                            <div class="flex">                                
+                                <a *ngIf="itemsMenuLinha" (click)="toggleMenu(popupMenu, $event, admParameter)" style="cursor: pointer;">
+                                    <i class="pi pi-ellipsis-v"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="summary">
+                    <div class="p-d-flex p-ai-center p-jc-between">
+                        No total existem {{listaAdmParameter ? listaAdmParameter.length : 0 }} parâmetros.
+                    </div>
+                </ng-template>            
+            </p-table>
+        </div>
+
+        <p-dialog [(visible)]="admParameterDialog" [style]="{width: '650px'}" header="Detalhes do parâmetro" [modal]="true" styleClass="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="admParameterCategory">Categoria do Parâmetro:</label>
+                    <p-dropdown id="admParameterCategory" [(ngModel)]="admParameter.admParameterCategory"
+                        [options]="listaAdmParameterCategory" optionLabel="description"></p-dropdown>
+                </div>
+                <div class="field">
+                    <label for="code">Parâmetro:</label>
+                    <input type="text" pInputText id="code" [(ngModel)]="admParameter.code" required 
+                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !admParameter.code}" />
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !admParameter.code">O Parâmetro é obrigatório.</small>
+                </div>
+                <div class="field">
+                    <label for="value">Valor:</label>
+                    <textarea id="value" pInputTextarea [(ngModel)]="admParameter.value" required rows="5" cols="20"                    
+                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !admParameter.value}" ></textarea>
+                    <small class="ng-invalid ng-dirty" *ngIf="submitted && !admParameter.value">O Valor é obrigatório.</small>
+                </div>
+                <div class="field">
+                    <label for="description">Descrição</label>
+                    <textarea id="description" pInputTextarea [(ngModel)]="admParameter.description" required autofocus rows="3" cols="20"
+                    [ngClass]="{'ng-invalid ng-dirty' : submitted && !admParameter.description}"></textarea>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !admParameter.description">A descrição é obrigatória.</small>
+                </div>
+            </ng-template>
+        
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-text" (click)="onSave()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteAdmParameterDialog" header="Confirme" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="admParameter">Tem certeza de que deseja excluir <b>{{admParameter.description}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Não" (click)="deleteAdmParameterDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Sim" (click)="confirmDelete()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteAdmParametersDialog" header="Confirme" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span>Tem certeza de que deseja excluir os parâmetros selecionados?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Não" (click)="deleteAdmParametersDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Sim" (click)="confirmDeleteSelected()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

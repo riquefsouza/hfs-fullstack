@@ -1,0 +1,79 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+
+            <p-panel header="Menu" styleClass="mb-2">
+                <app-report-panel (typeReportChange)="onChangedTypeReport($event)" (forceDownloadChange)="onChangedForceDownload($event)"></app-report-panel>
+            </p-panel>
+
+            <p-toolbar styleClass="mb-2">
+                <ng-template pTemplate="left">
+                    <button pButton pRipple label="Adicionar" icon="pi pi-plus" class="p-button-success mr-2" (click)="onInsert()"></button>
+                    <button pButton pRipple label="Editar" icon="pi pi-pencil" class="p-button-warning mr-2" (click)="onEdit(selectedAdmMenu)"
+                        [disabled]="!selectedAdmMenu || !listaAdmMenu || !listaAdmMenu.length">
+                    </button>
+                    <button pButton pRipple label="Excluir" icon="pi pi-trash" class="p-button-danger mr-2" (click)="onDelete(selectedAdmMenu)"
+                        [disabled]="!selectedAdmMenu || !listaAdmMenu || !listaAdmMenu.length">
+                    </button>                    
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <button pButton type="button" label="Expandir todos"  class="mr-2" (click)="expandAll()"></button>
+                    <button pButton type="button" label="Recolher todos" class="mr-2" (click)="collapseAll()"></button>
+
+                    <button pButton pRipple label="Exportar" icon="pi pi-upload" class="p-button-help" (click)="onExport()"></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-tree [value]="listaNodeMenu" selectionMode="single" [(selection)]="selectedNodeMenu"
+                (onNodeSelect)="nodeSelect($event)" emptyMessage="Nenhum resultado encontrado">
+            </p-tree>
+        </div>
+        
+        <p-dialog [(visible)]="admMenuDialog" [style]="{width: '450px'}" header="Menu Detalhes" [modal]="true" styleClass="p-fluid">
+            <ng-template pTemplate="content">        
+                <div class="field">
+                    <label for="admPage">Página:</label>
+                    <p-dropdown id="admPage" [(ngModel)]="admMenu.admPage"
+                        [options]="listaAdmPage" optionLabel="description"></p-dropdown>                    
+                </div>
+                <div class="field">
+                    <label for="description">Nome do menu:</label>
+                    <input type="text" pInputText id="description" [(ngModel)]="admMenu.description" required
+                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !admMenu.description}" />
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !admMenu.description">O nome do menu é obrigatório.</small>
+                </div>
+                <div class="field">
+                    <label for="admMenuParent">Menu pai:</label>
+                    <p-dropdown id="admMenuParent" [(ngModel)]="admMenu.admMenuParent"
+                        [options]="listaAdmMenuParent" optionLabel="description"></p-dropdown>
+                </div>
+                <div class="field">
+                    <label for="order">Ordem:</label>
+                    <p-inputNumber id="order" [(ngModel)]="admMenu.order" required
+                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !admMenu.order}"></p-inputNumber>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !admMenu.order">A ordem é obrigatória.</small>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="onSave()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteAdmMenuDialog" header="Confirme" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="admMenu">Tem certeza de que deseja excluir <b>{{admMenu.description}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Não" (click)="deleteAdmMenuDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Sim" (click)="confirmDelete(selectedAdmMenu)"></button>
+            </ng-template>
+        </p-dialog>
+
+    </div>
+</div>
+

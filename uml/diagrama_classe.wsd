@@ -1,0 +1,16 @@
+@startuml diagrama_classe
+
+entity Parameter
+
+Parameter : long id 
+Parameter : string descricao
+Parameter : boolean ativo 
+Parameter : date data_criacao
+
+Parameter : create()
+Parameter : update()
+Parameter : activate()
+Parameter : deactivate()
+Parameter : delete()
+
+@enduml

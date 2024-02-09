@@ -1,0 +1,28 @@
+@startuml diagrama_distribuicao
+node "Navegador" as nav
+node "Servidor Web nginx" as nginx {
+component "Web Site" as site
+}
+node "Servidor de aplicação" as app {
+component "Frontend em Angular / typescript" as frontend
+}
+node "Servidor de autorização" as auth {
+component "keycloak" as key
+}
+node "Servidor de banco de dados MySQL" as ms {
+database "banco de dados keycloak" as bdkey
+}
+node "Servidor de recursos" as rec {
+component "Backend em Spring / java" as backend
+}
+node "Servidor de banco de dados PostgreSQL" as pg {
+database "banco de dados backend" as bdbackend
+}
+nav - nginx: acessa o servidor
+site -- frontend: redireciona para a aplicação
+frontend -- key: redireciona para autenticar
+key -- ms: acessa o banco de dados
+frontend - backend: acessa o backend
+backend -- key: redireciona para autorizar
+backend -- pg: acessa o banco de dados
+@enduml

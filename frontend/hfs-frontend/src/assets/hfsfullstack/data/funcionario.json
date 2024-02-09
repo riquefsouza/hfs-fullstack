@@ -1,0 +1,36 @@
+[
+    {
+        "id": 2640,
+        "nome": "JOSE SABA FILHO",
+        "cpf": 58047239872,
+        "email": "jose.saba@trt1.jus.br",
+        "telefone": "2235-0505",
+        "celular": "99983-0505",
+        "setor": "APOSENT",
+        "codCargo": 1724,
+        "cargo": "JUIZ TITULAR DE VARA DO TRABALHO",
+        "dataAdmissao": null,
+        "dataSaida": null,
+        "ativo": false,
+        "cpfFormatado": "580.472.398-72",
+        "dataAdmissaoFormatada": "16/11/1993",
+        "dataSaidaFormatada": ""
+    },
+    {
+        "id": 26557,
+        "nome": "JOSE SALES DA SILVA",
+        "cpf": 36806978720,
+        "email": "wssperduto@gmail.com",
+        "telefone": "3247-6124",
+        "celular": "97632-5368",
+        "setor": "APOSENT",
+        "codCargo": 15237,
+        "cargo": "TECNICO JUD - AREA ADMINISTRATIVA",
+        "dataAdmissao": null,
+        "dataSaida": null,
+        "ativo": false,
+        "cpfFormatado": "368.069.787-20",
+        "dataAdmissaoFormatada": "19/01/1976",
+        "dataSaidaFormatada": ""
+    }
+]

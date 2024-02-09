@@ -1,0 +1,8 @@
+{
+    "realm": "hfs-realm",
+    "auth-server-url": "http://localhost:8080",
+    "resource": "hfs-backend",
+    "credentials": {
+      "secret": "2e35bo7jZxJCRmKW0zWxLk68iU39eOYh"
+    }
+  }

@@ -1,0 +1,37 @@
+[
+    {
+        "id": 1,
+        "description": "Categoria dos Parâmetros",
+        "url": "/admin/admParameterCategory"
+    },
+    {
+        "id": 2,
+        "description": "Parâmetros",
+        "url": "/admin/admParameter"
+    },
+    {
+        "id": 3,
+        "description": "Perfis",
+        "url": "/admin/admProfile"
+    },
+    {
+        "id": 4,
+        "description": "Páginas",
+        "url": "/admin/admPage"
+    },
+    {
+        "id": 5,
+        "description": "Menus",
+        "url": "/admin/admMenu"
+    },
+    {
+        "id": 6,
+        "description": "Funcionários",
+        "url": "/hfs/funcionario"
+    },
+    {
+        "id": 7,
+        "description": "ALTERADA PAGINA A SER CRIADA",
+        "url": "ALTERADA PAGINA DE TESTE"
+    }
+]

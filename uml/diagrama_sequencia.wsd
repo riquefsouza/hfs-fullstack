@@ -1,0 +1,20 @@
+@startuml diagrama_sequencia
+actor "Usuário"
+participant "Navegador" as UA
+participant "Servidor de autorização (Keycloak)" as AS
+participant "Aplicativo cliente (Frontend em Angular)" as CA
+participant "Servidor de recursos (Backend em Spring)" as RS
+
+"Usuário" -> UA: Acessa a aplicação do cliente
+UA -> CA: Redireciona para a URL de autorização
+CA -> AS: Requisita uma autorização de acesso
+AS -> "Usuário": Exibe a tela de login
+"Usuário" -> AS: Fornece as credenciais de autenticação
+AS -> "Usuário": Exibe a tela de consentimento de acesso
+"Usuário" -> AS: Concede o consentimento
+AS -> CA: Retorna um código de autorização
+CA -> AS: Requisita um token de acesso, fornecendo o código de autorização
+AS -> CA: Retorna um token de acesso
+CA -> RS: Requisita um recurso protegido, fornecendo o token de acesso
+RS --> CA: Retorna o recurso protegido
+@enduml

@@ -1,0 +1,237 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6" [style]="mostrarListar()">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="Adicionar" icon="pi pi-plus" class="p-button-success mr-2" (click)="onInsert()"></button>
+                        <button pButton pRipple label="Excluir" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelected()" 
+                        [disabled]="!selectedFuncionario || !selectedFuncionario.length"></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="listaFuncionario" [columns]="cols" responsiveLayout="scroll" [rows]="10" 
+                [globalFilterFields]="['nome']" paginatorPosition="top"
+                [paginator]="true" [rowsPerPageOptions]="[10,20,30,100,200,500]" [showCurrentPageReport]="true" 
+                currentPageReportTemplate="Mostrando {first} até {last} de {totalRecords} entradas" 
+                [(selection)]="selectedFuncionario" selectionMode="multiple" [rowHover]="true" dataKey="id"                
+                (selectionChange)="onSelectionChange($event)" [selectAll]="selectAll" (selectAllChange)="onSelectAllChange($event)"                
+                [lazy]="true" (onLazyLoad)="loadFuncionarios($event)" [loading]="loading" [totalRecords]="totalRecords">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Funcionários</h5>
+
+                        <div class="flex">
+                            <button type="button" pButton pRipple icon="pi pi-file" (click)="dt.exportCSV()" class="mr-2" pTooltip="CSV" tooltipPosition="bottom"></button>
+                            <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()" class="p-button-success mr-2" pTooltip="XLS" tooltipPosition="bottom"></button>
+                            <button type="button" pButton pRipple icon="pi pi-file-pdf" (click)="exportPdf()" class="p-button-warning mr-2" pTooltip="PDF" tooltipPosition="bottom"></button>
+                            <button type="button" pButton pRipple icon="pi pi-filter" (click)="dt.exportCSV({ selectionOnly: true })" class="p-button-info mr-2" pTooltip="Somente Seleção" tooltipPosition="bottom"></button>
+                        </div>                        
+
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                        </th>                        
+                        <th></th>
+                        <th pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon></th>
+                        <th pSortableColumn="nome">Nome <p-sortIcon field="nome"></p-sortIcon></th>
+                        <th pSortableColumn="cpf">Cpf <p-sortIcon field="cpfFormatado"></p-sortIcon></th>
+                        <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                        <th pSortableColumn="telefone">Telefone <p-sortIcon field="telefone"></p-sortIcon></th>
+                        <th pSortableColumn="celular">Celular <p-sortIcon field="celular"></p-sortIcon></th>
+                        <th pSortableColumn="setor">Setor <p-sortIcon field="setor"></p-sortIcon></th>
+                        <th pSortableColumn="codCargo">CodCargo <p-sortIcon field="codCargo"></p-sortIcon></th>
+                        <th pSortableColumn="cargo">Cargo <p-sortIcon field="cargo"></p-sortIcon></th>
+                        <th pSortableColumn="dataAdmissao">Data Admissão <p-sortIcon field="dataAdmissaoFormatada"></p-sortIcon></th>
+                        <th pSortableColumn="dataSaida">Data Saída <p-sortIcon field="dataSaidaFormatada"></p-sortIcon></th>
+                        <th pSortableColumn="ativo">Ativo <p-sortIcon field="ativo"></p-sortIcon></th>                        
+                    </tr>
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>                        
+                        <th></th>
+                        <th></th>
+                        <th><p-columnFilter type="text" field="nome"></p-columnFilter></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-funcionario>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="funcionario"></p-tableCheckbox>
+                        </td>
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="onEdit(funcionario)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="onDelete(funcionario)"></button>
+                            </div>
+                        </td>
+                        <td style="width:5%; min-width:5rem;"><span class="p-column-title">Id</span>
+                            {{funcionario.id}}
+                        </td>
+                        <td style="min-width:20rem;">
+                            <span class="p-column-title">Nome</span>
+                            {{funcionario.nome}}
+                        </td>
+                        <td style="min-width:10rem;">
+                            <span class="p-column-title">Cpf</span>
+                            {{funcionario.cpfFormatado}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Email</span>
+                            {{funcionario.email}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Telefone</span>
+                            {{funcionario.telefone}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Celular</span>
+                            {{funcionario.celular}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Setor</span>
+                            {{funcionario.setor}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">CodCargo</span>
+                            {{funcionario.codCargo}}
+                        </td>
+                        <td style="min-width:20rem;">
+                            <span class="p-column-title">Cargo</span>
+                            {{funcionario.cargo}}
+                        </td>
+                        <td style="min-width:12rem;">
+                            <span class="p-column-title">Data Admissão</span>
+                            {{funcionario.dataAdmissaoFormatada}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Data Saída</span>
+                            {{funcionario.dataSaidaFormatada}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Ativo</span>
+                            {{funcionario.ativo}}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <div [style]="mostrarEditar()">
+
+            <p-panel header="Detalhes do funcionário" styleClass="p-mb-2">
+                <p-toast></p-toast>
+                <p-toolbar styleClass="mb-4">
+                    <ng-template pTemplate="left">
+                    </ng-template>
+                    <ng-template pTemplate="right">
+                        <div class="my-2">
+                            <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-secondary mr-2" (click)="hideDialog()"></button>
+                            <button pButton pRipple label="Limpar" icon="pi pi-star-o" class="p-button-primary mr-2" (click)="onClean()"></button>
+                            <button pButton pRipple label="Salvar" icon="pi pi-check" class="p-button-success" (click)="onSave()"></button>        
+                        </div>
+                    </ng-template>
+                </p-toolbar>
+    
+                <div class="card p-fluid">
+                    <div class="field">
+                        <label for="nome">Nome</label>
+                        <input type="text" pInputText id="nome" [(ngModel)]="funcionario.nome" required autofocus 
+                            [ngClass]="{'ng-invalid ng-dirty' : submitted && !funcionario.nome}" />
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !funcionario.nome">Nome é obrigatório.</small>
+                    </div>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input type="text" pInputText id="email" [(ngModel)]="funcionario.email" />
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="cpf">cpf</label>
+                            <p-inputMask mask="999.999.999-99" id="cpf" [(ngModel)]="funcionario.cpfFormatado" required
+                                [ngClass]="{'ng-invalid ng-dirty' : submitted && !funcionario.cpfFormatado}"></p-inputMask>
+                            <small class="ng-dirty ng-invalid" *ngIf="submitted && !funcionario.cpfFormatado">CPF é obrigatório.</small>    
+                        </div>
+                        <div class="field col">
+                            <label for="telefone">Telefone</label>
+                            <input type="text" pInputText id="telefone" [(ngModel)]="funcionario.telefone" />
+                        </div>
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="celular">Celular</label>
+                            <input type="text" pInputText id="celular" [(ngModel)]="funcionario.celular" />
+                        </div>
+                        <div class="field col">
+                            <label for="setor">Setor</label>
+                            <input type="text" pInputText id="setor" [(ngModel)]="funcionario.setor" />
+                        </div>
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="codCargo">CodCargo</label>
+                            <p-inputNumber mode="decimal" [useGrouping]="false" id="codCargo" [(ngModel)]="funcionario.codCargo"></p-inputNumber>
+                        </div>
+                        <div class="field col">
+                            <label for="cargo">Cargo</label>
+                            <input type="text" pInputText id="cargo" [(ngModel)]="funcionario.cargo" />
+                        </div>
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="dataAdmissao">Data Admissão</label>
+                            <p-calendar id="dataAdmissao" [(ngModel)]="funcionario.dataAdmissaoFormatada" [showIcon]="true" 
+                                dateFormat="dd/mm/yy" dataType="string"></p-calendar>
+                        </div>
+                        <div class="field col">
+                            <label for="dataSaida">Data Saída</label>
+                            <p-calendar id="dataSaida" [(ngModel)]="funcionario.dataSaidaFormatada" [showIcon]="true" 
+                                dateFormat="dd/mm/yy" dataType="string"></p-calendar>
+                        </div>
+                    </div>    
+                    <div class="flex align-items-center gap-1">                        
+                        <p-checkbox value="Ativo" inputId="ativo" [binary]="true" [(ngModel)]="funcionario.ativo" />
+                        <label for="ativo">Ativo</label>
+                    </div>       
+                </div>
+            </p-panel>              
+
+        </div>
+  
+        <p-dialog [(visible)]="deleteFuncionarioDialog" header="Confirme" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="funcionario">Tem certeza de que deseja excluir <b>{{funcionario.nome}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Não" (click)="deleteFuncionarioDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Sim" (click)="confirmDelete()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteFuncionariosDialog" header="Confirme" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span>Tem certeza de que deseja excluir os funcionários selecionados?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Não" (click)="deleteFuncionariosDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Sim" (click)="confirmDeleteSelected()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

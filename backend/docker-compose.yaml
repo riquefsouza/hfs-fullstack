@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+
+  backend:
+    build: .
+    container_name: backend
+    ports:
+      - 8000:8000
+    environment: 
+      - APP_NAME=hfs-backend
+      - KEYCLOAK_HOST=http://keycloak:8080
+      - KEYCLOAK_REALM=hfs-realm
+      - SPRING_PROFILES_ACTIVE=development
+      - DATABASE_POSTGRESQL_USERNAME=postgres
+      - DATABASE_POSTGRESQL_PASSWORD=abcd1234
+      - DATABASE_POSTGRESQL_URL=postgres:5432
+    depends_on:
+      - keycloak
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.1
+    container_name: backend_keycloak
+    command: start-dev
+    ports:
+      - 8080:8080
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=abcd1234
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:latest
+    container_name: backend_postgresql
+    ports:
+      - 5434:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=abcd1234
+      - POSTGRES_DB=hfsfullstack
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ../infra/postgres:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres:

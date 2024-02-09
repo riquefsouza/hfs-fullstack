@@ -1,0 +1,118 @@
+version: "3.8"
+
+services:
+    
+  frontend:
+    build: ./frontend
+    container_name: hfs_frontend
+    ports:
+      - 80:80
+    environment: 
+      - KEYCLOAK_HOST=http://keycloak:8080
+      - KEYCLOAK_REALM=hfs-realm
+      - KEYCLOAK_CLIENT=hfs-frontend
+      - BACKEND_HOST=http://backend:8000
+    depends_on:
+      - keycloak
+      - backend
+
+  sonarqube:
+    image: sonarqube:10.3.0-community
+    container_name: hfs_sonarqube
+    ports:
+      - 9000:9000
+    environment:
+      SONAR_WEB_HOST: 0.0.0.0
+      SONAR_WEB_PORT: 9000
+      SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonar
+      SONAR_JDBC_USERNAME: postgres
+      SONAR_JDBC_PASSWORD: abcd1234
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:v2.45.3
+    container_name: hfs_prometheus
+    ports:
+      - 5000:9090
+    volumes: 
+      - prometheus:/prometheus 
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:10.3.1
+    container_name: hfs_grafana
+    ports:
+      - 3000:3000
+    environment: 
+      - PROMETHEUS_URL=http://prometheus:9090
+      - DS_PROMETHEUS=prometheus
+    volumes:
+      - ./infra/grafana/config.ini:/etc/grafana/config.ini
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+
+  backend:
+    build: ./backend
+    container_name: hfs_backend
+    ports:
+      - 8000:8000
+    environment: 
+      - APP_NAME=hfs-backend
+      - KEYCLOAK_HOST=http://keycloak:8080
+      - KEYCLOAK_REALM=hfs-realm
+      - SPRING_PROFILES_ACTIVE=development
+      - DATABASE_POSTGRESQL_USERNAME=postgres
+      - DATABASE_POSTGRESQL_PASSWORD=abcd1234
+      - DATABASE_POSTGRESQL_URL=postgres:5432
+    depends_on:
+      - keycloak
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.1
+    container_name: hfs_keycloak
+    command: start-dev
+    ports:
+      - 8080:8080
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=abcd1234
+    depends_on:
+      postgres:
+        condition: service_healthy
+    
+  postgres:
+    image: postgres:latest
+    container_name: hfs_postgresql
+    ports:
+      - 5434:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=abcd1234
+      - POSTGRES_DB=hfsfullstack
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./infra/postgres:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  prometheus:
+  postgres:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:

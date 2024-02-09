@@ -1,0 +1,9 @@
+@startuml diagrama_casodeuso
+
+:Admin: -> (Criar parametro)
+:Admin: -> (Atualizar parametro)
+:Admin: -> (Excluir parametro)
+:Admin: -> (Consultar um parametro)
+:Admin: -> (Consultar parametro)
+
+@enduml
