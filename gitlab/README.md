@@ -19,3 +19,21 @@ password = 5iveL!fe
 mkdir teste
 cd teste
 git clone http://localhost:8929/disad/hfsfullstack.git
+
+
+# Como adicionar no git
+
+git config --global user.name "riquefsouza"
+git config --global user.email riquefsouza@gmail.com
+
+git config --list
+
+gh repo clone riquefsouza/hfs-fullstack
+gh auth login
+ 
+cd ~/mygithub/hfs-fullstack
+git add .
+git commit -m "first time"
+git commit -m "first time"
+git push -u origin main
+
