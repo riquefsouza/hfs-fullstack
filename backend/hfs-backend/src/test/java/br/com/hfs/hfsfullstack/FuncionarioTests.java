@@ -46,19 +46,23 @@ public class FuncionarioTests extends BaseApplicationTest {
 	public static void onBeforeClass() {
 		dados = 
 		"""
-            {
-                "nome" : "JOSE SABA FILHO",
-                "cpf" : 58047239872,
-                "email" : "jose.saba@trt1.jus.br",
-                "telefone" : "2235-0505",
-				"celular" : "99983-0505",
-				"setor" : "APOSENT",
-				"codCargo" : 1724,
-				"cargo" : "JUIZ TITULAR DE VARA DO TRABALHO",
-				"dataAdmissao" : "1993-11-16T03:00:00.000Z",
-				"dataSaida" : null,		
-                "ativo" : true
-            }
+			{
+				"id": 93203,
+				"nome": "HENRIQUE FIGUEIREDO DE SOUZA",
+				"cpf": 94216074065,
+				"email": "temp@temp.com.br",
+				"telefone": "3204-7825",
+				"celular": "29264-1934",
+				"setor": "TEMP",
+				"codCargo": 15426,
+				"cargo": "ANALISTA TECNO INFORMACAO",
+				"dataAdmissao": "2014-03-17",
+				"dataSaida": null,
+				"ativo": true,
+				"cpfFormatado": "942.160.740-65",
+				"dataAdmissaoFormatada": "17/03/2014",
+				"dataSaidaFormatada": ""
+			}
         """;
 	}
 
@@ -93,7 +97,7 @@ public class FuncionarioTests extends BaseApplicationTest {
 			.andReturn();
 
 		String stringResult = result.getResponse().getContentAsString();
-		boolean doesContain = stringResult.contains("jose.saba@trt1.jus.br");
+		boolean doesContain = stringResult.contains("temp@temp.com.br");
 		assertTrue(doesContain);	
 	}
 
@@ -102,13 +106,13 @@ public class FuncionarioTests extends BaseApplicationTest {
 	@Order(4)
 	void getFuncionario() throws Exception {
 		MvcResult result = this.mvc.perform(get(URL)
-			.param("nome", "JOSE")
+			.param("nome", "HENRIQUE")
 			.with(bearerTokenFor(username)))
 			.andExpect(status().isOk())
 			.andReturn();
 
 		String resultado = result.getResponse().getContentAsString();
-		boolean contem = resultado.contains("JOSE SABA FILHO");
+		boolean contem = resultado.contains("HENRIQUE FIGUEIREDO DE SOUZA");
 
 		if (contem) {
 			JsonArray convertedObject = new Gson().fromJson(resultado, JsonArray.class);
@@ -130,17 +134,17 @@ public class FuncionarioTests extends BaseApplicationTest {
                 String.format("""
                 {
                     "id" : %s,
-                    "nome" : "JOSE SABA ALTERADO FILHO",
-                    "cpf" : 58047239872,
-                    "email" : "jose.saba@trt1.jus.br",
-                    "telefone" : "2235-0505",
-					"celular" : "99983-0505",
-					"setor" : "APOSENT",
-					"codCargo" : 1724,
-					"cargo" : "JUIZ TITULAR DE VARA DO TRABALHO",
-					"dataAdmissao" : "1993-11-16T03:00:00.000Z",
-					"dataSaida" : null,			
-                    "ativo" : false
+					"nome": "HENRIQUE ALTERADO FIGUEIREDO DE SOUZA",
+					"cpf": 94216074065,
+					"email": "temp@temp.com.br",
+					"telefone": "3204-7825",
+					"celular": "29264-1934",
+					"setor": "TEMP",
+					"codCargo": 15426,
+					"cargo": "ANALISTA TECNO INFORMACAO",
+					"dataAdmissao": "2014-03-17",
+					"dataSaida": null,
+					"ativo": true,
                 }                    
             """, idUpdate)
             ))

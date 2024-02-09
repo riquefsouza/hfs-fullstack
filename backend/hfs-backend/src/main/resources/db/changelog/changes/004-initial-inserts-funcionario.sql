@@ -1,2 +1,2 @@
 INSERT INTO public.vw_adm_funcionario (cod_funcionario,nome,cpf,email,telefone,celular,setor,cod_cargo,cargo,data_admissao,data_saida,ativo) 
-VALUES (93203,'HENRIQUE FIGUEIREDO DE SOUZA',2685748474,'henrique.souza@trt1.jus.br','3204-7825','98264-2319','DISAD',15426,'ANALISTA JUD - AESP(TECNO INFORMAÇÃO)','2014-03-17 00:00:00',NULL,'S');
+VALUES (93203,'HENRIQUE FIGUEIREDO DE SOUZA',94216074065,'temp@temp.com.br','3204-7825','29264-1934','TEMP',15426,'ANALISTA TECNO INFORMACAO','2014-03-17 00:00:00',NULL,'S');

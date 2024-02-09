@@ -11,7 +11,7 @@ describe('FuncionarioService', () => {
     let httpTestingController: HttpTestingController;
     let authService: AuthService;
     let service: FuncionarioService;
-    let dadosLength: number = 2;
+    let dadosLength: number = 1;
     let dados: Funcionario[] = jsonDADOS;
 
     beforeEach(async () => {
@@ -53,7 +53,7 @@ describe('FuncionarioService', () => {
         }
 
         //when
-        const index: number = service.findIndexById(response, 2640);
+        const index: number = service.findIndexById(response, 93203);
         
         //then
         expect(response.length).toEqual(dadosLength);
@@ -67,10 +67,10 @@ describe('FuncionarioService', () => {
             response.push(dados[i]);
         }
 
-        const nome: string = 'JOSE SABA FILHO';
+        const nome: string = 'HENRIQUE FIGUEIREDO DE SOUZA';
         const page: number = 0;
         const size: number = response.length;
-        const sortField: string = 'description';
+        const sortField: string = 'nome';
         const direction: string = 'desc';
 
         //when
@@ -80,7 +80,7 @@ describe('FuncionarioService', () => {
         //then    
         const req = httpTestingController.expectOne({
             method: 'GET',
-            url: `${service.PATH}/paged?nome=JOSE%20SABA%20FILHO&page=${page}&size=${size}&sort=${sortField},${direction}`
+            url: `${service.PATH}/paged?nome=HENRIQUE%20FIGUEIREDO%20DE%20SOUZA&page=${page}&size=${size}&sort=${sortField},${direction}`
         });
 
         expect(req.request.method).toEqual('GET');
@@ -152,7 +152,7 @@ describe('FuncionarioService', () => {
 
         const req = httpTestingController.expectOne({
             method: 'PUT',
-            url: `${service.PATH}/2640`
+            url: `${service.PATH}/93203`
         });
 
         expect(req.request.method).toEqual('PUT');
@@ -165,11 +165,11 @@ describe('FuncionarioService', () => {
 
     it('should delete a Funcionario', () => {
             
-        service.delete(2640).then(res => expect(res).toBeDefined());
+        service.delete(93203).then(res => expect(res).toBeDefined());
 
         const req = httpTestingController.expectOne({
             method: 'DELETE',
-            url: `${service.PATH}/2640`
+            url: `${service.PATH}/93203`
         });
 
         expect(req.request.method).toEqual('DELETE');
