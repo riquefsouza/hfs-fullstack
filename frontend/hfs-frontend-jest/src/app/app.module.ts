@@ -12,6 +12,7 @@ import { HttpErrorInterceptor } from './base/interceptors/http-error.interceptor
 import { MessageService } from 'primeng/api';
 import { AuthService } from './base/services/auth.service';
 import { DefaultInterceptor } from './base/interceptors/default.interceptor';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @NgModule({
     declarations: [
@@ -23,13 +24,17 @@ import { DefaultInterceptor } from './base/interceptors/default.interceptor';
         BrowserAnimationsModule,
         AppRoutingModule,
         AppLayoutModule,
-        KeycloakAngularModule
+        KeycloakAngularModule,
+        ProgressSpinnerModule
     ],
     providers: [
-        { provide: HTTP_INTERCEPTORS, useClass: DefaultInterceptor, multi: true },                
+        { 
+            provide: HTTP_INTERCEPTORS, 
+            useClass: DefaultInterceptor, 
+            multi: true,
+        }, 
         MessageService,
-        AuthService,
-        { provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptor, multi: true },
+        AuthService,        
         {
             provide: APP_INITIALIZER,
             useFactory: initializeKeycloak,
@@ -39,6 +44,7 @@ import { DefaultInterceptor } from './base/interceptors/default.interceptor';
         { provide: LOCALE_ID, useValue: "pt-BR" },
         { provide: DEFAULT_CURRENCY_CODE, useValue: "BRL", },
         { provide: APP_BASE_HREF, useValue: "/hfs-fullstack" },
+        { provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptor, multi: true },
         { provide: LocationStrategy, useClass: HashLocationStrategy }
     ],
     bootstrap: [AppComponent]

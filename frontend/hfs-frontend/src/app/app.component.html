@@ -1,1 +1,5 @@
+<div class="overlay" [style.height.px]="height" [style.width.px]="width"
+    *ngIf="loaderService.isLoading | async">
+    <p-progressSpinner class="plzWait"></p-progressSpinner>
+</div>
 <router-outlet></router-outlet>

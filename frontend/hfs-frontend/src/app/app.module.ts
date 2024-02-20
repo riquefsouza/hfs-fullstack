@@ -12,6 +12,7 @@ import { HttpErrorInterceptor } from './base/interceptors/http-error.interceptor
 import { MessageService } from 'primeng/api';
 import { AuthService } from './base/services/auth.service';
 import { DefaultInterceptor } from './base/interceptors/default.interceptor';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @NgModule({
     declarations: [
@@ -23,7 +24,8 @@ import { DefaultInterceptor } from './base/interceptors/default.interceptor';
         BrowserAnimationsModule,
         AppRoutingModule,
         AppLayoutModule,
-        KeycloakAngularModule
+        KeycloakAngularModule,
+        ProgressSpinnerModule
     ],
     providers: [
         {

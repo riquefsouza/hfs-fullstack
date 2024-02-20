@@ -1,0 +1,19 @@
+[
+    {
+        "id": 93203,
+        "nome": "HENRIQUE FIGUEIREDO DE SOUZA",
+        "cpf": 94216074065,
+        "email": "temp@temp.com.br",
+        "telefone": "3204-7825",
+        "celular": "29264-1934",
+        "setor": "TEMP",
+        "codCargo": 15426,
+        "cargo": "ANALISTA TECNO INFORMACAO",
+        "dataAdmissao": "2014-03-17",
+        "dataSaida": null,
+        "ativo": true,
+        "cpfFormatado": "942.160.740-65",
+        "dataAdmissaoFormatada": "17/03/2014",
+        "dataSaidaFormatada": ""
+    }
+]

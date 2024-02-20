@@ -39,7 +39,9 @@ export class DefaultInterceptor implements HttpInterceptor {
 
     return next.handle(authReq).pipe(
       finalize(() => {
+        
         this.countRequests--;
+
         if (this.countRequests == 0) {
 
           this.loaderService.isLoading.next(false);
