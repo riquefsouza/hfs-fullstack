@@ -20,7 +20,7 @@
             </p-toolbar>
 
             <p-table #dt [value]="listaAdmParameterCategory" [columns]="cols" responsiveLayout="scroll" [rows]="10" 
-                [globalFilterFields]="['description']" paginatorPosition="both"
+                [globalFilterFields]="['description']" paginatorPosition="both" emptyMessage="Nenhum registro encontrado."
                 [paginator]="true" [rowsPerPageOptions]="[10,30,50,100,150,200]" [showCurrentPageReport]="true" 
                 currentPageReportTemplate="Mostrando {first} até {last} de {totalRecords} entradas" 
                 [(selection)]="selectedAdmParameterCategories" selectionMode="multiple" [rowHover]="true" dataKey="id">

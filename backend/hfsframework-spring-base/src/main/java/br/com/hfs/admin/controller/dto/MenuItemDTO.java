@@ -18,6 +18,9 @@ public class MenuItemDTO implements Serializable, Comparable<MenuItemDTO> {
 	private String routerLink;
 
 	@JsonInclude(Include.NON_NULL)
+	private String to;
+
+	@JsonInclude(Include.NON_NULL)
 	private List<MenuItemDTO> items;
 
 	public MenuItemDTO() {
@@ -29,18 +32,21 @@ public class MenuItemDTO implements Serializable, Comparable<MenuItemDTO> {
 		super();
 		this.label = label;
 		this.routerLink = url;
+		this.to = url;
 	}
 	
 	public MenuItemDTO(String label, String url, List<MenuItemDTO> items) {
 		super();
 		this.label = label;
 		this.routerLink = url;
+		this.to = url;
 		this.items = items;
 	}
 
 	public void clean() {
 		this.label = "";
 		this.routerLink = "";
+		this.to = "";
 		this.items.clear();
 	}
 
@@ -58,6 +64,14 @@ public class MenuItemDTO implements Serializable, Comparable<MenuItemDTO> {
 
 	public void setRouterLink(String routerLink) {
 		this.routerLink = routerLink;
+	}
+
+	public String getTo() {
+		return to;
+	}
+
+	public void setTo(String to) {
+		this.to = to;
 	}
 
 	public List<MenuItemDTO> getItems() {

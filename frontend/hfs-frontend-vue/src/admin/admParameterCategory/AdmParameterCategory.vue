@@ -153,7 +153,7 @@ export default {
     <div class="grid">
         <div class="col-12">
             <div class="card px-6 py-6">
-                <Toast />
+                <!-- <Toast /> -->
                 <Panel header="Categoria de parâmetro de configuração" class="p-mb-2">
                     <ReportPanel @changeTypeReport="onTypeReportChange" @changeForceDownload="onForceDownloadChange"></ReportPanel>
                 </Panel>                
@@ -180,7 +180,7 @@ export default {
                     :rows="10"
                     :filters="filters"
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    :rowsPerPageOptions="[5, 10, 25]"
+                    :rowsPerPageOptions="[10,30,50,100,150,200]" emptyMessage="Nenhum registro encontrado."
                     currentPageReportTemplate="Mostrando {first} até {last} de {totalRecords} entradas"
                     responsiveLayout="scroll"
                 >
@@ -201,10 +201,16 @@ export default {
                             {{ slotProps.data.id }}
                         </template>
                     </Column>
-                    <Column field="description" header="Descrição" :sortable="true" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="description" header="Descrição" :sortable="true" headerStyle="min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Descrição</span>
                             {{ slotProps.data.description }}
+                        </template>
+                    </Column>
+                    <Column field="description" header="Ordem" :sortable="true" headerStyle="width:14%; min-width:8rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Ordem</span>
+                            {{ slotProps.data.order }}
                         </template>
                     </Column>
                     <Column headerStyle="min-width:10rem;">
@@ -227,8 +233,8 @@ export default {
                         <InputNumber id="quantity" v-model="admParameterCategory.order" integeronly locale="pt-BR" />
                     </div>
                     <template #footer>
-                        <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
-                        <Button label="Save" icon="pi pi-check" class="p-button-text" @click="onSave" />
+                        <Button label="Cancelar" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
+                        <Button label="Salvar" icon="pi pi-check" class="p-button-text" @click="onSave" />
                     </template>
                 </Dialog>
 

@@ -1,7 +1,11 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-import { initializeKeycloak } from './base/keycloak/KeycloakInit';
+
+import KeycloakService from "./base/services/KeycloakService";
+import { UserAuthenticated } from "./base/models/UserAuthenticated";
+import AdmProfileService from "./admin/service/AdmProfileService";
+import { MenuItemDTO } from "./base/models/MenuItemDTO";
 
 import PrimeVue from 'primevue/config';
 import AutoComplete from 'primevue/autocomplete';
@@ -100,7 +104,7 @@ import TreeSelect from 'primevue/treeselect';
 import TreeTable from 'primevue/treetable';
 import TriStateCheckbox from 'primevue/tristatecheckbox';
 import VirtualScroller from 'primevue/virtualscroller';
-
+import ReportPanel from './base/components/ReportPanel.vue';
 import '@/assets/styles.scss';
 
 const app = createApp(App);
@@ -206,6 +210,35 @@ app.component('TreeTable', TreeTable);
 app.component('TriStateCheckbox', TriStateCheckbox);
 app.component('VirtualScroller', VirtualScroller);
 
-app.mount('#app'); 
+app.component('ReportPanel', ReportPanel);
 
-initializeKeycloak();
+const keycloakService: KeycloakService = new KeycloakService();
+
+keycloakService.init().then(async (authenticated: boolean) => {
+
+    //console.log(`User is ${authenticated ? 'authenticated' : 'NOT authenticated'}`);
+
+    if (!authenticated) {
+        await keycloakService.login({
+            redirectUri: window.location.origin
+        });
+        // window.location.reload();
+    } else {
+        keycloakService.loadUserAuthenticated().then((user: UserAuthenticated) => {
+            if (user && user.roles && user.roles.length > 0) {
+                const admProfileService = new AdmProfileService();
+
+                admProfileService.mountMenu(user.roles).then((menus: MenuItemDTO[]) => {
+                    keycloakService.setMenus(menus);
+
+                    app.mount('#app');
+                });
+            }            
+        });
+    }
+
+}).catch(error => {
+    console.error('Failed to initialize keycloakService:', error);
+});
+
+export default keycloakService;

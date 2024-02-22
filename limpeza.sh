@@ -21,3 +21,16 @@ cd ../../
 cd frontend/hfs-frontend-jest
 rm -r .angular/
 rm -r node_modules/
+
+cd ../../
+cd frontend/hfs-frontend-react-next
+rm -r .next/
+rm -r node_modules/
+
+cd ../../
+cd frontend/hfs-frontend-react
+rm -r node_modules/
+
+cd ../../
+cd frontend/hfs-frontend-vue
+rm -r node_modules/

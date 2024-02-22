@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useLayout } from '../layout/composables/layout';
 import { useRouter } from 'vue-router';
-import keycloakService from '../base/keycloak/KeycloakInit';
+import keycloakService from '@/main.ts';
 
 const { layoutConfig, onMenuToggle } = useLayout();
 
@@ -26,8 +26,8 @@ const onTopBarMenuButton = () => {
     topbarMenuActive.value = !topbarMenuActive.value;
 };
 
-const logout = () => {
-    keycloakService.logout();
+const logout = async () => {
+    await keycloakService.logout();
 };
 
 const onConfigClick = () => {

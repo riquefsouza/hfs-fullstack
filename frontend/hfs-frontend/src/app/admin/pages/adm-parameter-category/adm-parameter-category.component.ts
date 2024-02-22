@@ -47,7 +47,7 @@ export class AdmParameterCategoryComponent implements OnInit {
       { field: 'id', header: 'Id' },
       { field: 'description', header: 'Descrição' },
       { field: 'order', header: 'Ordem' }
-  ];
+    ];
 
   }
 

@@ -1,8 +1,5 @@
 import axios from 'axios'
-import { TokenStorageService } from '../services/TokenStorageService';
-import keycloakService from '../keycloak/KeycloakInit';
-
-const tokenStorage = new TokenStorageService();
+import keycloakService from '../../main.ts';
 
 axios.interceptors.request.use(
     config => {
@@ -10,7 +7,7 @@ axios.interceptors.request.use(
         config.headers['Content-Type'] = 'application/json';
         
         if(keycloakService.isLoggedIn()) {
-            config.headers['Authorization'] = 'Bearer ' + tokenStorage.getToken();
+            config.headers['Authorization'] = 'Bearer ' + keycloakService.getToken();
         }
         
         return config

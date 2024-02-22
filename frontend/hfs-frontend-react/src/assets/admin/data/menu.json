@@ -1,0 +1,36 @@
+[
+    {
+        "label": "Cadastros",
+        "items": [
+            {
+                "label": "Funcionários",
+                "routerLink": "/hfs/funcionario"
+            }
+        ]
+    },
+    {
+        "label": "Administrativo",
+        "items": [
+            {
+                "label": "Categoria dos Parâmetros",
+                "routerLink": "/admin/admParameterCategory"
+            },
+            {
+                "label": "Parâmetros",
+                "routerLink": "/admin/admParameter"
+            },
+            {
+                "label": "Perfis",
+                "routerLink": "/admin/admProfile"
+            },
+            {
+                "label": "Páginas",
+                "routerLink": "/admin/admPage"
+            },
+            {
+                "label": "Menus",
+                "routerLink": "/admin/admMenu"
+            }
+        ]
+    }
+]

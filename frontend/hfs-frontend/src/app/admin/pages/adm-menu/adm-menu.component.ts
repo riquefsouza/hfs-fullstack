@@ -85,7 +85,7 @@ export class AdmMenuComponent implements OnInit {
   updateMenusTree(listaAdmMenu: AdmMenu[]): void {
     this.listaNodeMenu = [];
     this.menuRoot = {
-      'label': 'System Menu',
+      'label': 'Menu do sistema',
       'data': '0',
       'children': []
     };
@@ -214,8 +214,6 @@ export class AdmMenuComponent implements OnInit {
       } else {
         this.admMenuService.insert(this.admMenu).then((obj: AdmMenu) => {
           this.admMenu = obj;
-
-          console.log(obj);
 
           this.listaAdmMenu.push(this.admMenu);
 

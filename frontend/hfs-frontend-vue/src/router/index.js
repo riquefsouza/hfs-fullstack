@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import AppLayout from '@/layout/AppLayout.vue';
 import AdmParameterCategory from "@/admin/admParameterCategory/AdmParameterCategory.vue";
+import UsuarioPage from "@/system/usuario/UsuarioPage.vue";
+import ConfigPage from "@/system/config/ConfigPage.vue";
 
 const router = createRouter({
     //history: createWebHashHistory(),
@@ -17,20 +19,25 @@ const router = createRouter({
                 { path: '/admin/admProfile', name: 'admProfile' },
                 { path: '/admin/admPage', name: 'admPage' },
                 { path: '/admin/admMenu', name: 'admMenu' },
-                { path: '/system/usuario', name: 'usuario', component: () => import('@/system/config/ConfigPage.vue') },
-                { path: '/system/config', name: 'config', component: () => import('@/system/usuario/UsuarioPage.vue') },
+                { path: '/system/usuario', name: 'usuario', component: UsuarioPage },
+                { path: '/system/config', name: 'config', component: ConfigPage },
             ]
         },
-        { path: '/pages/notfound', name: 'notfound', component: () => import('@/system/notfound/NotFoundPage.vue') }
+        { path: '**', name: 'notfound', component: () => import('@/system/notfound/NotFoundPage.vue') },
+        //{ path: '/notfound', name: 'notfound', component: () => import('@/system/notfound/NotFoundPage.vue') },
+        //{ path: '**', redirectTo: '/notfound' },
     ]
 });
 
+//const authGuard = new AuthGuard();
 /*
-router.beforeEach((to, from, next) => {
-  if (to.name !== 'Login' && !userService.value.isLogged()) 
-    next({ name: 'Login' })
-  else 
-    next()
+router.beforeEach(async (to, from, next) => {
+
+    //authGuard.canActivate(to.fullPath, []).then(() =>{
+    //    next();
+    //});
+
+    next();        
 })
 */
 

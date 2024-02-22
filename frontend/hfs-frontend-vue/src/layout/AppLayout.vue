@@ -5,7 +5,7 @@ import AppFooter from './AppFooter.vue';
 import AppSidebar from './AppSidebar.vue';
 import AppConfig from './AppConfig.vue';
 import { useLayout } from '@/layout/composables/layout';
-import { useToast } from 'primevue/usetoast';
+//import { useToast } from 'primevue/usetoast';
 
 //const toast = useToast();
 
@@ -73,7 +73,6 @@ const isOutsideClicked = (event) => {
             </div>
             <app-footer></app-footer>
         </div>
-        <app-config></app-config>
         <div class="layout-mask"></div>
     </div>
 </template>

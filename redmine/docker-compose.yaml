@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+
+  redmine:
+    image: redmine:5.1.1
+    container_name: redmine
+    #restart: always
+    ports:
+      - 3001:3000
+    environment:
+      REDMINE_DB_MYSQL: db
+      REDMINE_DB_PORT: 3306
+      REDMINE_DB_DATABASE: redmine
+      REDMINE_DB_USERNAME: redmine
+      REDMINE_DB_PASSWORD: redmine      
+      REDMINE_DB_ENCODING: utf8
+      REDMINE_SECRET_KEY_BASE: supersecretkey
+    depends_on:
+      db:
+        condition: service_healthy
+  
+  db:
+    image: mysql:8.0.30-debian
+    container_name: redmine_mysql
+    volumes:
+      - mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=abcd1234
+      - MYSQL_DATABASE=redmine
+      - MYSQL_USER=redmine
+      - MYSQL_PASSWORD=redmine
+    security_opt:
+      - seccomp:unconfined
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mysql:
