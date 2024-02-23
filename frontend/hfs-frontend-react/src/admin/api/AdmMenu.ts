@@ -21,10 +21,10 @@ export const cleanAdmMenu: AdmMenu = {
 
 export interface AdmMenu {
     id?: number | null;
-    description?: string;
+    description: string;
     order?: number;
     idPage?: number;
     idMenuParent?: number;
     admPage?: AdmPage;
-    admMenuParent?: AdmMenu | null;
+    admMenuParent: AdmMenu | null;
 }

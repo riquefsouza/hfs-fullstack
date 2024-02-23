@@ -18,9 +18,9 @@ export const cleanAdmParameter: AdmParameter = {
 export interface AdmParameter {
 
     id?: number | null;
-    code?: string;
-    description?: string;
-    value?: string;
-    admParameterCategory?: AdmParameterCategory;
+    code: string;
+    description: string;
+    value: string;
+    admParameterCategory: AdmParameterCategory;
 
 }

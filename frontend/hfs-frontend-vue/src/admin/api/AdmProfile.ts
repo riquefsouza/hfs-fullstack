@@ -19,9 +19,9 @@ export const cleanAdmProfile: AdmProfile = {
 
 export interface AdmProfile {
     id?: number | null;
-    administrator?: boolean;
-    description?: string;
-    general?: boolean;
-    admPages?: AdmPage[];
-    profilePages?: string;
+    administrator: boolean;
+    description: string;
+    general: boolean;
+    admPages: AdmPage[];
+    profilePages: string;
 }

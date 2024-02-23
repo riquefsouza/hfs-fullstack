@@ -1,12 +1,12 @@
-import 'primereact/resources/primereact.css';
-import 'primeflex/primeflex.css';
-import 'primeicons/primeicons.css';
-import './assets/layout/layout.scss';
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { LayoutProvider } from './layout/context/layoutcontext.tsx'
 import { PrimeReactProvider } from 'primereact/api';
+import 'primereact/resources/primereact.css';
+import 'primeflex/primeflex.css';
+import 'primeicons/primeicons.css';
+import './styles/layout/layout.scss';
 import AppLayout from './AppLayout.tsx';
 import App from './App';
 import AdmProfileService from './admin/service/AdmProfileService.ts';

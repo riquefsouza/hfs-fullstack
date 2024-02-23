@@ -43,9 +43,11 @@ export default {
                             {{userAuthenticated.isAdmin ? 'Sim' : 'Não'}}
                             <br><br>
                             <b>Papéis: </b>
-                            <li v-for="role in userAuthenticated.roles">
-                                {{ role }}
-                            </li>                        
+                            <ul>
+                                <li v-for="role in userAuthenticated.roles">
+                                    {{ role }}
+                                </li>
+                            </ul>                        
                             <br><br>
                         </p>
                     </template>

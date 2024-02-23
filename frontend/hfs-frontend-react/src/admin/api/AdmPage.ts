@@ -1,5 +1,3 @@
-import { AdmProfile } from "./AdmProfile";
-
 export const emptyAdmPage: AdmPage = {
     id: null,
     description: '',
@@ -17,8 +15,8 @@ export const cleanAdmPage: AdmPage = {
 
 export interface AdmPage {
     id?: number | null;
-    description?: string;
-    url?: string;
-    admIdProfiles?: number[];
-    pageProfiles?: string;
+    description: string;
+    url: string;
+    admIdProfiles: number[];
+    pageProfiles: string;
 }
