@@ -22,6 +22,7 @@ export default {
         const funcionario = ref(emptyFuncionario);
         const selectedFuncionarios = ref<Funcionario[]>([]);
         const dt = ref(null);
+        const first = ref(0);
         const filters = ref({});
         const cols = ref();
         const exportColumns = ref([]);
@@ -47,7 +48,15 @@ export default {
             'nome': {value: '', matchMode: 'contains'},
         });
 
-        const lazyParams = ref<LazyTableParam>(emptyLazyTableParam);
+        const lazyParams = ref<LazyTableParam>({
+            first: 0,
+            rows: 10,
+            sortField: 'nome',
+            sortOrder: 1,
+            filters: {
+                'nome': { value: '', matchMode: 'contains' },
+            }
+        });
 
         onBeforeMount(() => {
             initFilters();
@@ -76,9 +85,8 @@ export default {
             loadFuncionarios();
         });
 
-        const loadFuncionarios = (event: any) => {        
+        const loadFuncionarios = () => {        
             loading.value = true;
-            lazyParams.value = { ...lazyParams.value, first: event?.first || first.value };
 
             funcionarioService.findAllPaginated(lazyParams.value).then((data) => {
                 listaFuncionario.value = data['content'];
@@ -98,7 +106,7 @@ export default {
             loadFuncionarios(event);
         };
 
-        const onFilter = (event) => {
+        const onFilter = (event: any) => {
             lazyParams.value.filters = lazyFilters.value ;
             loadFuncionarios(event);
         };
@@ -126,14 +134,14 @@ export default {
         }
 
         const mostrarListar = () => {
-            if (admProfileDialog.value)
+            if (funcionarioDialog.value)
                 return { display: 'none' };
             else
                 return { display: '' };
         }
 
         const mostrarEditar = () => {
-            if (admProfileDialog.value)
+            if (funcionarioDialog.value)
                 return { display: '' };
             else
                 return { display: 'none' };
@@ -246,6 +254,10 @@ export default {
             };
         };
 
+        const exportCSV = (selectionOnly: any) => {
+            dt.value.exportCSV(selectionOnly);
+        };
+
         const exportPdf = () => {
             const head: string[] = [];
             const data: any[] = [];
@@ -260,11 +272,11 @@ export default {
         }
         
         const exportExcel = () => {
-            exportService.exportExcel(listaFuncionario, 'funcionarios');
+            exportService.exportExcel(listaFuncionario.value, 'funcionarios');
         }    
 
-        return { listaFuncionario, funcionario, filters, submitted, onClean, exportPdf, exportExcel,
-            selectedFuncionarios, deleteSelected, funcionarioDialog, hideDialog,
+        return { listaFuncionario, funcionario, filters, submitted, onClean, exportPdf, exportExcel, exportCSV,
+            selectedFuncionarios, deleteSelected, funcionarioDialog, hideDialog, mostrarListar, mostrarEditar,
             deleteFuncionarioDialog, confirmDelete, deleteFuncionariosDialog,
             onInsert, onEdit, onDelete, onSave, onExport, onTypeReportChange, onForceDownloadChange, confirmDeleteSelected,
             first, totalRecords, loading, onPage, onSort, onFilter, selectAll, onSelectAllChange, onRowSelect, onRowUnselect }
@@ -301,7 +313,7 @@ export default {
                     dataKey="id"
                     :paginator="true"
                     :rows="10"
-                    :filters="filters"
+                    v-model:filters="filters"
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     :rowsPerPageOptions="[10,30,50,100,150,200]" emptyMessage="Nenhum registro encontrado."
                     currentPageReportTemplate="Mostrando {first} até {last} de {totalRecords} entradas"
@@ -320,10 +332,10 @@ export default {
                             </span>
 
                             <div class="flex">
-                                <Button icon="pi pi-file" @click="dt.exportCSV" class="mr-2" v-tooltip.bottom="'CSV'" />
+                                <Button icon="pi pi-file" @click="exportCSV($event)" class="mr-2" v-tooltip.bottom="'CSV'" />
                                 <Button icon="pi pi-file-excel" @click="exportExcel" class="p-button-success mr-2" v-tooltip.bottom="'XLS'" />
                                 <Button icon="pi pi-file-pdf" @click="exportPdf" class="p-button-warning mr-2" v-tooltip.bottom="'PDF'" />
-                                <Button icon="pi pi-filter" @click="dt.exportCSV({ selectionOnly: true })" class="p-button-info mr-2" v-tooltip.bottom="'Somente Seleção'" />
+                                <Button icon="pi pi-filter" @click="exportCSV({ selectionOnly: true })" class="p-button-info mr-2" v-tooltip.bottom="'Somente Seleção'" />
                             </div>
 
                         </div>
@@ -415,7 +427,8 @@ export default {
                         </div>
                     </template>                    
                 </DataTable>
-            </div>    
+            </div>
+
             <div :style="mostrarEditar()">
                 <!-- <Toast /> -->
                 <Panel header="Detalhes da página" class="p-mb-2">
@@ -463,15 +476,32 @@ export default {
                                 <InputText id="setor" v-model="funcionario.setor" />
                             </div>
                         </div>
-
-                        <div class="field">
-                            <label for="quantity">Ordem</label>
-                            <InputNumber id="quantity" v-model="funcionario.order" integeronly locale="pt-BR" />
+                        <div class="formgrid grid">
+                            <div class="field col">
+                                <label for="codCargo">CodCargo</label>
+                                <InputNumber id="codCargo" v-model="funcionario.codCargo" integeronly locale="pt-BR" />
+                            </div>
+                            <div class="field col">
+                                <label for="cargo">Cargo</label>
+                                <InputText id="cargo" v-model="funcionario.cargo" />
+                            </div>                        
                         </div>
-                        <template #footer>
-                            <Button label="Cancelar" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
-                            <Button label="Salvar" icon="pi pi-check" class="p-button-text" @click="onSave" />
-                        </template>
+                        <div class="formgrid grid">
+                            <div class="field col">
+                                <label for="dataAdmissao">Data Admissão</label>
+                                <Calendar id="dataAdmissao" v-model="funcionario.dataAdmissaoFormatada" showIcon :showOnFocus="false" 
+                                   dateFormat="dd/mm/yy" modelValue="string" />
+                            </div>
+                            <div class="field col">
+                                <label for="dataSaida">Data Saída</label>
+                                <Calendar id="dataSaida" v-model="funcionario.dataSaidaFormatada" showIcon :showOnFocus="false" 
+                                   dateFormat="dd/mm/yy" modelValue="string" />
+                            </div>
+                        </div>    
+                        <div class="flex align-items-center gap-1">
+                            <Checkbox v-model="funcionario.ativo" inputId="ativo" name="ativo" value="Ativo" :binary="true" />
+                            <label for="ativo">Ativo</label>                            
+                        </div>                    
                     </div>
                 </Panel>
             </div>  

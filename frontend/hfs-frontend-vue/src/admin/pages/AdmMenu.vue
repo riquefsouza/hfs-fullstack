@@ -7,7 +7,7 @@ import { AdmMenu, emptyAdmMenu } from '../api/AdmMenu';
 import { ReportParamForm, emptyReportParamForm } from '../../base/models/ReportParamsForm';
 import { ItypeReport, PDFReport, SelectItemGroup } from '../../base/services/ReportService';
 import AdmPageService from '../service/AdmPageService';
-import { TreeNode } from 'primevue/tree';
+import { TreeExpandedKeys, TreeNode } from 'primevue/tree';
 import { emptyTreeNode } from '../../base/models/NodeOnSelectEventType';
 import { AdmPage } from '../api/AdmPage';
 
@@ -19,11 +19,11 @@ export default {
         const admMenuDialog = ref(false);
         const deleteAdmMenuDialog = ref(false);
         const deleteAdmMenusDialog = ref(false);
-        const admMenu = ref(emptyAdmMenu);
+        const admMenu = ref<AdmMenu>(emptyAdmMenu);
         const selectedAdmMenu = ref<AdmMenu>(emptyAdmMenu);
         const dt = ref(null);
         const filters = ref({});
-        const submitted = ref(false);
+        const submitted = ref<boolean>(false);
 
         const admMenuService = new AdmMenuService();
         const admPageService = new AdmPageService();
@@ -36,6 +36,7 @@ export default {
         const exportColumns = ref<any[]>([]);
 
         const listaNodeMenu = ref<TreeNode[]>([]);
+        const expandedKeys = ref<TreeExpandedKeys>({});
         const selectedNodeMenu = ref<TreeNode>(emptyTreeNode);
         const menuRoot = ref<TreeNode>(emptyTreeNode);
         const listaAdmPage = ref<AdmPage[]>([]);
@@ -74,27 +75,32 @@ export default {
             });
         }
         
-        const updateMenusTree = (listaAdmMenu: AdmMenu[]) => {
-            listaNodeMenu.value = [];
-            menuRoot.value = {
+        const updateMenusTree = (listaMenu: AdmMenu[]): void => {
+            const _listaNodeMenu: TreeNode[] = [];
+            let _listaAdmMenuParent: AdmMenu[] = [];
+            const menuRoot: TreeNode = {
+                'key': '0',
                 'label': 'Menu do sistema',
                 'data': '0',
                 'children': []
             };
-        
-            listaAdmMenu.forEach((itemMenu: AdmMenu) => {
-                const m: TreeNode = {};
-                m.data = itemMenu;
-                m.label = itemMenu.description;      
-            
-                if (itemMenu.idPage === null) {
-                    m.children = mountSubMenu(itemMenu);
-                    menuRoot.value.children.push(m);
-                }
+
+            _listaAdmMenuParent = listaMenu.filter(menu => menu.idMenuParent == null);    
+
+            _listaAdmMenuParent.forEach((itemMenu: AdmMenu) => {
+                const m: TreeNode = {
+                    'key' : itemMenu.id?.toString(),
+                    'label': itemMenu.description,
+                    'data': itemMenu,
+                    'children': mountSubMenu(listaMenu, itemMenu)
+                };
+                menuRoot.children.push(m);
             });
-        
-            listaNodeMenu.value.push(menuRoot.value);
-        
+
+            _listaNodeMenu.push(menuRoot);
+
+            listaNodeMenu.value = _listaNodeMenu;
+
             expandAll();
         }
         
@@ -102,34 +108,41 @@ export default {
             return menu.idPage === null;
         }
         
-        const getAdmSubMenus = (menuPai: AdmMenu): AdmMenu[] => {
-            return listaAdmMenu.value.filter(menu => menu.idMenuParent === menuPai.id);
+        const getAdmSubMenus = (listaMenu: AdmMenu[], menuPai: AdmMenu): AdmMenu[] => {
+            return listaMenu.filter(menu => menu.idMenuParent === menuPai.id);
         }
         
-        const mountSubMenu = (menu: AdmMenu): TreeNode[] => {
+        const mountSubMenu = (listaMenu: AdmMenu[], menu: AdmMenu): TreeNode[] => {
             const lstSubMenu: TreeNode[] = [];
-        
-            getAdmSubMenus(menu).forEach((subMenu: AdmMenu) => {
-        
+
+            getAdmSubMenus(listaMenu, menu).forEach((subMenu: AdmMenu) => {
+            
                 if (isSubMenu(subMenu)) {
-                    const m: TreeNode = {};
-                    m.data = subMenu;
-                    m.label = subMenu.description;
-                    m.children = mountSubMenu(subMenu);
+                    const m: TreeNode = {
+                        'key' : subMenu.id?.toString(),
+                        'label': subMenu.description,
+                        'data': subMenu,
+                        'children': mountSubMenu(listaMenu, subMenu)
+                    };
                 } else {
-                    const m: TreeNode = {};
-                    m.data = subMenu;
-                    m.label = subMenu.description;
+                    const m: TreeNode = {
+                        'key' : subMenu.id?.toString(),
+                        'label': subMenu.description,
+                        'data': subMenu,
+                        'children': []
+                    };
                     lstSubMenu.push(m);
                 }
+
             });
-        
+
             return lstSubMenu;
         }
         
-        const nodeSelect = (event: TreeNode) => {
-            selectedAdmMenu = event.node.data as AdmMenu;
-            selectedNodeMenu.value = event.node;
+        const onNodeSelect = (node: TreeNode) => {
+            const _menu: AdmMenu = node.data as AdmMenu;
+            selectedAdmMenu.value = _menu;            
+            selectedNodeMenu.value = node;
         }
 
         const onInsert = () => {
@@ -236,29 +249,30 @@ export default {
         };
 
         const expandAll = () => {
-            listaNodeMenu.value.forEach((node) => {
-                expandRecursive(node, true);
-            });
-        }
+            for (let node of listaNodeMenu.value) {
+                expandNode(node);
+            }
+
+            expandedKeys.value = { ...expandedKeys.value };
+        };
 
         const collapseAll = () => {
-            listaNodeMenu.value.forEach((node) => {
-                expandRecursive(node, false);
-            });
-        } 
+            expandedKeys.value = {};
+        };
 
-        const expandRecursive = (node: TreeNode, isExpand: boolean) => {
-            node.expanded = isExpand;
-            if (node.children) {
-                node.children.forEach((childNode) => {
-                    expandRecursive(childNode, isExpand);
-                });
+        const expandNode = (node: TreeNode) => {
+            if (node.children && node.children.length) {
+                expandedKeys.value[node.key] = true;
+
+                for (let child of node.children) {
+                    expandNode(child);
+                }
             }
-        }
+        };
 
-        return { listaAdmMenu, admMenu, filters, submitted, expandAll, collapseAll,
+        return { listaAdmMenu, admMenu, filters, submitted, expandAll, collapseAll, 
             selectedAdmMenu, admMenuDialog, hideDialog, listaNodeMenu, selectedNodeMenu,
-            deleteAdmMenuDialog, confirmDelete, deleteAdmMenusDialog, nodeSelect,
+            deleteAdmMenuDialog, confirmDelete, deleteAdmMenusDialog, onNodeSelect, expandedKeys,
             onInsert, onEdit, onDelete, onSave, onExport, onTypeReportChange, onForceDownloadChange }
     }
 }        
@@ -291,8 +305,8 @@ export default {
                     </template>
                 </Toolbar>
 
-                <Tree :value="listaNodeMenu" selectionMode="single" v-model:selectionKeys="selectedNodeMenu" :metaKeySelection="false"
-                    @nodeSelect="nodeSelect" emptyMessage="Nenhum resultado encontrado" />
+                <Tree v-model:expandedKeys="expandedKeys" :value="listaNodeMenu" selectionMode="single" 
+                    v-model:selectionKeys="selectedNodeMenu" :metaKeySelection="false" @nodeSelect="onNodeSelect" />
 
                 <Dialog v-model:visible="admMenuDialog" :style="{ width: '450px' }" header="Detalhes do menu" :modal="true" class="p-fluid">
                     <div class="field">

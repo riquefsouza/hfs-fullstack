@@ -1,7 +1,8 @@
 'use client';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
-import { DataTable, DataTableSelectionSingleChangeEvent, DataTableSelectAllChangeEvent, DataTableFilterMeta, DataTableFilterEvent, DataTablePageEvent, DataTableSortEvent } from 'primereact/datatable';
+import { DataTable, DataTableSelectionSingleChangeEvent, DataTableSelectAllChangeEvent, 
+    DataTableFilterEvent, DataTablePageEvent, DataTableSortEvent } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
@@ -19,6 +20,9 @@ import ReportPanelComponent from '../../base/components/ReportPanel';
 import { LazyTableState } from '../../base/models/LazyTableState';
 import { ExportService } from '../../base/services/ExportService';
 import { BaseUtilService } from '../../base/util/BaseUtilService';
+import { Calendar } from 'primereact/calendar';
+import { Nullable } from "primereact/ts-helpers";
+import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 
 const FuncionarioPage = () => {
 
@@ -39,6 +43,7 @@ const FuncionarioPage = () => {
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
+    const [date, setDate] = useState<Nullable<Date>>(null);
 
     const [selectedTypeReport, setSelectedTypeReport] = useState<ItypeReport>(PDFReport);
     const [selectedForceDownload, setSelectedForceDownload] = useState(true);
@@ -56,8 +61,8 @@ const FuncionarioPage = () => {
         first: 0,
         rows: 10,
         page: 1,
-        sortField: undefined,
-        sortOrder: undefined,
+        sortField: 'nome',
+        sortOrder: 1,
         filters: {
             'nome': { value: '', matchMode: 'contains' },
         }
@@ -256,6 +261,10 @@ const FuncionarioPage = () => {
         });
     }
 
+    const exportCSV = (selectionOnly) => {
+        dt.current.exportCSV(selectionOnly);
+    };
+
     const exportPdf = () => {
         const head: string[] = [];
         const data: any[] = [];
@@ -321,13 +330,28 @@ const FuncionarioPage = () => {
         setFuncionario(_funcionario);
     };
 
-    const onOrderInputNumberChange = (e: InputNumberValueChangeEvent) => {
+    const onCodCargoInputNumberChange = (e: InputNumberValueChangeEvent) => {
         const val = e.value || 0;
         let _funcionario = { ...funcionario };
-        _funcionario.order = val;
+        _funcionario.codCargo = val;
 
         setFuncionario(_funcionario);
     };
+
+    const onCargoInputChange = (e: React.FormEvent<HTMLInputElement>) => {
+        const val: string = (e.currentTarget && e.currentTarget.value) || '';
+        let _funcionario = { ...funcionario };
+        _funcionario.cargo = val;
+
+        setFuncionario(_funcionario);
+    };
+
+    const onAtivoChange = (e: CheckboxChangeEvent) => {        
+        let _funcionario = { ...funcionario };
+        _funcionario.ativo = e.checked;
+        
+        setFuncionario(_funcionario);
+    }
 
     const leftToolbarTemplate = () => {
         return (
@@ -358,12 +382,15 @@ const FuncionarioPage = () => {
             </span>
 
             <div className="flex">
-                <Button icon="pi pi-file" onClick={dt.exportCSV} className="mr-2" tooltip="CSV" tooltipOptions={{ position: 'bottom' }} />
-                <Button icon="pi pi-file-excel" onClick={exportExcel} className="p-button-success mr-2" tooltip="XLS" tooltipOptions={{ position: 'bottom' }} />
-                <Button icon="pi pi-file-pdf" onClick={exportPdf} className="p-button-warning mr-2" tooltip="PDF" tooltipOptions={{ position: 'bottom' }} />
-                <Button icon="pi pi-filter" onClick={dt.exportCSV({ selectionOnly: true })} className="p-button-info mr-2" tooltip="Somente Seleção" tooltipOptions={{ position: 'bottom' }} />
-            </div>
-
+                <Button type="button" icon="pi pi-file" onClick={() => exportCSV(false)} data-pr-tooltip="CSV"
+                    className="mr-2" tooltip="CSV" tooltipOptions={{ position: 'bottom' }} />
+                <Button type="button" icon="pi pi-file-excel" onClick={exportExcel} data-pr-tooltip="XLS"
+                    className="p-button-success mr-2" tooltip="XLS" tooltipOptions={{ position: 'bottom' }} />
+                <Button type="button" icon="pi pi-file-pdf" onClick={exportPdf} data-pr-tooltip="PDF"
+                    className="p-button-warning mr-2" tooltip="PDF" tooltipOptions={{ position: 'bottom' }} />
+                <Button type="button" icon="pi pi-filter" onClick={() => exportCSV({ selectionOnly: true })} data-pr-tooltip="CSV"
+                    className="p-button-info mr-2" tooltip="Somente Seleção" tooltipOptions={{ position: 'bottom' }} />
+            </div>        
         </div>
     );
 
@@ -601,9 +628,31 @@ const FuncionarioPage = () => {
                                     <InputText id="setor" value={funcionario.celular} onChange={(e) => onSetorInputChange(e)} />
                                 </div>
                             </div>
-                            <div className="field">
-                                <label htmlFor="order">Ordem</label>
-                                <InputNumber id="order" value={funcionario.order} locale="pt-BR" onValueChange={(e) => onOrderInputNumberChange(e)} />
+                            <div className="formgrid grid">
+                                <div className="field col">
+                                    <label htmlFor="codCargo">CodCargo</label>
+                                    <InputNumber id="codCargo" value={funcionario.codCargo} locale="pt-BR" onValueChange={(e) => onCodCargoInputNumberChange(e)} />
+                                </div>
+                                <div className="field col">
+                                    <label htmlFor="cargo">Cargor</label>
+                                    <InputText id="cargo" value={funcionario.cargo} onChange={(e) => onCargoInputChange(e)} />
+                                </div>
+                            </div>
+                            <div className="formgrid grid">
+                                <div className="field col">
+                                    <label htmlFor="dataAdmissao">Data Admissão</label>
+                                    <Calendar id="dataAdmissao" value={funcionario.dataAdmissao} onChange={(e) => setDate(e.value)} showIcon 
+                                        dateFormat="dd/mm/yy" />
+                                </div>
+                                <div className="field col">
+                                    <label htmlFor="dataSaida">Data Saída</label>
+                                    <Calendar id="dataSaida" value={funcionario.dataSaida} onChange={(e) => setDate(e.value)} showIcon 
+                                        dateFormat="dd/mm/yy" />
+                                </div>                            
+                            </div>
+                            <div className="flex align-items-center gap-1">
+                                <Checkbox inputId="ativo" name="ativo" value="Ativo" onChange={onAtivoChange} checked={funcionario.ativo} />
+                                <label htmlFor="ativo" className="ml-2">Ativo</label>
                             </div>
                         </div>
                     </Panel>

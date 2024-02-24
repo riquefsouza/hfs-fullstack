@@ -45,7 +45,7 @@ export interface Funcionario {
 	cargo?: string;
 	dataAdmissao?: Date;
 	dataSaida?: Date;
-    ativo?: boolean;
+    ativo: boolean;
 	cpfFormatado?: string;
 	dataAdmissaoFormatada?: string;
 	dataSaidaFormatada?: string;
