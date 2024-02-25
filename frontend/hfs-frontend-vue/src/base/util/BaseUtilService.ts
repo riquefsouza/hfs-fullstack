@@ -2,6 +2,14 @@ export class BaseUtilService {
 
     constructor(){}
 
+    public formatDate(value: Date) {
+        return value.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    public formatCurrency(value: number) {
+        return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
     public cpfParaCpfFormatado(cpf: number): string {
         let scpf = cpf.toString();
 
