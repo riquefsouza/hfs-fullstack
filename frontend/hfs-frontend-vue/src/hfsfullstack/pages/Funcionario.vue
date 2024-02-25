@@ -1,5 +1,4 @@
 <script lang="ts">
-import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import FuncionarioService from '../service/FuncionarioService';
@@ -9,7 +8,7 @@ import { ItypeReport, PDFReport, SelectItemGroup } from '../../base/services/Rep
 import { LazyTableParam, emptyLazyTableParam } from '../../base/models/LazyTableParam';
 import { first } from 'rxjs';
 import { ExportService } from '../../base/services/ExportService';
-import { BaseUtilService } from '../../base/util/BaseUtilService';
+import { DataTableFilterMeta } from 'primevue/datatable';
 
 export default {
     setup() {
@@ -23,20 +22,19 @@ export default {
         const selectedFuncionarios = ref<Funcionario[]>([]);
         const dt = ref(null);
         const first = ref(0);
-        const filters = ref({});
         const cols = ref();
         const exportColumns = ref([]);
         const submitted = ref(false);
 
         const funcionarioService = new FuncionarioService();
         const exportService = new ExportService();
-        const baseUtilService = new BaseUtilService();
+        //const baseUtilService = new BaseUtilService();
 
         const selectedTypeReport = ref<ItypeReport>();
         const selectedForceDownload = ref(true);
         const reportParamForm = ref<ReportParamForm>(emptyReportParamForm);
 
-        const rowsPerPageOptions = ref<number[]>([5, 10, 30, 50, 100, 150, 200]);
+        //const rowsPerPageOptions = ref<number[]>([5, 10, 30, 50, 100, 150, 200]);
 
         const totalRecords = ref<number>(0);
 
@@ -44,23 +42,12 @@ export default {
 
         const selectAll = ref<boolean>(false);
 
-        const lazyFilters = ref({
-            'nome': {value: '', matchMode: 'contains'},
-        });
+        const filters = ref<DataTableFilterMeta>({
+            global: { value: '', matchMode: 'contains' },
+            'nome': {value: '', matchMode: 'startsWith'},
+        });        
 
-        const lazyParams = ref<LazyTableParam>({
-            first: 0,
-            rows: 10,
-            sortField: 'nome',
-            sortOrder: 1,
-            filters: {
-                'nome': { value: '', matchMode: 'contains' },
-            }
-        });
-
-        onBeforeMount(() => {
-            initFilters();
-        });
+        const lazyParams = ref<LazyTableParam>(emptyLazyTableParam);
 
         onMounted(() => {
             selectedTypeReport.value = PDFReport.value;
@@ -81,6 +68,14 @@ export default {
             ];
             
             exportColumns.value = cols.value.map((col: { header: any; field: any; }) => ({title: col.header, dataKey: col.field}));
+
+            lazyParams.value = {
+                first: 0,
+                rows: 10,
+                sortField: null,
+                sortOrder: null,
+                filters: filters.value
+            };
 
             loadFuncionarios();
         });
@@ -106,8 +101,8 @@ export default {
             loadFuncionarios(event);
         };
 
-        const onFilter = (event: any) => {
-            lazyParams.value.filters = lazyFilters.value ;
+        const onFilter = (event) => {
+            lazyParams.value.filters = filters.value;
             loadFuncionarios(event);
         };
 
@@ -248,12 +243,6 @@ export default {
             });
         }
 
-        const initFilters = () => {
-            filters.value = {
-                global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-            };
-        };
-
         const exportCSV = (selectionOnly: any) => {
             dt.value.exportCSV(selectionOnly);
         };
@@ -326,10 +315,6 @@ export default {
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Funcionários</h5>
-                            <span class="block mt-2 md:mt-0 p-input-icon-left">
-                                <i class="pi pi-search" />
-                                <InputText v-model="filters['global'].value" placeholder="Procurar..." />
-                            </span>
 
                             <div class="flex">
                                 <Button icon="pi pi-file" @click="exportCSV($event)" class="mr-2" v-tooltip.bottom="'CSV'" />
@@ -337,7 +322,6 @@ export default {
                                 <Button icon="pi pi-file-pdf" @click="exportPdf" class="p-button-warning mr-2" v-tooltip.bottom="'PDF'" />
                                 <Button icon="pi pi-filter" @click="exportCSV({ selectionOnly: true })" class="p-button-info mr-2" v-tooltip.bottom="'Somente Seleção'" />
                             </div>
-
                         </div>
                     </template>
 
@@ -354,10 +338,13 @@ export default {
                             {{ slotProps.data.id }}
                         </template>
                     </Column>
-                    <Column field="nome" header="Nome" :sortable="true" headerStyle="min-width:20rem;">
+                    <Column field="nome" header="Nome" :sortable="true" filterMatchMode="startsWith" headerStyle="min-width:20rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nome</span>
                             {{ slotProps.data.nome }}
+                        </template>
+                        <template #filter="{ filterModel, filterCallback }">
+                            <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter" />
                         </template>
                     </Column>
                     <Column field="cpfFormatado" header="Cpf" :sortable="true" headerStyle="min-width:10rem;">
@@ -431,7 +418,7 @@ export default {
 
             <div :style="mostrarEditar()">
                 <!-- <Toast /> -->
-                <Panel header="Detalhes da página" class="p-mb-2">
+                <Panel header="Detalhes do funcionário" class="p-mb-2">
                     <Toolbar class="mb-4">
                         <template v-slot:start>
                         </template>

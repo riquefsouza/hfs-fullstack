@@ -1,12 +1,10 @@
-import { environment } from "../../environments/environment";
+import { environment } from "@/environments/environment";
 import { HttpStatusCode } from "axios";
 import { ErrorResponseDTO } from "../../base/models/ErrorResponseDTO";
 import { Funcionario } from "../api/funcionario";
 import axios from "../../base/interceptors/AxiosRequestInterceptor";
 import { ReportParamForm } from "../../base/models/ReportParamsForm";
 import FileSaver from "file-saver";
-import { LazyTableParam } from "../../base/models/LazyTableParam";
-import { DataTableFilterMetaData } from "primevue/datatable";
 
 export default class FuncionarioService {
 
@@ -26,35 +24,12 @@ export default class FuncionarioService {
         }
         return index;
     }
-        
-    public async findAllPaginated(param: LazyTableParam): Promise<any[]> {
 
-        let nome: string = "";
-        let page: number = param.first / param.rows;
-        
-        if(param.sortField === null || param.sortField === undefined){
-            param.sortField = 'id';
-        }
-
-        if(param.sortOrder === null || param.sortOrder === undefined){
-            param.sortOrder = 1;
-        }
-
-        if (param.filters['nome'] !== undefined){
-            let filtro: DataTableFilterMetaData = param.filters['nome'] as DataTableFilterMetaData;
-            nome = filtro.value;
-        }
-
-        let size: number = param.rows;
-        let sort: string = param.sortField;
-        let direction: string = (param.sortOrder === 1 ? 'asc' : 'desc');
+    
+    public async findAllPaginated(page: number, size: number, 
+        sort: string, direction: string): Promise<any[]> {
             
-        let url = '';
-        if (nome){
-            url = `${this.PATH}/paged?nome=${nome}&=page=${page}&size=${size}&sort=${sort},${direction}`;
-        } else {
-            url = `${this.PATH}/paged?page=${page}&size=${size}&sort=${sort},${direction}`;
-        }
+        const url = `${this.PATH}/paged?page=${page}&size=${size}&sort=${sort},${direction}`;
 
         const response = await axios.get<any[]>(url);
 

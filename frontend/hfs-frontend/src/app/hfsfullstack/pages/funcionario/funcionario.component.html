@@ -28,7 +28,7 @@
                             <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()" class="p-button-success mr-2" pTooltip="XLS" tooltipPosition="bottom"></button>
                             <button type="button" pButton pRipple icon="pi pi-file-pdf" (click)="exportPdf()" class="p-button-warning mr-2" pTooltip="PDF" tooltipPosition="bottom"></button>
                             <button type="button" pButton pRipple icon="pi pi-filter" (click)="dt.exportCSV({ selectionOnly: true })" class="p-button-info mr-2" pTooltip="Somente Seleção" tooltipPosition="bottom"></button>
-                        </div>                        
+                        </div>
 
                     </div>
                 </ng-template>
@@ -203,7 +203,7 @@
                                 dateFormat="dd/mm/yy" dataType="string"></p-calendar>
                         </div>
                     </div>    
-                    <div class="flex align-items-center gap-1">                        
+                    <div class="flex align-items-center gap-1">
                         <p-checkbox value="Ativo" inputId="ativo" [binary]="true" [(ngModel)]="funcionario.ativo" />
                         <label for="ativo">Ativo</label>
                     </div>       

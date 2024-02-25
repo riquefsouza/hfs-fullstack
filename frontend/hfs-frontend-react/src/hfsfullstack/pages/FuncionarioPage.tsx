@@ -2,7 +2,7 @@
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable, DataTableSelectionSingleChangeEvent, DataTableSelectAllChangeEvent, 
-    DataTableFilterEvent, DataTablePageEvent, DataTableSortEvent } from 'primereact/datatable';
+    DataTableFilterEvent, DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
@@ -23,6 +23,7 @@ import { BaseUtilService } from '../../base/util/BaseUtilService';
 import { Calendar } from 'primereact/calendar';
 import { Nullable } from "primereact/ts-helpers";
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
+import { FilterMatchMode } from 'primereact/api';
 
 const FuncionarioPage = () => {
 
@@ -40,7 +41,7 @@ const FuncionarioPage = () => {
     const [submitted, setSubmitted] = useState(false);
     const [cols, setCols] = useState<any[]>([]);
     const [exportColumns, setExportColumns] = useState<any[]>([]);
-    const [globalFilter, setGlobalFilter] = useState('');
+    const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [date, setDate] = useState<Nullable<Date>>(null);
@@ -48,8 +49,6 @@ const FuncionarioPage = () => {
     const [selectedTypeReport, setSelectedTypeReport] = useState<ItypeReport>(PDFReport);
     const [selectedForceDownload, setSelectedForceDownload] = useState(true);
     const [reportParamForm, setReportParamForm] = useState<ReportParamForm>(emptyReportParamForm);    
-
-    const [rowsPerPageOptions, setRowsPerPageOptions] = useState<number[]>([5, 10, 30, 50, 100, 150, 200]);
 
     const [totalRecords, setTotalRecords] = useState<number>(0);
 
@@ -64,8 +63,14 @@ const FuncionarioPage = () => {
         sortField: 'nome',
         sortOrder: 1,
         filters: {
-            'nome': { value: '', matchMode: 'contains' },
+            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            'nome': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
         }
+    });    
+
+    const [filters, setFilters] = useState<DataTableFilterMeta>({
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        'nome': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     });    
 
     useEffect(() => {
@@ -261,6 +266,17 @@ const FuncionarioPage = () => {
         });
     }
 
+    const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        let _filters = { ...filters };
+
+        // @ts-ignore
+        _filters['global'].value = value;
+
+        setFilters(_filters);
+        setGlobalFilterValue(value);
+    };
+
     const exportCSV = (selectionOnly) => {
         dt.current.exportCSV(selectionOnly);
     };
@@ -376,10 +392,6 @@ const FuncionarioPage = () => {
     const tabelaHeader = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
             <h5 className="m-0">Funcionários</h5>
-            <span className="block mt-2 md:mt-0 p-input-icon-left">
-                <i className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Procurar..." />
-            </span>
 
             <div className="flex">
                 <Button type="button" icon="pi pi-file" onClick={() => exportCSV(false)} data-pr-tooltip="CSV"
@@ -565,7 +577,7 @@ const FuncionarioPage = () => {
                         dataKey="id" paginator rows={10} rowsPerPageOptions={[10,30,50,100,150,200]} className="datatable-responsive"
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Mostrando {first} até {last} de {totalRecords} entradas" 
-                        globalFilter={globalFilter} emptyMessage="Nenhum registro encontrado."
+                        globalFilterFields={['nome']} emptyMessage="Nenhum registro encontrado."
                         header={tabelaHeader} footer={tabelaFooter} responsiveLayout="scroll"
                         totalRecords={totalRecords} onPage={onPage} filterDisplay="row" first={lazyState.first}
                         onSort={onSort} sortField={lazyState.sortField} sortOrder={lazyState.sortOrder}
@@ -575,7 +587,7 @@ const FuncionarioPage = () => {
                         <Column selectionMode="multiple" headerStyle={{ width: '4rem' }}></Column>
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column field="id" header="Id" sortable headerStyle={{ width: '14%', minWidth: '10rem' }} body={idBodyTemplate}></Column>
-                        <Column field="nome" header="Nome" sortable headerStyle={{ minWidth: '10rem' }} body={nomeBodyTemplate}></Column>
+                        <Column field="nome" header="Nome" sortable filter filterField="nome" headerStyle={{ minWidth: '20rem' }} body={nomeBodyTemplate}></Column>
                         <Column field="cpfFormatado" header="Cpf" sortable headerStyle={{ width: '14%', minWidth: '8rem' }} body={cpfBodyTemplate}></Column>
                         <Column field="email" header="Email" sortable headerStyle={{ minWidth: '10rem' }} body={emailBodyTemplate}></Column>
                         <Column field="telefone" header="Telefone" sortable headerStyle={{ minWidth: '10rem' }} body={telefoneBodyTemplate}></Column>

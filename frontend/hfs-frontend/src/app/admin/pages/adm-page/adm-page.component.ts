@@ -4,7 +4,7 @@ import { ExportService } from 'src/app/base/services/export.service';
 import { ReportParamForm } from 'src/app/base/models/ReportParamsForm';
 import { ItypeReport } from 'src/app/base/services/ReportService';
 import { AdmPageService } from '../../service/AdmPageService';
-import { AdmPage, cleanAdmPage } from '../../api/AdmPage';
+import { AdmPage, cleanAdmPage, emptyAdmPage } from '../../api/AdmPage';
 import { AdmProfile } from '../../api/AdmProfile';
 import { AdmProfileService } from '../../service/AdmProfileService';
 import { Menu } from 'primeng/menu';
@@ -20,7 +20,7 @@ export class AdmPageComponent implements OnInit {
 
   listaAdmPage: AdmPage[] = [];
 
-  admPage: AdmPage = {};
+  admPage: AdmPage = emptyAdmPage;
 
   selectedAdmPage: AdmPage[] = [];
 
@@ -162,7 +162,7 @@ export class AdmPageComponent implements OnInit {
 
         this.listaAdmPage = [...this.listaAdmPage];
         this.admPageDialog = false;
-        this.admPage = {};
+        this.admPage = emptyAdmPage;
     }
   }
 
@@ -181,7 +181,7 @@ export class AdmPageComponent implements OnInit {
   }
 
   onInsert() {
-    this.admPage = {};
+    this.admPage = emptyAdmPage;
     this.submitted = false;
     this.admPageDialog = true;
     this.loadAdmProfiles(null);
@@ -228,7 +228,7 @@ export class AdmPageComponent implements OnInit {
     this.deleteAdmPageDialog = false;
     this.admPageService.delete(this.admPage.id).then(obj => {
       this.listaAdmPage = this.listaAdmPage.filter(val => val.id !== this.admPage.id);
-      this.admPage = {};        
+      this.admPage = emptyAdmPage;        
       this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Página excluída', life: 3000 });
     });
   }

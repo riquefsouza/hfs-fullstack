@@ -20,7 +20,9 @@ import { TreeNode } from 'primereact/treenode';
 import { NodeOnSelectEventType, emptyTreeNode } from '../../base/models/NodeOnSelectEventType';
 import AdmPageService from '../service/AdmPageService';
 import { AdmPage } from '../api/AdmPage';
-import { Tree } from 'primereact/tree';
+import { Tree, TreeEventNodeEvent, TreeExpandedKeysType } from 'primereact/tree';
+import { Dropdown } from 'primereact/dropdown';
+import { MyEventType } from '../../base/models/MyEventType';
 
 const AdmMenuPage = () => {
 
@@ -45,8 +47,10 @@ const AdmMenuPage = () => {
     const [selectedForceDownload, setSelectedForceDownload] = useState(true);
     const [reportParamForm, setReportParamForm] = useState<ReportParamForm>(emptyReportParamForm);  
     
+    const [selectedNodeMenu, setSelectedNodeMenu] = useState<TreeNode>();
     const [listaNodeMenu, setListaNodeMenu] = useState<TreeNode[]>([]);
-    const [selectedNodeMenu, setSelectedNodeMenu] = useState<TreeNode>(emptyTreeNode);
+    const [expandedKeys, setExpandedKeys] = useState<TreeExpandedKeysType>({'0': true, '0-0': true});
+    const [selectedKey, setSelectedKey] = useState<string>('');
     const [menuRoot, setMenuRoot] = useState<TreeNode>(emptyTreeNode);
     const [listaAdmPage, setListaAdmPage] = useState<AdmPage[]>([]);
     const [listaAdmMenuParent, setListaAdmMenuParent] = useState<AdmMenu[]>([]);
@@ -68,73 +72,85 @@ const AdmMenuPage = () => {
         setListaAdmMenu([]);
         setListaAdmMenuParent([]);
         
-        admPageService.findAll().then(data => setListaAdmPage(data));      
+        admPageService.findAll().then(data => setListaAdmPage(data));
     
         admMenuService.findAll().then(data => {
             setListaAdmMenu(data);
     
-            setListaAdmMenuParent(listaAdmMenu.filter(menu => menu.idMenuParent == null));
+            setListaAdmMenuParent(data.filter(menu => menu.idMenuParent == null));
     
-            updateMenusTree(listaAdmMenu);
+            updateMenusTree(data);
         });
     }
-    
-    const updateMenusTree = (listaAdmMenu: AdmMenu[]) => {
-        setListaNodeMenu([]);
-        setMenuRoot({
-          'label': 'Menu do sistema',
-          'data': '0',
-          'children': []
-        });
-    
-        listaAdmMenu.forEach((itemMenu: AdmMenu) => {
-            const m: TreeNode = {};
-            m.data = itemMenu;
-            m.label = itemMenu.description;      
 
-            if (itemMenu.idPage === null) {
-                m.children = mountSubMenu(itemMenu);
-                menuRoot.children.push(m);
-            }
+    const updateMenusTree = (listaMenu: AdmMenu[]): void => {
+        const _listaNodeMenu: TreeNode[] = [];
+        let _listaAdmMenuParent: AdmMenu[] = [];
+        const menuRoot: TreeNode = {
+            'label': 'Menu do sistema',
+            'data': '0',
+            'children': []
+        };
+
+        _listaAdmMenuParent = listaMenu.filter(menu => menu.idMenuParent == null);
+
+        _listaAdmMenuParent.forEach((itemMenu: AdmMenu) => {
+            const m: TreeNode = {
+                'key' : itemMenu.id?.toString(),
+                'label': itemMenu.description,
+                'data': itemMenu,
+                'children': mountSubMenu(listaMenu, itemMenu)
+            };
+            menuRoot.children.push(m);
         });
-    
-        listaNodeMenu.push(menuRoot);
-    
+
+        _listaNodeMenu.push(menuRoot);
+
+        setListaNodeMenu(_listaNodeMenu);
+
         expandAll();
     }
-    
+
     const isSubMenu = (menu: AdmMenu): boolean => {
         return menu.idPage === null;
     }
-    
-    const getAdmSubMenus = (menuPai: AdmMenu): AdmMenu[] => {
-        return listaAdmMenu.filter(menu => menu.idMenuParent === menuPai.id);
+
+    const getAdmSubMenus = (listaMenu: AdmMenu[], menuPai: AdmMenu): AdmMenu[] => {
+        return listaMenu.filter(menu => menu.idMenuParent === menuPai.id);
     }
-    
-    const mountSubMenu = (menu: AdmMenu): TreeNode[] => {
-        const lstSubMenu: TreeNode[] = [];
-    
-        getAdmSubMenus(menu).forEach((subMenu: AdmMenu) => {    
+
+    const mountSubMenu = (listaMenu: AdmMenu[], menu: AdmMenu): TreeNode[] => {
+        let lstSubMenu: TreeNode[] = [];
+
+        getAdmSubMenus(listaMenu, menu).forEach((subMenu: AdmMenu) => {
+
             if (isSubMenu(subMenu)) {
-                const m: TreeNode = {};
-                m.data = subMenu;
-                m.label = subMenu.description;
-                m.children = mountSubMenu(subMenu);
+                const m: TreeNode = {
+                    'key': subMenu.id?.toString(),
+                    'label': subMenu.description,
+                    'data': subMenu,
+                    'children': mountSubMenu(listaMenu, subMenu)
+                };
             } else {
-                const m: TreeNode = {};
-                m.data = subMenu;
-                m.label = subMenu.description;
+                const m: TreeNode = {
+                    'key': subMenu.id?.toString(),
+                    'label': subMenu.description,
+                    'data': subMenu,
+                    'children': []
+                };
                 lstSubMenu.push(m);
             }
+
         });
-    
+
         return lstSubMenu;
     }
-    
-    const nodeSelect = (event: NodeOnSelectEventType) => {
-        setSelectedAdmMenu(event.node.data as AdmMenu);
+
+    const onSelect = (event: TreeEventNodeEvent) => {
+        const _menu: AdmMenu = event.node.data as AdmMenu;
+        setSelectedAdmMenu(_menu);
         setSelectedNodeMenu(event.node);
-    }
+    };
 
     const onInsert = () => {
         setAdmMenu(emptyAdmMenu);
@@ -142,16 +158,12 @@ const AdmMenuPage = () => {
         setAdmMenuDialog(true);
     }
     
-    const onEdit = () => {
-        let admMenu: AdmMenu = selectedAdmMenu;
-
+    const onEdit = (admMenu: AdmMenu) => {
         setAdmMenu({ ...admMenu });
         setAdmMenuDialog(true);
     }
     
-    const onDelete = () => {
-        let admMenu: AdmMenu = selectedAdmMenu;
-
+    const onDelete = (admMenu: AdmMenu) => {
         setDeleteAdmMenuDialog(true);
         setAdmMenu({ ...admMenu });
     } 
@@ -190,8 +202,8 @@ const AdmMenuPage = () => {
                 admMenuService.update(admMenu).then((obj: AdmMenu) => {
                     _admMenu = obj;
 
-                    selectedNodeMenu.label = admMenu.description;
-                    selectedNodeMenu.data = admMenu;
+                    //selectedNodeMenu.label = admMenu.description;
+                    //selectedNodeMenu.data = admMenu;
                     
                     const index = admMenuService.findIndexById(listaAdmMenu, admMenu.id);
                     _listaAdmMenu[index] = _admMenu;
@@ -242,33 +254,44 @@ const AdmMenuPage = () => {
     }
 
     const expandAll = () => {
-        listaNodeMenu.forEach((node) => {
-            expandRecursive(node, true);
-        });
-    }
+        let _expandedKeys = {};
+
+        for (let node of listaNodeMenu) {
+            expandNode(node, _expandedKeys);
+        }
+
+        setExpandedKeys(_expandedKeys);
+    };
 
     const collapseAll = () => {
-        listaNodeMenu.forEach((node) => {
-            expandRecursive(node, false);
-        });
-    } 
+        setExpandedKeys({});
+    };
 
-    const expandRecursive = (node: TreeNode, isExpand: boolean) => {
-        node.expanded = isExpand;
-        if (node.children) {
-            node.children.forEach((childNode) => {
-                expandRecursive(childNode, isExpand);
-            });
+    const expandNode = (node: TreeNode, _expandedKeys: TreeExpandedKeysType) => {
+        if (node.children && node.children.length) {
+            _expandedKeys[node.key] = true;
+
+            for (let child of node.children) {
+                expandNode(child, _expandedKeys);
+            }
         }
+    };
+
+    const onAdmMenuParentChange = (e: MyEventType) => {
+        const val: any = e.value;
+        let _admMenu = { ...admMenu };
+        _admMenu.admMenuParent = val;
+
+        setAdmMenu(_admMenu);
     }
 
-    const onDescriptionInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const val = (e.target && e.target.value) || '';
+    const onDescriptionInputChange = (e: React.FormEvent<HTMLInputElement>) => {
+        const val: string = (e.currentTarget && e.currentTarget.value) || '';
         let _admMenu = { ...admMenu };
         _admMenu.description = val;
 
         setAdmMenu(_admMenu);
-    };
+    }
 
     const onOrderInputNumberChange = (e: InputNumberValueChangeEvent) => {
         const val = e.value || 0;
@@ -287,10 +310,10 @@ const AdmMenuPage = () => {
             <React.Fragment>
                 <div className="my-2">
                     <Button label="Adicionar" icon="pi pi-plus" severity="success" className="mr-2" onClick={onInsert} />
-                    <Button label="Editar" icon="pi pi-pencil" severity="warning" className="mr-2" onClick={onEdit} 
-                        disabled={!selectedAdmMenu || !listaAdmMenu || !listaAdmMenu.length} />
-                    <Button label="Excluir" icon="pi pi-trash" severity="danger" onClick={onDelete} 
-                        disabled={!selectedAdmMenu || !listaAdmMenu || !listaAdmMenu.length} />
+                    <Button label="Editar" icon="pi pi-pencil" severity="warning" className="mr-2" onClick={() => onEdit(selectedAdmMenu)}
+                        disabled={!selectedNodeMenu}></Button>
+                    <Button label="Excluir" icon="pi pi-trash" severity="danger" onClick={() => onDelete(selectedAdmMenu)} 
+                        disabled={!selectedAdmMenu || !listaAdmMenu || !listaAdmMenu.length}></Button>
                 </div>
             </React.Fragment>
         );
@@ -334,22 +357,36 @@ const AdmMenuPage = () => {
 
                     <Toolbar className="mb-4" start={leftToolbarTemplate} end={rightToolbarTemplate}></Toolbar>
 
-                    <Tree value={listaNodeMenu} selectionMode="single" selectionKeys={selectedNodeMenu} emptyMessage="Nenhum resultado encontrado" 
-                        onSelectionChange={e => setSelectedNodeMenu(e.value)} onSelect={node => nodeSelect(node)} />
+                    <Tree value={listaNodeMenu} selectionMode="single" selectionKeys={selectedKey} onSelectionChange={(e) => setSelectedKey(e.value)} 
+                        onSelect={onSelect} expandedKeys={expandedKeys} onToggle={(e) => setExpandedKeys(e.value)} />
 
                     <Dialog visible={admMenuDialog} style={{ width: '450px' }} header="Detalhes do menu" modal className="p-fluid" 
                         footer={admMenuDialogFooter} onHide={hideDialog}>
                         <div className="field">
-                            <label htmlFor="description">Descrição</label>
-                            <InputTextarea id="description" value={admMenu.description} onChange={(e) => onDescriptionInputChange(e)} 
-                                required rows={3} cols={20} 
-                                className={classNames({'p-invalid': submitted && !admMenu.description})}
+                            <label htmlFor="admPage">Página:</label>
+                            <Dropdown id="admPage" value={admMenu.admPage} options={listaAdmPage} 
+                                onChange={(e) => onAdmPageChange(e)} optionLabel="description">
+                            </Dropdown>
+                        </div>
+                        <div className="field">
+                            <label htmlFor="description">Nome do menu:</label>
+                            <InputText id="description" value={admMenu.description} onChange={(e) => onDescriptionInputChange(e)}
+                                required className={classNames({'p-invalid': submitted && !admMenu.description})}
                             />
-                            {submitted && !admMenu.description && <small className="p-invalid">A descrição é obrigatória.</small>}
+                            {submitted && !admMenu.description && <small className="p-invalid">O nome do menu é obrigatório.</small>}
+                        </div>
+                        <div className="field">
+                            <label htmlFor="admMenuParent">Menu pai:</label>
+                            <Dropdown id="admMenuParent" value={admMenu.admMenuParent} options={listaAdmMenuParent} 
+                                onChange={(e) => onAdmMenuParentChange(e)} optionLabel="description">
+                            </Dropdown>
                         </div>
                         <div className="field">
                             <label htmlFor="order">Ordem</label>
-                            <InputNumber id="order" value={admMenu.order} locale="pt-BR" onValueChange={(e) => onOrderInputNumberChange(e)} />
+                            <InputNumber id="order" value={admMenu.order} locale="pt-BR" onValueChange={(e) => onOrderInputNumberChange(e)} 
+                                required className={classNames({'p-invalid': submitted && !admMenu.order})}
+                            />
+                            {submitted && !admMenu.order && <small className="p-invalid">A ordem é obrigatória.</small>}
                         </div>
                     </Dialog>
 

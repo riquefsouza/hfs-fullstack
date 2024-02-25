@@ -93,31 +93,20 @@ const AdmPagePage = () => {
 
         menu.toggle(event);
     }
-    
-    const loadAdmProfiles = (admPage: AdmPage | null): void => {
+
+    const loadAdmProfiles = (page: AdmPage) => {
         setTargetProfiles([]);
+        if (page.id != null) {
+            admProfileService.findProfilesByPage(page).then(item => {
+                setTargetProfiles(item);
 
-        if (admPage == null) {
-
-            admProfileService.findAll().then(profiles => {
-                setSourceProfiles(profiles);
-            });
-
-        } else {
-
-            if (admPage.id != null) {
-                admProfileService.findProfilesByPage(admPage).then(data => {
-                    setTargetProfiles(data);
-
-                    admProfileService.findAll().then(profiles => {
-                        setSourceProfiles(profiles.filter(profile =>
-                            !targetProfiles.find(target => target.id === profile.id))
-                        );
-                    });
-
+                admProfileService.findAll().then(profiles => {
+                    setSourceProfiles(profiles.filter(profile => !item.find(target => target.id === profile.id)));
                 });
-            }
 
+            });
+        } else {
+            admProfileService.findAll().then(profiles => setSourceProfiles(profiles));
         }
     }
 
@@ -137,14 +126,14 @@ const AdmPagePage = () => {
 
     const onClean = () => {
         setAdmPage(cleanAdmPage);
-        loadAdmProfiles(null);
+        loadAdmProfiles(cleanAdmPage);
     }
 
     const onInsert = () => {
         setAdmPage(emptyAdmPage);
         setSubmitted(false);      
         setAdmPageDialog(true);
-        loadAdmProfiles(null);
+        loadAdmProfiles(emptyAdmPage);
     }
     
     const onEdit = (admPage: AdmPage) => {

@@ -270,7 +270,7 @@ export default {
             }
         };
 
-        return { listaAdmMenu, admMenu, filters, submitted, expandAll, collapseAll, 
+        return { listaAdmMenu, admMenu, filters, submitted, expandAll, collapseAll, listaAdmPage,
             selectedAdmMenu, admMenuDialog, hideDialog, listaNodeMenu, selectedNodeMenu,
             deleteAdmMenuDialog, confirmDelete, deleteAdmMenusDialog, onNodeSelect, expandedKeys,
             onInsert, onEdit, onDelete, onSave, onExport, onTypeReportChange, onForceDownloadChange }
@@ -310,14 +310,24 @@ export default {
 
                 <Dialog v-model:visible="admMenuDialog" :style="{ width: '450px' }" header="Detalhes do menu" :modal="true" class="p-fluid">
                     <div class="field">
-                        <label for="description">Descrição</label>
-                        <Textarea id="description" v-model="admMenu.description" autofocus required="true" rows="3" cols="20"
+                        <label for="admPage">Página:</label>
+                        <Dropdown id="admPage" v-model="admMenu.admPage" :options="listaAdmPage" optionLabel="description"></Dropdown>
+                    </div>
+                    <div class="field">
+                        <label for="description">Nome do menu:</label>
+                        <InputText id="description" v-model="admMenu.description" required="true"
                             :class="{ 'p-invalid': submitted && !admMenu.description }" />
-                        <small class="p-invalid" v-if="submitted && !admMenu.description">A descrição é obrigatória.</small>
+                        <small class="p-invalid" v-if="submitted && !admMenu.description">O nome do menu é obrigatório.</small>
+                    </div>
+                    <div class="field">
+                        <label for="admMenuParent">Página:</label>
+                        <Dropdown id="admMenuParent" v-model="admMenu.admMenuParent" :options="listaAdmMenuParent" optionLabel="description"></Dropdown>
                     </div>
                     <div class="field">
                         <label for="quantity">Ordem</label>
-                        <InputNumber id="quantity" v-model="admMenu.order" integeronly locale="pt-BR" />
+                        <InputNumber id="quantity" v-model="admMenu.order" integeronly locale="pt-BR" required="true"
+                            :class="{ 'p-invalid': submitted && !admMenu.order }" />
+                        <small class="p-invalid" v-if="submitted && !admMenu.order">A ordem é obrigatória.</small>
                     </div>
                     <template #footer>
                         <Button label="Cancelar" icon="pi pi-times" class="p-button-text" @click="hideDialog" />

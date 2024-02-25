@@ -27,8 +27,8 @@ export default class FuncionarioService {
         return index;
     }
     
-    public async findAllPaginated(param: LazyTableState): Promise<any[]> {
-        
+    public async findAllPaginated(param: LazyTableState): Promise<any[]> {    
+
         let nome: string = "";
         let page: number = param.page;
 
@@ -49,7 +49,7 @@ export default class FuncionarioService {
             
         let url = '';
         if (nome){
-            url = `${this.PATH}/paged?nome${nome}&=page=${page}&size=${size}&sort=${sort},${direction}`;
+            url = `${this.PATH}/paged?nome=${nome}&=page=${page}&size=${size}&sort=${sort},${direction}`;
         } else {
             url = `${this.PATH}/paged?page=${page}&size=${size}&sort=${sort},${direction}`;
         }

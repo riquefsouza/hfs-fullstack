@@ -29,7 +29,7 @@
                 [(selection)]="selectedAdmPage" selectionMode="multiple" [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                        <h5 class="m-0">Gerenciar parâmetros</h5>
+                        <h5 class="m-0">Gerenciar páginas</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
                             <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Procurar..."  class="w-full sm:w-auto"/>
@@ -79,9 +79,9 @@
                 </ng-template>
                 <ng-template pTemplate="summary">
                     <div class="p-d-flex p-ai-center p-jc-between">
-                        No total existem {{listaAdmPage ? listaAdmPage.length : 0 }} paginas.
+                        No total existem {{listaAdmPage ? listaAdmPage.length : 0 }} páginas.
                     </div>
-                </ng-template>            
+                </ng-template>
             </p-table>
         </div>        
 

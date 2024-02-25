@@ -90,13 +90,15 @@ const AdmProfilePage = () => {
         menu.toggle(event);
     }
     
-    const loadAdmPages = () => {
-        setTargetPages([]);
-        if (admProfile.id != null) {
-            setTargetPages([...admProfile.admPages]);
+    const loadAdmPages = (profile: AdmProfile) => {
+        let _targetPages: AdmPage[] = [];
+
+        if (profile.id != null) {
+            _targetPages = profile.admPages;
+            setTargetPages(_targetPages);
         }
         admPageService.findAll().then(pages => {
-            setSourcePages(pages.filter(pager => !targetPages.find(target => target.id === pager.id)));
+            setSourcePages(pages.filter(page => !_targetPages.find(target => target.id === page.id)));
         });
     }
 
@@ -116,20 +118,20 @@ const AdmProfilePage = () => {
 
     const onClean = () => {
         setAdmProfile(cleanAdmProfile);
-        loadAdmPages();
+        loadAdmPages(cleanAdmProfile);
     }
 
     const onInsert = () => {
         setAdmProfile(emptyAdmProfile);
         setSubmitted(false);      
         setAdmProfileDialog(true);
-        loadAdmPages();
+        loadAdmPages(emptyAdmProfile);
     }
     
     const onEdit = (admProfile: AdmProfile) => {
         setAdmProfile({ ...admProfile });
         setAdmProfileDialog(true);
-        loadAdmPages();
+        loadAdmPages(admProfile);
     }
     
     const hideDialog = () => {
@@ -248,14 +250,6 @@ const AdmProfilePage = () => {
     
     const exportExcel = () => {
         exportService.exportExcel(listaAdmProfile, 'Parâmetros');
-    }
-
-    const onUrlChange = (e: React.FormEvent<HTMLInputElement>) => {
-        const val: string = (e.currentTarget && e.currentTarget.value) || '';
-        let _admProfile = { ...admProfile };
-        _admProfile.url = val;
-
-        setAdmProfile(_admProfile);
     }
 
     const onDescriptionInputChange = (e: React.FormEvent<HTMLInputElement>) => {

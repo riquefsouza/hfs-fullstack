@@ -19,7 +19,7 @@ const UsuarioPage = () => {
         let lista: [] = [];
         keycloakService.getUserAuthenticated().roles.forEach((role, index) => {
             lista.push(<li key={index}>{role}</li>);
-        });     
+        });
         
         setListaRoles(lista);    
 
