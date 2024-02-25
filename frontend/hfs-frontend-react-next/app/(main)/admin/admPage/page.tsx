@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
@@ -7,7 +8,7 @@ import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import AdmPageService from '../service/AdmPageService';
 import { AdmPage, cleanAdmPage, emptyAdmPage } from '../api/AdmPage';
 import { ReportParamForm, emptyReportParamForm } from '../../base/models/ReportParamsForm';
@@ -20,10 +21,11 @@ import { ExportService } from '../../base/services/ExportService';
 import { AdmProfile } from '../api/AdmProfile';
 import AdmProfileService from '../service/AdmProfileService';
 import { PickList } from 'primereact/picklist';
+import { CheckboxChangeEvent } from 'primereact/checkbox';
 
 const AdmPagePage = () => {
 
-    const admPageService = new AdmPageService();
+    const [admPageService,] = useState<AdmPageService>(new AdmPageService());
     const admProfileService = new AdmProfileService();
     const exportService = new ExportService();
 
@@ -65,9 +67,9 @@ const AdmPagePage = () => {
             
         setExportColumns(cols.map(col => ({title: col.header, dataKey: col.field})));
       
-    }, []);
+    }, [admPageService, cols]);
 
-    const toggleMenu = (menu: Menu, event: any, rowData: AdmPage) => {
+    const toggleMenu = (menu: React.RefObject<Menu>, event: any, rowData: AdmPage) => {
         setItemsMenuLinha([]);
 
         let _itemsMenuLinha: MenuItem[] = [];
@@ -88,7 +90,9 @@ const AdmPagePage = () => {
 
         setItemsMenuLinha(_itemsMenuLinha);
 
-        menu.toggle(event);
+        if (menu.current){
+            menu.current.toggle(event);
+        }        
     }
 
     const loadAdmProfiles = (page: AdmPage) => {
@@ -156,7 +160,9 @@ const AdmPagePage = () => {
         setSubmitted(true);
         admPage.admIdProfiles = [];
         targetProfiles.forEach(item => {
-            admPage.admIdProfiles.push(item.id)
+            if (item.id){
+                admPage.admIdProfiles.push(item.id);
+            }            
         });
         
         if (admPage.description.trim()) {
@@ -167,11 +173,13 @@ const AdmPagePage = () => {
                 admPageService.update(admPage).then((obj: AdmPage) => {
                     _admPage = obj;
                     
-                    const index = admPageService.findIndexById(listaAdmPage, admPage.id);
-                    _listaAdmPage[index] = _admPage;
-
-                    setListaAdmPage(_listaAdmPage);
-                    toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Página Atualizada', life: 3000 });                    
+                    if (admPage.id){
+                        const index = admPageService.findIndexById(listaAdmPage, admPage.id);
+                        _listaAdmPage[index] = _admPage;
+    
+                        setListaAdmPage(_listaAdmPage);
+                        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Página Atualizada', life: 3000 });    
+                    }
                 });
             } else {
                 admPageService.insert(admPage).then((obj: AdmPage) => {
@@ -202,9 +210,11 @@ const AdmPagePage = () => {
   
         let excluiu = false;
         selectedAdmPages.forEach((item) => {
-            admPageService.delete(item.id).then(obj => {
-                excluiu = true;
-            });
+            if (item.id){
+                admPageService.delete(item.id).then(obj => {
+                    excluiu = true;
+                });    
+            }
         });
     
         if (excluiu) {
@@ -215,11 +225,13 @@ const AdmPagePage = () => {
   
     const confirmDelete = () => {
         setDeleteAdmPageDialog(false);
-        admPageService.delete(admPage.id).then(obj => {
-            setListaAdmPage(listaAdmPage.filter(val => val.id !== admPage.id));
-            setAdmPage(emptyAdmPage); 
-            toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Página excluída', life: 3000 });
-        });
+        if (admPage.id){
+            admPageService.delete(admPage.id).then(obj => {
+                setListaAdmPage(listaAdmPage.filter(val => val.id !== admPage.id));
+                setAdmPage(emptyAdmPage); 
+                toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Página excluída', life: 3000 });
+            });
+        }
     }
   
     const onChangedTypeReport = (typeReport: ItypeReport) => {
@@ -228,10 +240,13 @@ const AdmPagePage = () => {
           forceDownload: selectedForceDownload });
     }
     
-    const onChangedForceDownload = (forceDownload: boolean) => {
-        setSelectedForceDownload(forceDownload);
-        setReportParamForm({ reportType: selectedTypeReport.type, 
-          forceDownload: forceDownload });
+    const onChangedForceDownload = (event: CheckboxChangeEvent) => {
+        const forceDownload = event.checked;
+        if (forceDownload){
+            setSelectedForceDownload(forceDownload);
+            setReportParamForm({ reportType: selectedTypeReport.type, 
+              forceDownload: forceDownload });    
+        }
     }
     
     const onExport = () => {
@@ -367,7 +382,7 @@ const AdmPagePage = () => {
             return (
                 <>
                     <div className="flex">                        
-                        <Button link icon="pi pi-ellipsis-v" onClick={(event) => toggleMenu(popupMenu.current, event, rowData)} style={{ cursor: 'pointer' }} 
+                        <Button link icon="pi pi-ellipsis-v" onClick={(event) => toggleMenu(popupMenu, event, rowData)} style={{ cursor: 'pointer' }} 
                             aria-controls="popup_menu" aria-haspopup />                            
                     </div>
                 </>
@@ -411,7 +426,7 @@ const AdmPagePage = () => {
                     <Toast ref={toast} />
                     <Panel header="Página" className="p-mb-2">
                         <ReportPanelComponent typeReportChange={e => onChangedTypeReport(e.value)}
-                            forceDownloadChange={e => onChangedForceDownload(e.checked)}
+                            forceDownloadChange={e => onChangedForceDownload(e)}
                         ></ReportPanelComponent>
                     </Panel>
 

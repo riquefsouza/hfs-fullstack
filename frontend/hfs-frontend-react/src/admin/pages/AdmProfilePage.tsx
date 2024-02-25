@@ -323,15 +323,6 @@ const AdmProfilePage = () => {
         );
     };    
 
-    const urlBodyTemplate = (rowData: AdmProfile) => {
-        return (
-            <>
-                <span className="p-column-title">Perfil</span>
-                {rowData.url}
-            </>
-        );
-    };    
-
     const profilePagesBodyTemplate = (rowData: AdmProfile) => {
         return (
             <>

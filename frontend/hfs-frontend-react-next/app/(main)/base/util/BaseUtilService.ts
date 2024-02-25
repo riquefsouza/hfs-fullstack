@@ -19,11 +19,11 @@ export class BaseUtilService {
         return scpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
     }
 
-    public cpfFormatadoParaCpf(cpfFormatado: string): number | null {
+    public cpfFormatadoParaCpf(cpfFormatado: string): number {
         if (cpfFormatado.length == 14)
             return parseInt(cpfFormatado.replaceAll(".", "").replaceAll("-", ""), 10);
 
-        return null;
+        return -1;
     }
 
     public dataStringToDate(sdata: string): Date | null {

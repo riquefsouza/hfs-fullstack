@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
@@ -7,7 +8,7 @@ import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import AdmMenuService from '../service/AdmMenuService';
 import { AdmMenu, emptyAdmMenu } from '../api/AdmMenu';
 import { ReportParamForm, emptyReportParamForm } from '../../base/models/ReportParamsForm';
@@ -18,13 +19,14 @@ import { TreeNode } from 'primereact/treenode';
 import { emptyTreeNode } from '../../base/models/NodeOnSelectEventType';
 import AdmPageService from '../service/AdmPageService';
 import { AdmPage } from '../api/AdmPage';
-import { Tree, TreeEventNodeEvent, TreeExpandedKeysType } from 'primereact/tree';
+import { Tree, TreeEventNodeEvent, TreeExpandedKeysType, TreeSelectionEvent } from 'primereact/tree';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { CheckboxChangeEvent } from 'primereact/checkbox';
 
 const AdmMenuPage = () => {
 
-    const admMenuService = new AdmMenuService();
-    const admPageService = new AdmPageService();
+    const [admMenuService,] = useState<AdmMenuService>(new AdmMenuService());
+    const [admPageService,] = useState<AdmPageService>(new AdmPageService());
 
     const [listaAdmMenu, setListaAdmMenu] = useState<AdmMenu[]>([]);
     const [admMenuDialog, setAdmMenuDialog] = useState<boolean>(false);
@@ -50,73 +52,9 @@ const AdmMenuPage = () => {
     const [selectedKey, setSelectedKey] = useState<string>('');
     const [menuRoot, setMenuRoot] = useState<TreeNode>(emptyTreeNode);
     const [listaAdmPage, setListaAdmPage] = useState<AdmPage[]>([]);
-    const [listaAdmMenuParent, setListaAdmMenuParent] = useState<AdmMenu[]>([]);
+    const [listaAdmMenuParent, setListaAdmMenuParent] = useState<AdmMenu[]>([]);    
 
-    useEffect(() => {
-        atualizarArvore();
-
-        setCols([
-            { field: 'id', header: 'Id' },
-            { field: 'description', header: 'Description' }
-          ]);
-      
-          setExportColumns(cols.map(col => ({title: col.header, dataKey: col.field})));
-      
-    }, []);
-
-    const atualizarArvore = () => {
-        setListaNodeMenu([]);
-        setListaAdmMenu([]);
-        setListaAdmMenuParent([]);
-        
-        admPageService.findAll().then(data => setListaAdmPage(data));
-    
-        admMenuService.findAll().then(data => {
-            setListaAdmMenu(data);
-    
-            setListaAdmMenuParent(data.filter(menu => menu.idMenuParent == null));
-    
-            updateMenusTree(data);
-        });
-    }
-
-    const updateMenusTree = (listaMenu: AdmMenu[]): void => {
-        const _listaNodeMenu: TreeNode[] = [];
-        let _listaAdmMenuParent: AdmMenu[] = [];
-        const menuRoot: TreeNode = {
-            'label': 'Menu do sistema',
-            'data': '0',
-            'children': []
-        };
-
-        _listaAdmMenuParent = listaMenu.filter(menu => menu.idMenuParent == null);
-
-        _listaAdmMenuParent.forEach((itemMenu: AdmMenu) => {
-            const m: TreeNode = {
-                'key' : itemMenu.id?.toString(),
-                'label': itemMenu.description,
-                'data': itemMenu,
-                'children': mountSubMenu(listaMenu, itemMenu)
-            };
-            menuRoot.children.push(m);
-        });
-
-        _listaNodeMenu.push(menuRoot);
-
-        setListaNodeMenu(_listaNodeMenu);
-
-        expandAll();
-    }
-
-    const isSubMenu = (menu: AdmMenu): boolean => {
-        return menu.idPage === null;
-    }
-
-    const getAdmSubMenus = (listaMenu: AdmMenu[], menuPai: AdmMenu): AdmMenu[] => {
-        return listaMenu.filter(menu => menu.idMenuParent === menuPai.id);
-    }
-
-    const mountSubMenu = (listaMenu: AdmMenu[], menu: AdmMenu): TreeNode[] => {
+    const mountSubMenu = useCallback((listaMenu: AdmMenu[], menu: AdmMenu): TreeNode[] => {
         let lstSubMenu: TreeNode[] = [];
 
         getAdmSubMenus(listaMenu, menu).forEach((subMenu: AdmMenu) => {
@@ -141,6 +79,98 @@ const AdmMenuPage = () => {
         });
 
         return lstSubMenu;
+    }, []);
+
+    const expandNode = useCallback((node: TreeNode, _expandedKeys: TreeExpandedKeysType) => {
+        if (node.children && node.children.length) {
+            if (node.key){
+                _expandedKeys[node.key] = true;
+
+                for (let child of node.children) {
+                    expandNode(child, _expandedKeys);
+                }    
+            }
+        }
+    }, []);
+
+    const collapseAll = () => {
+        setExpandedKeys({});
+    };
+
+    const expandAll = useCallback(() => {
+        let _expandedKeys = {};
+
+        for (let node of listaNodeMenu) {
+            expandNode(node, _expandedKeys);
+        }
+
+        setExpandedKeys(_expandedKeys);
+    }, [expandNode, listaNodeMenu]);
+
+    const updateMenusTree = useCallback((listaMenu: AdmMenu[]): void => {
+        const _listaNodeMenu: TreeNode[] = [];
+        let _listaAdmMenuParent: AdmMenu[] = [];
+        const menuRoot: TreeNode = {
+            'label': 'Menu do sistema',
+            'data': '0',
+            'children': []
+        };
+
+        _listaAdmMenuParent = listaMenu.filter(menu => menu.idMenuParent == null);
+
+        _listaAdmMenuParent.forEach((itemMenu: AdmMenu) => {
+            const m: TreeNode = {
+                'key' : itemMenu.id?.toString(),
+                'label': itemMenu.description,
+                'data': itemMenu,
+                'children': mountSubMenu(listaMenu, itemMenu)
+            };
+            if (menuRoot.children){
+                menuRoot.children.push(m);
+            }            
+        });
+
+        _listaNodeMenu.push(menuRoot);
+
+        setListaNodeMenu(_listaNodeMenu);
+
+        expandAll();
+    }, [expandAll, mountSubMenu]);
+
+    const atualizarArvore = useCallback(() => {
+        setListaNodeMenu([]);
+        setListaAdmMenu([]);
+        setListaAdmMenuParent([]);
+        
+        admPageService.findAll().then(data => setListaAdmPage(data));
+    
+        admMenuService.findAll().then(data => {
+            setListaAdmMenu(data);
+    
+            setListaAdmMenuParent(data.filter(menu => menu.idMenuParent == null));
+    
+            updateMenusTree(data);
+        });
+    }, [admMenuService, admPageService, updateMenusTree]);
+
+    useEffect(() => {
+        atualizarArvore();
+
+        setCols([
+            { field: 'id', header: 'Id' },
+            { field: 'description', header: 'Description' }
+          ]);
+      
+          setExportColumns(cols.map(col => ({title: col.header, dataKey: col.field})));
+      
+    }, [atualizarArvore, cols]);
+
+    const isSubMenu = (menu: AdmMenu): boolean => {
+        return menu.idPage === null;
+    }
+
+    const getAdmSubMenus = (listaMenu: AdmMenu[], menuPai: AdmMenu): AdmMenu[] => {
+        return listaMenu.filter(menu => menu.idMenuParent === menuPai.id);
     }
 
     const onSelect = (event: TreeEventNodeEvent) => {
@@ -169,12 +199,14 @@ const AdmMenuPage = () => {
         let admMenu: AdmMenu = selectedAdmMenu;
 
         setDeleteAdmMenuDialog(false);
-        admMenuService.delete(admMenu.id).then(obj => {
-            setListaAdmMenu(listaAdmMenu.filter(val => val.id !== admMenu.id));
-            setAdmMenu(emptyAdmMenu); 
-            updateMenusTree(listaAdmMenu);
-            toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Menu excluído', life: 3000 });
-        });
+        if (admMenu.id){
+            admMenuService.delete(admMenu.id).then(obj => {
+                setListaAdmMenu(listaAdmMenu.filter(val => val.id !== admMenu.id));
+                setAdmMenu(emptyAdmMenu); 
+                updateMenusTree(listaAdmMenu);
+                toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Menu excluído', life: 3000 });
+            });    
+        }
     }
 
     const hideDialog = () => {
@@ -185,10 +217,14 @@ const AdmMenuPage = () => {
     const onSave = () => {
         setSubmitted(true);
         if (admMenu.admPage!=null){
-            admMenu.idPage = admMenu.admPage.id;
+            if (admMenu.admPage.id){
+                admMenu.idPage = admMenu.admPage.id;
+            }            
         }
         if (admMenu.admMenuParent!=null){
-            admMenu.idMenuParent = admMenu.admMenuParent.id;
+            if (admMenu.admMenuParent.id){
+                admMenu.idMenuParent = admMenu.admMenuParent.id;
+            }
         }      
     
         if (admMenu.description.trim()) {
@@ -201,16 +237,17 @@ const AdmMenuPage = () => {
 
                     //selectedNodeMenu.label = admMenu.description;
                     //selectedNodeMenu.data = admMenu;
-                    
-                    const index = admMenuService.findIndexById(listaAdmMenu, admMenu.id);
-                    _listaAdmMenu[index] = _admMenu;
-                    setListaAdmMenu(_listaAdmMenu);
-
-                    setAdmMenuDialog(false);
-                    setAdmMenu(emptyAdmMenu);        
-                    updateMenusTree(listaAdmMenu);
-        
-                    toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Menu Atualizado', life: 3000 });                    
+                    if (admMenu.id){
+                        const index = admMenuService.findIndexById(listaAdmMenu, admMenu.id);
+                        _listaAdmMenu[index] = _admMenu;
+                        setListaAdmMenu(_listaAdmMenu);
+    
+                        setAdmMenuDialog(false);
+                        setAdmMenu(emptyAdmMenu);        
+                        updateMenusTree(listaAdmMenu);
+            
+                        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Menu Atualizado', life: 3000 });    
+                    }
                 });
             } else {
                 admMenuService.insert(admMenu).then((obj: AdmMenu) => {
@@ -237,10 +274,13 @@ const AdmMenuPage = () => {
           forceDownload: selectedForceDownload });
     }
     
-    const onChangedForceDownload = (forceDownload: boolean) => {
-        setSelectedForceDownload(forceDownload);
-        setReportParamForm({ reportType: selectedTypeReport.type, 
-          forceDownload: forceDownload });
+    const onChangedForceDownload = (event: CheckboxChangeEvent) => {
+        const forceDownload = event.checked;
+        if (forceDownload){
+            setSelectedForceDownload(forceDownload);
+            setReportParamForm({ reportType: selectedTypeReport.type, 
+              forceDownload: forceDownload });    
+        }
     }
     
     const onExport = () => {
@@ -249,30 +289,6 @@ const AdmMenuPage = () => {
             detail: 'Menu exportada', life: 3000 });
         });
     }
-
-    const expandAll = () => {
-        let _expandedKeys = {};
-
-        for (let node of listaNodeMenu) {
-            expandNode(node, _expandedKeys);
-        }
-
-        setExpandedKeys(_expandedKeys);
-    };
-
-    const collapseAll = () => {
-        setExpandedKeys({});
-    };
-
-    const expandNode = (node: TreeNode, _expandedKeys: TreeExpandedKeysType) => {
-        if (node.children && node.children.length) {
-            _expandedKeys[node.key] = true;
-
-            for (let child of node.children) {
-                expandNode(child, _expandedKeys);
-            }
-        }
-    };
 
     const onAdmPageChange = (e: DropdownChangeEvent) => {
         const val: any = e.value;
@@ -309,6 +325,10 @@ const AdmMenuPage = () => {
     const hideDeleteAdmMenuDialog = () => {
         setDeleteAdmMenuDialog(false);
     };
+
+    const onSelectionChange = (event: TreeSelectionEvent) => {
+        setSelectedKey(event.value as string);
+    }
 
     const leftToolbarTemplate = () => {
         return (
@@ -355,14 +375,14 @@ const AdmMenuPage = () => {
                 <div className="card">
                     <Toast ref={toast} />
                     <Panel header="Menu de configuração" className="p-mb-2">
-                        <ReportPanelComponent typeReportChange={e => onChangedTypeReport(e.value)}
-                            forceDownloadChange={e => onChangedForceDownload(e.checked)}
+                        <ReportPanelComponent typeReportChange={e => onChangedTypeReport(e.value)}                        
+                            forceDownloadChange={e => onChangedForceDownload(e)}
                         ></ReportPanelComponent>
                     </Panel>
 
                     <Toolbar className="mb-4" start={leftToolbarTemplate} end={rightToolbarTemplate}></Toolbar>
 
-                    <Tree value={listaNodeMenu} selectionMode="single" selectionKeys={selectedKey} onSelectionChange={(e) => setSelectedKey(e.value)} 
+                    <Tree value={listaNodeMenu} selectionMode="single" selectionKeys={selectedKey} onSelectionChange={(e) => onSelectionChange(e)} 
                         onSelect={onSelect} expandedKeys={expandedKeys} onToggle={(e) => setExpandedKeys(e.value)} />
 
                     <Dialog visible={admMenuDialog} style={{ width: '450px' }} header="Detalhes do menu" modal className="p-fluid" 

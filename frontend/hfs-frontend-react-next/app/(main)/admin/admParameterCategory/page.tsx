@@ -17,10 +17,11 @@ import { ReportParamForm, emptyReportParamForm } from '../../base/models/ReportP
 import { ItypeReport, PDFReport } from '../../base/services/ReportService';
 import { Panel } from 'primereact/panel';
 import ReportPanelComponent from '../../base/components/ReportPanel';
+import { CheckboxChangeEvent } from 'primereact/checkbox';
 
-const Crud = () => {
+const AdmParameterCategoryPage = () => {
 
-    const admParameterCategoryService = new AdmParameterCategoryService();
+    const [admParameterCategoryService,] = useState<AdmParameterCategoryService>(new AdmParameterCategoryService());
 
     const [listaAdmParameterCategory, setListaAdmParameterCategory] = useState<AdmParameterCategory[]>([]);
     const [admParameterCategoryDialog, setAdmParameterCategoryDialog] = useState<boolean>(false);
@@ -48,7 +49,7 @@ const Crud = () => {
             { field: 'order', header: 'Ordem' }
         ]);
       
-    }, []);
+    }, [admParameterCategoryService, cols]);
 
     const onInsert = () => {
         setAdmParameterCategory(emptyAdmParameterCategory);
@@ -85,10 +86,12 @@ const Crud = () => {
                 admParameterCategoryService.update(admParameterCategory).then((obj: AdmParameterCategory) => {
                     _admParameterCategory = obj;
                     
-                    const index = admParameterCategoryService.findIndexById(listaAdmParameterCategory, admParameterCategory.id);
-                    _listaAdmParameterCategory[index] = _admParameterCategory;
-                    setListaAdmParameterCategory(_listaAdmParameterCategory);
-                    toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Categoria de parâmetro Atualizada', life: 3000 });                    
+                    if (admParameterCategory.id) {
+                        const index = admParameterCategoryService.findIndexById(listaAdmParameterCategory, admParameterCategory.id);
+                        _listaAdmParameterCategory[index] = _admParameterCategory;
+                        setListaAdmParameterCategory(_listaAdmParameterCategory);
+                        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Categoria de parâmetro Atualizada', life: 3000 });                        
+                    }
                 });
             } else {
                 admParameterCategoryService.insert(admParameterCategory).then((obj: AdmParameterCategory) => {
@@ -119,9 +122,11 @@ const Crud = () => {
   
         let excluiu = false;
         selectedAdmParameterCategorys.forEach((item) => {
-            admParameterCategoryService.delete(item.id).then(obj => {
-                excluiu = true;
-            });
+            if (item.id) {
+                admParameterCategoryService.delete(item.id).then(obj => {
+                    excluiu = true;
+                });    
+            }
         });
     
         if (excluiu) {
@@ -132,11 +137,13 @@ const Crud = () => {
   
     const confirmDelete = () => {
         setDeleteAdmParameterCategoryDialog(false);
-        admParameterCategoryService.delete(admParameterCategory.id).then(obj => {
-            setListaAdmParameterCategory(listaAdmParameterCategory.filter(val => val.id !== admParameterCategory.id));
-            setAdmParameterCategory(emptyAdmParameterCategory); 
-            toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Categoria de parâmetro excluído', life: 3000 });
-        });
+        if (admParameterCategory.id) {
+            admParameterCategoryService.delete(admParameterCategory.id).then(obj => {
+                setListaAdmParameterCategory(listaAdmParameterCategory.filter(val => val.id !== admParameterCategory.id));
+                setAdmParameterCategory(emptyAdmParameterCategory); 
+                toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Categoria de parâmetro excluído', life: 3000 });
+            });    
+        }
     }
   
     const onChangedTypeReport = (typeReport: ItypeReport) => {
@@ -145,10 +152,13 @@ const Crud = () => {
           forceDownload: selectedForceDownload });
     }
     
-    const onChangedForceDownload = (forceDownload: boolean) => {
-        setSelectedForceDownload(forceDownload);
-        setReportParamForm({ reportType: selectedTypeReport.type, 
-          forceDownload: forceDownload });
+    const onChangedForceDownload = (event: CheckboxChangeEvent) => {
+        const forceDownload = event.checked;
+        if (forceDownload){
+            setSelectedForceDownload(forceDownload);
+            setReportParamForm({ reportType: selectedTypeReport.type, 
+              forceDownload: forceDownload });    
+        }
     }
     
     const onExport = () => {
@@ -201,6 +211,12 @@ const Crud = () => {
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Procurar..." />
             </span>
+        </div>
+    );
+
+    const tabelaFooter = (
+        <div className="p-d-flex p-ai-center p-jc-between">
+            No total existem {listaAdmParameterCategory ? listaAdmParameterCategory.length : 0 } categorias de parâmetro.
         </div>
     );
 
@@ -268,19 +284,19 @@ const Crud = () => {
                     <Toast ref={toast} />
                     <Panel header="Categoria de parâmetro de configuração" className="p-mb-2">
                         <ReportPanelComponent typeReportChange={e => onChangedTypeReport(e.value)}
-                            forceDownloadChange={e => onChangedForceDownload(e.checked)}
+                            forceDownloadChange={e => onChangedForceDownload(e)}
                         ></ReportPanelComponent>
                     </Panel>
 
                     <Toolbar className="mb-4" start={leftToolbarTemplate} end={rightToolbarTemplate}></Toolbar>
 
                     <DataTable ref={dt} value={listaAdmParameterCategory} selection={selectedAdmParameterCategorys}
-                        onSelectionChange={(e) => setSelectedAdmParameterCategorys(e.value as any)}
+                        onSelectionChange={(e) => setSelectedAdmParameterCategorys(e.value as any)} paginatorPosition="both"
                         dataKey="id" paginator rows={10} rowsPerPageOptions={[10,30,50,100,150,200]} className="datatable-responsive"
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Mostrando {first} até {last} de {totalRecords} entradas" 
                         globalFilter={globalFilter} emptyMessage="Nenhum registro encontrado."
-                        header={tabelaHeader} responsiveLayout="scroll"
+                        header={tabelaHeader} footer={tabelaFooter} responsiveLayout="scroll"
                     >
                         <Column selectionMode="multiple" headerStyle={{ width: '4rem' }}></Column>
                         <Column field="id" header="Id" sortable headerStyle={{ width: '14%', minWidth: '10rem' }} body={idBodyTemplate}></Column>
@@ -330,4 +346,4 @@ const Crud = () => {
     );
 };
 
-export default Crud;
+export default AdmParameterCategoryPage;

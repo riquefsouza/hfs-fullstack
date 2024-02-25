@@ -1,4 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable, DataTableSelectionSingleChangeEvent, DataTableSelectAllChangeEvent, 
@@ -10,7 +12,6 @@ import { InputMask, InputMaskChangeEvent } from 'primereact/inputmask';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
-import React, { useEffect, useRef, useState } from 'react';
 import FuncionarioService from '../service/FuncionarioService';
 import { Funcionario, cleanFuncionario, emptyFuncionario } from '../api/Funcionario';
 import { ReportParamForm, emptyReportParamForm } from '../../base/models/ReportParamsForm';
@@ -27,7 +28,7 @@ import { FilterMatchMode } from 'primereact/api';
 
 const FuncionarioPage = () => {
 
-    const funcionarioService = new FuncionarioService();
+    const [funcionarioService,] = useState<FuncionarioService>(new FuncionarioService());
     const exportService = new ExportService();
     const baseUtilService = new BaseUtilService();
 
@@ -73,6 +74,16 @@ const FuncionarioPage = () => {
         'nome': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     });    
 
+    const loadFuncionarios = useCallback(() => {
+        setLoading(true);
+
+        funcionarioService.findAllPaginated(lazyState).then((data) => {
+            setListaFuncionario(data.content);            
+            setTotalRecords(data.totalElements);
+            setLoading(false);
+        });
+    }, [lazyState, funcionarioService]);
+
     useEffect(() => {
         setCols([
             { field: 'id', header: 'Código' },
@@ -92,31 +103,42 @@ const FuncionarioPage = () => {
         setExportColumns(cols.map(col => ({title: col.header, dataKey: col.field})));
      
         loadFuncionarios();
-    }, [lazyState]);
-
-    
-    const loadFuncionarios = () => {
-        setLoading(true);
-
-        funcionarioService.findAllPaginated(lazyState).then((data) => {
-            setListaFuncionario(data['content']);
-            setTotalRecords(data['totalElements']);
-            setLoading(false);
-        });
-
-    }
+    }, [lazyState, cols, loadFuncionarios]);
 
     const onPage = (event: DataTablePageEvent) => {
-        setlazyState(event);
+        if (event.page){
+            setlazyState({
+                first: event.first,
+                rows: event.rows,
+                page: event.page,
+                sortField: lazyState.sortField,
+                sortOrder: lazyState.sortOrder,
+                filters: lazyState.filters
+            });
+        }
     };
 
     const onSort = (event: DataTableSortEvent) => {
-        setlazyState(event);
+        setlazyState({
+            first: lazyState.first,
+            rows: lazyState.rows,
+            page: lazyState.page,
+            sortField: event.sortField,
+            sortOrder: event.sortOrder,
+            filters: lazyState.filters
+        });
     };
 
     const onFilter = (event: DataTableFilterEvent) => {
         event['first'] = 0;
-        setlazyState(event);
+        setlazyState({
+            first: lazyState.first,
+            rows: lazyState.rows,
+            page: lazyState.page,
+            sortField: lazyState.sortField,
+            sortOrder: lazyState.sortOrder,
+            filters: event.filters
+        });
     };    
 
     const onSelectionChange = (event: DataTableSelectionSingleChangeEvent<[]>) => {
@@ -193,10 +215,12 @@ const FuncionarioPage = () => {
                 funcionarioService.update(funcionario).then((obj: Funcionario) => {
                     _funcionario = obj;
                     
-                    const index = funcionarioService.findIndexById(listaFuncionario, funcionario.id);
-                    _listaFuncionario[index] = _funcionario;
-                    setListaFuncionario(_listaFuncionario);
-                    toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Funcionário Atualizado', life: 3000 });                    
+                    if(funcionario.id){
+                        const index = funcionarioService.findIndexById(listaFuncionario, funcionario.id);
+                        _listaFuncionario[index] = _funcionario;
+                        setListaFuncionario(_listaFuncionario);
+                        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Funcionário Atualizado', life: 3000 });    
+                    }
                 });
             } else {
                 funcionarioService.insert(funcionario).then((obj: Funcionario) => {
@@ -227,9 +251,11 @@ const FuncionarioPage = () => {
   
         let excluiu = false;
         selectedFuncionarios.forEach((item) => {
-            funcionarioService.delete(item.id).then(obj => {
-                excluiu = true;
-            });
+            if (item.id){
+                funcionarioService.delete(item.id).then(obj => {
+                    excluiu = true;
+                });    
+            }
         });
     
         if (excluiu) {
@@ -240,11 +266,13 @@ const FuncionarioPage = () => {
   
     const confirmDelete = () => {
         setDeleteFuncionarioDialog(false);
-        funcionarioService.delete(funcionario.id).then(obj => {
-            setListaFuncionario(listaFuncionario.filter(val => val.id !== funcionario.id));
-            setFuncionario(emptyFuncionario); 
-            toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Funcionário excluído', life: 3000 });
-        });
+        if (funcionario.id){
+            funcionarioService.delete(funcionario.id).then(obj => {
+                setListaFuncionario(listaFuncionario.filter(val => val.id !== funcionario.id));
+                setFuncionario(emptyFuncionario); 
+                toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Funcionário excluído', life: 3000 });
+            });    
+        }
     }
   
     const onChangedTypeReport = (typeReport: ItypeReport) => {
@@ -253,10 +281,13 @@ const FuncionarioPage = () => {
           forceDownload: selectedForceDownload });
     }
     
-    const onChangedForceDownload = (forceDownload: boolean) => {
-        setSelectedForceDownload(forceDownload);
-        setReportParamForm({ reportType: selectedTypeReport.type, 
-          forceDownload: forceDownload });
+    const onChangedForceDownload = (event: CheckboxChangeEvent) => {
+        const forceDownload = event.checked;
+        if (forceDownload){
+            setSelectedForceDownload(forceDownload);
+            setReportParamForm({ reportType: selectedTypeReport.type, 
+              forceDownload: forceDownload });    
+        }
     }
     
     const onExport = () => {
@@ -277,8 +308,10 @@ const FuncionarioPage = () => {
         setGlobalFilterValue(value);
     };
 
-    const exportCSV = (selectionOnly) => {
-        dt.current.exportCSV(selectionOnly);
+    const exportCSV = (param: boolean) => {
+        if (dt.current){
+            dt.current.exportCSV({ selectionOnly: param });
+        }
     };
 
     const exportPdf = () => {
@@ -364,8 +397,10 @@ const FuncionarioPage = () => {
 
     const onAtivoChange = (e: CheckboxChangeEvent) => {        
         let _funcionario = { ...funcionario };
-        _funcionario.ativo = e.checked;
-        
+        if (e.checked!==undefined){
+            _funcionario.ativo = e.checked;
+        }
+
         setFuncionario(_funcionario);
     }
 
@@ -400,7 +435,7 @@ const FuncionarioPage = () => {
                     className="p-button-success mr-2" tooltip="XLS" tooltipOptions={{ position: 'bottom' }} />
                 <Button type="button" icon="pi pi-file-pdf" onClick={exportPdf} data-pr-tooltip="PDF"
                     className="p-button-warning mr-2" tooltip="PDF" tooltipOptions={{ position: 'bottom' }} />
-                <Button type="button" icon="pi pi-filter" onClick={() => exportCSV({ selectionOnly: true })} data-pr-tooltip="CSV"
+                <Button type="button" icon="pi pi-filter" onClick={() => exportCSV(true)} data-pr-tooltip="CSV"
                     className="p-button-info mr-2" tooltip="Somente Seleção" tooltipOptions={{ position: 'bottom' }} />
             </div>        
         </div>
@@ -567,7 +602,7 @@ const FuncionarioPage = () => {
                     <Toast ref={toast} />
                     <Panel header="Funcionário" className="p-mb-2">
                         <ReportPanelComponent typeReportChange={e => onChangedTypeReport(e.value)}
-                            forceDownloadChange={e => onChangedForceDownload(e.checked)}
+                            forceDownloadChange={e => onChangedForceDownload(e)}
                         ></ReportPanelComponent>
                     </Panel>
 

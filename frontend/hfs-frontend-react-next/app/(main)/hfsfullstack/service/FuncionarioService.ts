@@ -1,10 +1,13 @@
 import { environment } from "@/environments/environment";
 import { HttpStatusCode } from "axios";
 import { ErrorResponseDTO } from "../../base/models/ErrorResponseDTO";
-import { Funcionario } from "../api/funcionario";
+import { Funcionario } from "../api/Funcionario";
 import axios from "../../base/interceptors/AxiosRequestInterceptor";
 import { ReportParamForm } from "../../base/models/ReportParamsForm";
 import FileSaver from "file-saver";
+import { LazyTableState } from "../../base/models/LazyTableState";
+import { DataTableFilterMetaData, DataTableOperatorFilterMetaData } from "primereact/datatable";
+import { PaginationDTO } from "../../base/models/PaginationDTO";
 
 export default class FuncionarioService {
 
@@ -24,18 +27,39 @@ export default class FuncionarioService {
         }
         return index;
     }
-
     
-    public async findAllPaginated(page: number, size: number, 
-        sort: string, direction: string): Promise<any[]> {
-            
-        const url = `${this.PATH}/paged?page=${page}&size=${size}&sort=${sort},${direction}`;
+    public async findAllPaginated(param: LazyTableState): Promise<PaginationDTO> {    
 
-        const response = await axios.get<any[]>(url);
+        let nome: string = "";
+        let page: number = param.page;
+
+        page = param.first / param.rows;
+        
+        if(param.sortField === undefined){
+            param.sortField = 'id';
+        }
+
+        if (param.filters['nome'] !== undefined){
+            let filtro: DataTableFilterMetaData = param.filters['nome'] as DataTableFilterMetaData;
+            nome = filtro.value;
+        }
+
+        let size: number = param.rows;
+        let sort: string = param.sortField;
+        let direction: string = (param.sortOrder === 1 ? 'asc' : 'desc');
+            
+        let url = '';
+        if (nome){
+            url = `${this.PATH}/paged?nome=${nome}&=page=${page}&size=${size}&sort=${sort},${direction}`;
+        } else {
+            url = `${this.PATH}/paged?page=${page}&size=${size}&sort=${sort},${direction}`;
+        }
+                
+        const response = await axios.get<PaginationDTO>(url);
 
         if (response.status == HttpStatusCode.Ok){
             const json = response.data;            
-            const data = json as any[];
+            const data = json as PaginationDTO;
             return data;
         } else {
             const json = response.data as ErrorResponseDTO;

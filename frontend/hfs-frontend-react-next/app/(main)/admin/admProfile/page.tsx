@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
@@ -8,8 +9,8 @@ import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
-import AdmPageService from '../service/AdmPageService';
-import { AdmPage, cleanAdmPage, emptyAdmPage } from '../api/AdmPage';
+import AdmProfileService from '../service/AdmProfileService';
+import { AdmProfile, cleanAdmProfile, emptyAdmProfile } from '../api/AdmProfile';
 import { ReportParamForm, emptyReportParamForm } from '../../base/models/ReportParamsForm';
 import { ItypeReport, PDFReport } from '../../base/services/ReportService';
 import { Panel } from 'primereact/panel';
@@ -17,22 +18,23 @@ import ReportPanelComponent from '../../base/components/ReportPanel';
 import { Menu } from 'primereact/menu';
 import { MenuItem } from 'primereact/menuitem';
 import { ExportService } from '../../base/services/ExportService';
-import { AdmProfile } from '../api/AdmProfile';
-import AdmProfileService from '../service/AdmProfileService';
 import { PickList } from 'primereact/picklist';
+import { AdmPage } from '../api/AdmPage';
+import AdmPageService from '../service/AdmPageService';
+import { CheckboxChangeEvent } from 'primereact/checkbox';
 
-const AdmPagePage = () => {
+const AdmProfilePage = () => {
 
+    const [admProfileService,] = useState<AdmProfileService>(new AdmProfileService());
     const admPageService = new AdmPageService();
-    const admProfileService = new AdmProfileService();
     const exportService = new ExportService();
 
-    const [listaAdmPage, setListaAdmPage] = useState<AdmPage[]>([]);
-    const [admPageDialog, setAdmPageDialog] = useState<boolean>(false);
-    const [deleteAdmPageDialog, setDeleteAdmPageDialog] = useState<boolean>(false);
-    const [deleteAdmPagesDialog, setDeleteAdmPagesDialog] = useState<boolean>(false);
-    const [admPage, setAdmPage] = useState<AdmPage>(emptyAdmPage); 
-    const [selectedAdmPages, setSelectedAdmPages] = useState<AdmPage[]>([]);
+    const [listaAdmProfile, setListaAdmProfile] = useState<AdmProfile[]>([]);
+    const [admProfileDialog, setAdmProfileDialog] = useState<boolean>(false);
+    const [deleteAdmProfileDialog, setDeleteAdmProfileDialog] = useState<boolean>(false);
+    const [deleteAdmProfilesDialog, setDeleteAdmProfilesDialog] = useState<boolean>(false);
+    const [admProfile, setAdmProfile] = useState<AdmProfile>(emptyAdmProfile); 
+    const [selectedAdmProfiles, setSelectedAdmProfiles] = useState<AdmProfile[]>([]);
 
     const [submitted, setSubmitted] = useState(false);
     const [cols, setCols] = useState<any[]>([]);
@@ -48,26 +50,25 @@ const AdmPagePage = () => {
     const [itemsMenuLinha, setItemsMenuLinha] = useState<MenuItem[]>([]);
     const popupMenu = useRef<Menu>(null);
 
-    const [sourceProfiles, setSourceProfiles] = useState<AdmProfile[]>([]);
-    const [targetProfiles, setTargetProfiles] = useState<AdmProfile[]>([]);
+    const [sourcePages, setSourcePages] = useState<AdmPage[]>([]);
+    const [targetPages, setTargetPages] = useState<AdmPage[]>([]);
 
     useEffect(() => {  
-        admPageService.findAll().then(item => setListaAdmPage(item));
+        admProfileService.findAll().then(item => setListaAdmProfile(item));
 
         setItemsMenuLinha([{ label: "Editar" }, { label: "Excluir" }]);
 
         setCols([
             { field: 'id', header: 'Id' },
-            { field: 'url', header: 'Página' },
             { field: 'description', header: 'Descrição' },
-            { field: 'pageProfiles', header: 'Perfil(s) da página' }
+            { field: 'profilePages', header: 'Páginas(s) do perfil' }
         ]);
             
         setExportColumns(cols.map(col => ({title: col.header, dataKey: col.field})));
       
-    }, []);
+    }, [admProfileService, cols]);
 
-    const toggleMenu = (menu: Menu, event: any, rowData: AdmPage) => {
+    const toggleMenu = (menu: React.RefObject<Menu>, event: any, rowData: AdmProfile) => {
         setItemsMenuLinha([]);
 
         let _itemsMenuLinha: MenuItem[] = [];
@@ -88,138 +89,142 @@ const AdmPagePage = () => {
 
         setItemsMenuLinha(_itemsMenuLinha);
 
-        menu.toggle(event);
+        if (menu.current){
+            menu.current.toggle(event);
+        }  
     }
+    
+    const loadAdmPages = (profile: AdmProfile) => {
+        let _targetPages: AdmPage[] = [];
 
-    const loadAdmProfiles = (page: AdmPage) => {
-        setTargetProfiles([]);
-        if (page.id != null) {
-            admProfileService.findProfilesByPage(page).then(item => {
-                setTargetProfiles(item);
-
-                admProfileService.findAll().then(profiles => {
-                    setSourceProfiles(profiles.filter(profile => !item.find(target => target.id === profile.id)));
-                });
-
-            });
-        } else {
-            admProfileService.findAll().then(profiles => setSourceProfiles(profiles));
+        if (profile.id != null) {
+            _targetPages = profile.admPages;
+            setTargetPages(_targetPages);
         }
+        admPageService.findAll().then(pages => {
+            setSourcePages(pages.filter(page => !_targetPages.find(target => target.id === page.id)));
+        });
     }
 
     const mostrarListar = () => {
-        if (admPageDialog)
+        if (admProfileDialog)
             return { display: 'none' };
         else
             return { display: '' };
     }
 
     const mostrarEditar = () => {
-        if (admPageDialog)
+        if (admProfileDialog)
             return { display: '' };
         else
             return { display: 'none' };
     }
 
     const onClean = () => {
-        setAdmPage(cleanAdmPage);
-        loadAdmProfiles(cleanAdmPage);
+        setAdmProfile(cleanAdmProfile);
+        loadAdmPages(cleanAdmProfile);
     }
 
     const onInsert = () => {
-        setAdmPage(emptyAdmPage);
+        setAdmProfile(emptyAdmProfile);
         setSubmitted(false);      
-        setAdmPageDialog(true);
-        loadAdmProfiles(emptyAdmPage);
+        setAdmProfileDialog(true);
+        loadAdmPages(emptyAdmProfile);
     }
     
-    const onEdit = (admPage: AdmPage) => {
-        setAdmPage({ ...admPage });
-        setAdmPageDialog(true);
-        loadAdmProfiles(admPage);
+    const onEdit = (admProfile: AdmProfile) => {
+        setAdmProfile({ ...admProfile });
+        setAdmProfileDialog(true);
+        loadAdmPages(admProfile);
     }
     
     const hideDialog = () => {
-        setAdmPageDialog(false);
+        setAdmProfileDialog(false);
         setSubmitted(false);
     }
 
-    const hideDeleteAdmPageDialog = () => {
-        setDeleteAdmPageDialog(false);
+    const hideDeleteAdmProfileDialog = () => {
+        setDeleteAdmProfileDialog(false);
     };
 
-    const hideDeleteAdmPagesDialog = () => {
-        setDeleteAdmPagesDialog(false);
+    const hideDeleteAdmProfilesDialog = () => {
+        setDeleteAdmProfilesDialog(false);
     };
 
     const onSave = () => {
         setSubmitted(true);
-        admPage.admIdProfiles = [];
-        targetProfiles.forEach(item => {
-            admPage.admIdProfiles.push(item.id)
+        admProfile.admPages = [];
+        targetPages.forEach(item => {
+            admProfile.admPages.push(item)
         });
-        
-        if (admPage.description.trim()) {
-            let _listaAdmPage = [...listaAdmPage];
-            let _admPage = {...admPage};
+            
+        if (admProfile.description.trim()) {
+            let _listaAdmProfile = [...listaAdmProfile];
+            let _admProfile = {...admProfile};
 
-            if (admPage.id) {
-                admPageService.update(admPage).then((obj: AdmPage) => {
-                    _admPage = obj;
+            if (admProfile.id) {
+                admProfileService.update(admProfile).then((obj: AdmProfile) => {
+                    _admProfile = obj;
                     
-                    const index = admPageService.findIndexById(listaAdmPage, admPage.id);
-                    _listaAdmPage[index] = _admPage;
-
-                    setListaAdmPage(_listaAdmPage);
-                    toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Página Atualizada', life: 3000 });                    
+                    if (admProfile.id) {
+                        const index = admProfileService.findIndexById(listaAdmProfile, admProfile.id);
+                        _listaAdmProfile[index] = _admProfile;
+    
+                        setListaAdmProfile(_listaAdmProfile);
+                        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Perfil Atualizado', life: 3000 });    
+                    }
                 });
             } else {
-                admPageService.insert(admPage).then((obj: AdmPage) => {
-                    _admPage = obj;
-                    _listaAdmPage.push(_admPage);
-                    setListaAdmPage(_listaAdmPage);
-                    toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Página Criada', life: 3000 });
+                admProfileService.insert(admProfile).then((obj: AdmProfile) => {
+                    _admProfile = obj;
+                    _listaAdmProfile.push(_admProfile);
+                    setListaAdmProfile(_listaAdmProfile);
+                    toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Perfil Criada', life: 3000 });
                 });
             }
             
-            setAdmPageDialog(false);
-            setAdmPage(emptyAdmPage);            
+            setAdmProfileDialog(false);
+            setAdmProfile(emptyAdmProfile);            
         }
     }
         
     const deleteSelected = () => {
-        setDeleteAdmPagesDialog(true);
+        setDeleteAdmProfilesDialog(true);
     }
   
-    const onDelete = (admPage: AdmPage) => {
-        setDeleteAdmPageDialog(true);
-        setAdmPage({ ...admPage });
+    const onDelete = (admProfile: AdmProfile) => {
+        setDeleteAdmProfileDialog(true);
+        setAdmProfile({ ...admProfile });
     } 
   
     const confirmDeleteSelected = () => {
-        setDeleteAdmPagesDialog(false);
-        setListaAdmPage(listaAdmPage.filter(val => !selectedAdmPages.includes(val)));
+        setDeleteAdmProfilesDialog(false);
+        setListaAdmProfile(listaAdmProfile.filter(val => !selectedAdmProfiles.includes(val)));
   
         let excluiu = false;
-        selectedAdmPages.forEach((item) => {
-            admPageService.delete(item.id).then(obj => {
-                excluiu = true;
-            });
+        selectedAdmProfiles.forEach((item) => {
+            if (item.id) {
+                admProfileService.delete(item.id).then(obj => {
+                    excluiu = true;
+                });    
+            }
         });
     
         if (excluiu) {
-            toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Páginas excluídas', life: 3000 });
-            setSelectedAdmPages([]);
+            toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Perfis excluídos', life: 3000 });
+            setSelectedAdmProfiles([]);
         }
     }
   
     const confirmDelete = () => {
-        setDeleteAdmPageDialog(false);
-        admPageService.delete(admPage.id).then(obj => {
-            setListaAdmPage(listaAdmPage.filter(val => val.id !== admPage.id));
-            setAdmPage(emptyAdmPage); 
-            toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Página excluída', life: 3000 });
-        });
+        setDeleteAdmProfileDialog(false);
+        if (admProfile.id){
+            admProfileService.delete(admProfile.id).then(obj => {
+                setListaAdmProfile(listaAdmProfile.filter(val => val.id !== admProfile.id));
+                setAdmProfile(emptyAdmProfile); 
+                toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Perfil excluído', life: 3000 });
+            });    
+        }
     }
   
     const onChangedTypeReport = (typeReport: ItypeReport) => {
@@ -228,16 +233,19 @@ const AdmPagePage = () => {
           forceDownload: selectedForceDownload });
     }
     
-    const onChangedForceDownload = (forceDownload: boolean) => {
-        setSelectedForceDownload(forceDownload);
-        setReportParamForm({ reportType: selectedTypeReport.type, 
-          forceDownload: forceDownload });
+    const onChangedForceDownload = (event: CheckboxChangeEvent) => {
+        const forceDownload = event.checked;
+        if (forceDownload){
+            setSelectedForceDownload(forceDownload);
+            setReportParamForm({ reportType: selectedTypeReport.type, 
+              forceDownload: forceDownload });    
+        }
     }
     
     const onExport = () => {
-        admPageService.report(reportParamForm).then(() => {
-          toast.current?.show({ severity: 'info', summary: 'Página exportada', 
-            detail: 'Página exportada', life: 3000 });
+        admProfileService.report(reportParamForm).then(() => {
+          toast.current?.show({ severity: 'info', summary: 'Perfil exportado', 
+            detail: 'Perfil exportado', life: 3000 });
         });
     }
 
@@ -246,31 +254,23 @@ const AdmPagePage = () => {
         const data: any[] = [];
     
         exportColumns.forEach(item => head.push(item.title));
-        listaAdmPage.forEach((item: AdmPage) => data.push(
-            [item.id, item.url, item.description, item.pageProfiles]
+        listaAdmProfile.forEach((item: AdmProfile) => data.push(
+            [item.id, item.description, item.profilePages]
         ));
     
-        exportService.exportPdf(head, data, 'Paginas.pdf');
+        exportService.exportPdf(head, data, 'Parametros.pdf');
       }
     
     const exportExcel = () => {
-        exportService.exportExcel(listaAdmPage, 'Paginas');
-    }
-
-    const onUrlChange = (e: React.FormEvent<HTMLInputElement>) => {
-        const val: string = (e.currentTarget && e.currentTarget.value) || '';
-        let _admPage = { ...admPage };
-        _admPage.url = val;
-
-        setAdmPage(_admPage);
+        exportService.exportExcel(listaAdmProfile, 'Parâmetros');
     }
 
     const onDescriptionInputChange = (e: React.FormEvent<HTMLInputElement>) => {
         const val = (e.target && e.currentTarget.value) || '';
-        let _admPage = { ...admPage };
-        _admPage.description = val;
+        let _admProfile = { ...admProfile };
+        _admProfile.description = val;
 
-        setAdmPage(_admPage);
+        setAdmProfile(_admProfile);
     };
 
     const leftToolbarTemplate = () => {
@@ -279,7 +279,7 @@ const AdmPagePage = () => {
                 <div className="my-2">
                     <Button label="Adicionar" icon="pi pi-plus" severity="success" className=" mr-2" onClick={onInsert} />
                     <Button label="Excluir" icon="pi pi-trash" severity="danger" onClick={deleteSelected} 
-                        disabled={!selectedAdmPages || !(selectedAdmPages as any).length} />
+                        disabled={!selectedAdmProfiles || !(selectedAdmProfiles as any).length} />
                 </div>
             </React.Fragment>
         );
@@ -310,9 +310,10 @@ const AdmPagePage = () => {
         );
     };
 
+
     const tabelaHeader = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">Gerenciar páginas</h5>
+            <h5 className="m-0">Gerenciar perfis</h5>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Procurar..." />
@@ -322,11 +323,11 @@ const AdmPagePage = () => {
 
     const tabelaFooter = (
         <div className="p-d-flex p-ai-center p-jc-between">
-            No total existem {listaAdmPage ? listaAdmPage.length : 0 } páginas.
+            No total existem {listaAdmProfile ? listaAdmProfile.length : 0 } perfis.
         </div>
     );
 
-    const idBodyTemplate = (rowData: AdmPage) => {
+    const idBodyTemplate = (rowData: AdmProfile) => {
         return (
             <>
                 <span className="p-column-title">Id</span>
@@ -335,25 +336,16 @@ const AdmPagePage = () => {
         );
     };    
 
-    const urlBodyTemplate = (rowData: AdmPage) => {
+    const profilePagesBodyTemplate = (rowData: AdmProfile) => {
         return (
             <>
-                <span className="p-column-title">Página</span>
-                {rowData.url}
+                <span className="p-column-title">Páginas(s) do perfil</span>
+                {rowData.profilePages}
             </>
         );
     };    
 
-    const pageProfilesBodyTemplate = (rowData: AdmPage) => {
-        return (
-            <>
-                <span className="p-column-title">Perfil(s) da página</span>
-                {rowData.pageProfiles}
-            </>
-        );
-    };    
-
-    const descriptionBodyTemplate = (rowData: AdmPage) => {
+    const descriptionBodyTemplate = (rowData: AdmProfile) => {
         return (
             <>
                 <span className="p-column-title">Descrição</span>
@@ -362,12 +354,12 @@ const AdmPagePage = () => {
         );
     };    
 
-    const actionBodyTemplate = (rowData: AdmPage) => {
+    const actionBodyTemplate = (rowData: AdmProfile) => {
         if (rowData){            
             return (
                 <>
                     <div className="flex">                        
-                        <Button link icon="pi pi-ellipsis-v" onClick={(event) => toggleMenu(popupMenu.current, event, rowData)} style={{ cursor: 'pointer' }} 
+                        <Button link icon="pi pi-ellipsis-v" onClick={(event) => toggleMenu(popupMenu, event, rowData)} style={{ cursor: 'pointer' }} 
                             aria-controls="popup_menu" aria-haspopup />                            
                     </div>
                 </>
@@ -375,14 +367,14 @@ const AdmPagePage = () => {
         }
     };
 
-    const onPageProfilesChange = (event: { 
-        source: React.SetStateAction<AdmProfile[]>; 
-        target: React.SetStateAction<AdmProfile[]>; }) => {
-        setSourceProfiles(event.source);
-        setTargetProfiles(event.target);
+    const onProfilePagesChange = (event: { 
+        source: React.SetStateAction<AdmPage[]>; 
+        target: React.SetStateAction<AdmPage[]>; }) => {
+        setSourcePages(event.source);
+        setTargetPages(event.target);
     }    
 
-    const itemTemplate = (item: AdmProfile) => {
+    const itemTemplate = (item: AdmPage) => {
         return (
           <div>
               {item.description}
@@ -390,16 +382,16 @@ const AdmPagePage = () => {
         );
     }
         
-    const deleteAdmPageDialogFooter = (
+    const deleteAdmProfileDialogFooter = (
         <>
-            <Button label="Não" icon="pi pi-times" text onClick={hideDeleteAdmPageDialog} />
+            <Button label="Não" icon="pi pi-times" text onClick={hideDeleteAdmProfileDialog} />
             <Button label="sim" icon="pi pi-check" text onClick={confirmDelete} />
         </>
     );
     
-    const deleteAdmPagesDialogFooter = (
+    const deleteAdmProfilesDialogFooter = (
         <>
-            <Button label="Não" icon="pi pi-times" text onClick={hideDeleteAdmPagesDialog} />
+            <Button label="Não" icon="pi pi-times" text onClick={hideDeleteAdmProfilesDialog} />
             <Button label="Sim" icon="pi pi-check" text onClick={confirmDeleteSelected} />
         </>
     );
@@ -409,9 +401,9 @@ const AdmPagePage = () => {
             <div className="col-12">
                 <div className="card px-6 py-6" style={mostrarListar()}>
                     <Toast ref={toast} />
-                    <Panel header="Página" className="p-mb-2">
+                    <Panel header="Perfil" className="p-mb-2">
                         <ReportPanelComponent typeReportChange={e => onChangedTypeReport(e.value)}
-                            forceDownloadChange={e => onChangedForceDownload(e.checked)}
+                            forceDownloadChange={e => onChangedForceDownload(e)}
                         ></ReportPanelComponent>
                     </Panel>
 
@@ -419,8 +411,8 @@ const AdmPagePage = () => {
 
                     <Menu model={itemsMenuLinha} popup ref={popupMenu} id="popup_menu" popupAlignment="right" />
 
-                    <DataTable ref={dt} value={listaAdmPage} selection={selectedAdmPages} paginatorPosition="both"
-                        onSelectionChange={(e) => setSelectedAdmPages(e.value as any)}
+                    <DataTable ref={dt} value={listaAdmProfile} selection={selectedAdmProfiles} paginatorPosition="both"
+                        onSelectionChange={(e) => setSelectedAdmProfiles(e.value as any)}
                         dataKey="id" paginator rows={10} rowsPerPageOptions={[10,30,50,100,150,200]} className="datatable-responsive"
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Mostrando {first} até {last} de {totalRecords} entradas" 
@@ -429,59 +421,52 @@ const AdmPagePage = () => {
                     >
                         <Column selectionMode="multiple" headerStyle={{ width: '4rem' }}></Column>
                         <Column field="id" header="Id" sortable headerStyle={{ width: '5%', minWidth: '5rem' }} body={idBodyTemplate}></Column>
-                        <Column field="url" header="Página" sortable headerStyle={{ minWidth: '10rem' }} body={urlBodyTemplate}></Column>
                         <Column field="description" header="Descrição" sortable headerStyle={{ minWidth: '8rem' }} body={descriptionBodyTemplate}></Column>
-                        <Column field="pageProfiles" header="Perfil(s) da página" sortable headerStyle={{ minWidth: '8rem' }} body={pageProfilesBodyTemplate}></Column>                        
+                        <Column field="profilePages" header="Páginas(s) do perfil" sortable headerStyle={{ minWidth: '8rem' }} body={profilePagesBodyTemplate}></Column>                        
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
                 </div>
 
                 <div className="card px-6 py-6" style={mostrarEditar()}>
                     <Toast ref={toast} />
-                    <Panel header="Detalhes da página" className="p-mb-2">
+                    <Panel header="Detalhes do perfil" className="p-mb-2">
                         <Toolbar className="mb-4" start={leftEditToolbarTemplate} end={rightEditToolbarTemplate}></Toolbar>
                     </Panel>
                     <div className="card p-fluid">
                         <div className="field">
-                            <label htmlFor="url">Página:</label>
-                            <InputText id="url" value={admPage.url} onChange={(e) => onUrlChange(e)} required 
-                                className={classNames({'p-invalid': submitted && !admPage.url})} />
-                            {submitted && !admPage.url && <small className="p-invalid">A página é obrigatória.</small>}
-                        </div>
-                        <div className="field">
                             <label htmlFor="description">Descrição</label>
-                            <InputText id="description" value={admPage.description} onChange={(e) => onDescriptionInputChange(e)} required
-                                className={classNames({'p-invalid': submitted && !admPage.description})}
+                            <InputText id="description" value={admProfile.description} onChange={(e) => onDescriptionInputChange(e)} required
+                                className={classNames({'p-invalid': submitted && !admProfile.description})}
                             />
-                            {submitted && !admPage.description && <small className="p-invalid">A descrição é obrigatória.</small>}
+                            {submitted && !admProfile.description && <small className="p-invalid">A descrição é obrigatória.</small>}
                         </div>
                         <div className="field">
-                            <label htmlFor="pageProfiles">Perfil(s) da página:</label>
-                            <PickList source={sourceProfiles} target={targetProfiles} itemTemplate={itemTemplate}
+                            <label htmlFor="profilePages">Página(s):</label>
+                            <PickList source={sourcePages} target={targetPages} itemTemplate={itemTemplate}
                                 sourceHeader="Disponível" targetHeader="Selecionada"
-                                sourceStyle={{height:'30rem'}} targetStyle={{height:'30rem'}} onChange={onPageProfilesChange}>
+                                sourceStyle={{height:'30rem'}} targetStyle={{height:'30rem'}} onChange={onProfilePagesChange}>
                             </PickList>                            
                         </div>    
                     </div>
                 </div>                
 
-                <Dialog visible={deleteAdmPageDialog} style={{ width: '450px' }} header="Confirm" modal 
-                    footer={deleteAdmPageDialogFooter} onHide={hideDeleteAdmPageDialog}>
+                <Dialog visible={deleteAdmProfileDialog} style={{ width: '450px' }} header="Confirm" modal 
+                    footer={deleteAdmProfileDialogFooter} onHide={hideDeleteAdmProfileDialog}>
                     <div className="flex align-items-center justify-content-center">
                         <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                        {admPage && (
+                        {admProfile && (
                             <span>
-                                Tem certeza de que deseja excluir <b>{admPage.description}</b>?
+                                Tem certeza de que deseja excluir <b>{admProfile.description}</b>?
                             </span>
                         )}
                     </div>
                 </Dialog>
 
-                <Dialog visible={deleteAdmPagesDialog} style={{ width: '450px' }} header="Confirm" modal 
-                    footer={deleteAdmPagesDialogFooter} onHide={hideDeleteAdmPagesDialog}>
+                <Dialog visible={deleteAdmProfilesDialog} style={{ width: '450px' }} header="Confirm" modal 
+                    footer={deleteAdmProfilesDialogFooter} onHide={hideDeleteAdmProfilesDialog}>
                     <div className="flex align-items-center justify-content-center">
                         <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                        {admPage && <span>Tem certeza de que deseja excluir as categorias de parâmetros selecionadas?</span>}
+                        {admProfile && <span>Tem certeza de que deseja excluir as categorias de parâmetros selecionadas?</span>}
                     </div>
                 </Dialog>
 
@@ -490,4 +475,4 @@ const AdmPagePage = () => {
     );
 };
 
-export default AdmPagePage;
+export default AdmProfilePage;

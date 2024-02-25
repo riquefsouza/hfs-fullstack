@@ -134,7 +134,7 @@ export default class AdmProfileService {
 
     public async findProfilesByPage(admPage: AdmPage): Promise<AdmProfile[]> {
         const url = `${this.PATH}/findProfilesByPage/${admPage.id}`;
-        const response = await axios.get<AdmProfile>(url);
+        const response = await axios.get<AdmProfile[]>(url);
 
         if (response.status == HttpStatusCode.Ok){
             const json = response.data;
@@ -148,7 +148,7 @@ export default class AdmProfileService {
 
     public async mountMenu(obj: string[]): Promise<MenuItemDTO[]> {
         const url = `${this.PATH}/mountMenu`;
-        const response = await axios.post<AdmProfile>(url, obj);
+        const response = await axios.post<MenuItemDTO[]>(url, obj);
     
         if (response.status == HttpStatusCode.Ok){
             const json = response.data;

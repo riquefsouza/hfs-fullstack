@@ -1,10 +1,10 @@
-import { environment } from "@/environments/environment";
 import { HttpStatusCode } from "axios";
 import { ErrorResponseDTO } from "../../base/models/ErrorResponseDTO";
-import { AdmParameterCategory } from "../api/AdmParameterCategory";
 import axios from "../../base/interceptors/AxiosRequestInterceptor";
 import { ReportParamForm } from "../../base/models/ReportParamsForm";
 import FileSaver from "file-saver";
+import { environment } from "@/environments/environment";
+import { AdmParameterCategory } from "../api/AdmParameterCategory";
 
 export default class AdmParameterCategoryService {
 

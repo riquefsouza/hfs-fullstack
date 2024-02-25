@@ -6,22 +6,22 @@ import { SessionStorageService } from '../../base/services/SessionStorageService
 
 const UsuarioPage = () => {
 
-    const sessionStorageService = new SessionStorageService();
+    const [sessionStorageService,] = useState<SessionStorageService>(new SessionStorageService());
     
     const [userAuthenticated, setUserAuthenticated] = useState<UserAuthenticated>(emptyUserAuthenticated);
-    const [listaRoles, setListaRoles] = useState<[]>([]);
+    const [listaRoles, setListaRoles] = useState<React.JSX.Element[]>([]);
 
     useEffect(() => {
         setUserAuthenticated(sessionStorageService.getPersistedObj('userAuthenticated') as UserAuthenticated);
         
-        let lista: [] = [];
+        let lista: React.JSX.Element[] = [];
         userAuthenticated.roles.forEach((role, index) => {
             lista.push(<li key={index}>{role}</li>);
         });     
         
         setListaRoles(lista);
         
-    }, []);
+    }, [sessionStorageService, userAuthenticated.roles]);
 
     return (
         <div className="grid">
