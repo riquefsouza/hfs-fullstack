@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import AppMenuitem from './AppMenuitem';
 import { MenuProvider } from './context/menucontext';
-import { AppMenuItem } from '@/types';
-//import keycloakService from '../base/providers/KeycloakProvider';
 import keycloakService from '../main';
+import { AppMenuItem } from '../types';
 
 const AppMenu = () => {    
 

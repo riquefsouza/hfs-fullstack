@@ -9,12 +9,13 @@ import { LazyTableParam, emptyLazyTableParam } from '../../base/models/LazyTable
 import { first } from 'rxjs';
 import { ExportService } from '../../base/services/ExportService';
 import { DataTableFilterMeta } from 'primevue/datatable';
+import { PaginationDTO } from '../../base/models/PaginationDTO';
 
 export default {
     setup() {
         const toast = useToast();
 
-        const listaFuncionario = ref();
+        const listaFuncionario = ref<Funcionario[]>([]);
         const funcionarioDialog = ref(false);
         const deleteFuncionarioDialog = ref(false);
         const deleteFuncionariosDialog = ref(false);
@@ -83,9 +84,9 @@ export default {
         const loadFuncionarios = () => {        
             loading.value = true;
 
-            funcionarioService.findAllPaginated(lazyParams.value).then((data) => {
-                listaFuncionario.value = data['content'];
-                totalRecords.value = data['totalElements'];
+            funcionarioService.findAllPaginated(lazyParams.value).then((data: PaginationDTO) => {
+                listaFuncionario.value = data.content;
+                totalRecords.value = data.totalElements;
                 loading.value = false;
             });
 
@@ -164,14 +165,16 @@ export default {
 
         const onSave = () => {
             submitted.value = true;
-            if (funcionario.value.description && funcionario.value.description.trim()) {
+            if (funcionario.value.nome && funcionario.value.nome.trim()) {
                 if (funcionario.value.id) {
                     funcionarioService.update(funcionario.value).then((obj: Funcionario) => {
                         funcionario.value = obj;
 
-                        const index = funcionarioService.findIndexById(listaFuncionario.value, funcionario.value.id);
-                        listaFuncionario.value[index] = funcionario.value;
-                        toast.add({severity:'success', summary: 'Successful', detail: 'Funcionário Atualizado', life: 3000});
+                        if (funcionario.value.id) {
+                            const index = funcionarioService.findIndexById(listaFuncionario.value, funcionario.value.id);
+                            listaFuncionario.value[index] = funcionario.value;
+                            toast.add({severity:'success', summary: 'Successful', detail: 'Funcionário Atualizado', life: 3000});
+                        }
                     });            
                 } else {
                     funcionarioService.insert(funcionario.value).then((obj: Funcionario) => {
@@ -202,9 +205,11 @@ export default {
 
             let excluiu = false;
             selectedFuncionarios.value.forEach((item: Funcionario) => {
-                funcionarioService.delete(item.id).then(obj => {
-                    excluiu = true;
-                });
+                if (item.id){
+                    funcionarioService.delete(item.id).then(() => {
+                        excluiu = true;
+                    });
+                }
             });
 
             if (excluiu) {
@@ -215,11 +220,13 @@ export default {
 
         const confirmDelete = () => {
             deleteFuncionarioDialog.value = false;
-            funcionarioService.delete(funcionario.value.id).then(obj => {
-                listaFuncionario.value = listaFuncionario.value.filter((val: Funcionario) => val.id !== funcionario.value.id);
-                funcionario.value = emptyFuncionario;        
-                toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Funcionário excluído', life: 3000 });
-            });
+            if (funcionario.value.id){
+                funcionarioService.delete(funcionario.value.id).then(() => {
+                    listaFuncionario.value = listaFuncionario.value.filter((val: Funcionario) => val.id !== funcionario.value.id);
+                    funcionario.value = emptyFuncionario;        
+                    toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Funcionário excluído', life: 3000 });
+                });
+            }
         }
 
         const onTypeReportChange = (param: { pTypeReport: SelectItemGroup }) => {
@@ -243,8 +250,10 @@ export default {
             });
         }
 
-        const exportCSV = (selectionOnly: any) => {
-            dt.value.exportCSV(selectionOnly);
+        const exportCSV = (param: boolean) => {
+            if (dt.value){
+                dt.value.exportCSV({ selectionOnly: param });
+            }        
         };
 
         const exportPdf = () => {
@@ -317,10 +326,10 @@ export default {
                             <h5 class="m-0">Funcionários</h5>
 
                             <div class="flex">
-                                <Button icon="pi pi-file" @click="exportCSV($event)" class="mr-2" v-tooltip.bottom="'CSV'" />
+                                <Button icon="pi pi-file" @click="exportCSV(false)" class="mr-2" v-tooltip.bottom="'CSV'" />
                                 <Button icon="pi pi-file-excel" @click="exportExcel" class="p-button-success mr-2" v-tooltip.bottom="'XLS'" />
                                 <Button icon="pi pi-file-pdf" @click="exportPdf" class="p-button-warning mr-2" v-tooltip.bottom="'PDF'" />
-                                <Button icon="pi pi-filter" @click="exportCSV({ selectionOnly: true })" class="p-button-info mr-2" v-tooltip.bottom="'Somente Seleção'" />
+                                <Button icon="pi pi-filter" @click="exportCSV(true)" class="p-button-info mr-2" v-tooltip.bottom="'Somente Seleção'" />
                             </div>
                         </div>
                     </template>

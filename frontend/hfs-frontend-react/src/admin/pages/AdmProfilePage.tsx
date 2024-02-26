@@ -16,16 +16,16 @@ import { Panel } from 'primereact/panel';
 import ReportPanelComponent from '../../base/components/ReportPanel';
 import { Menu } from 'primereact/menu';
 import { MenuItem } from 'primereact/menuitem';
-import { ExportService } from '../../base/services/ExportService';
 import { PickList } from 'primereact/picklist';
 import { AdmPage } from '../api/AdmPage';
 import AdmPageService from '../service/AdmPageService';
+import { CheckboxChangeEvent } from 'primereact/checkbox';
 
 const AdmProfilePage = () => {
 
     const admProfileService = new AdmProfileService();
     const admPageService = new AdmPageService();
-    const exportService = new ExportService();
+    //const exportService = new ExportService();
 
     const [listaAdmProfile, setListaAdmProfile] = useState<AdmProfile[]>([]);
     const [admProfileDialog, setAdmProfileDialog] = useState<boolean>(false);
@@ -35,8 +35,8 @@ const AdmProfilePage = () => {
     const [selectedAdmProfiles, setSelectedAdmProfiles] = useState<AdmProfile[]>([]);
 
     const [submitted, setSubmitted] = useState(false);
-    const [cols, setCols] = useState<any[]>([]);
-    const [exportColumns, setExportColumns] = useState<any[]>([]);
+    //const [cols, setCols] = useState<any[]>([]);
+    //const [exportColumns, setExportColumns] = useState<any[]>([]);
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
@@ -55,7 +55,7 @@ const AdmProfilePage = () => {
         admProfileService.findAll().then(item => setListaAdmProfile(item));
 
         setItemsMenuLinha([{ label: "Editar" }, { label: "Excluir" }]);
-
+/*
         setCols([
             { field: 'id', header: 'Id' },
             { field: 'description', header: 'Descrição' },
@@ -63,10 +63,10 @@ const AdmProfilePage = () => {
         ]);
             
         setExportColumns(cols.map(col => ({title: col.header, dataKey: col.field})));
-      
+*/      
     }, []);
 
-    const toggleMenu = (menu: Menu, event: any, rowData: AdmProfile) => {
+    const toggleMenu = (menu: React.RefObject<Menu>, event: any, rowData: AdmProfile) => {
         setItemsMenuLinha([]);
 
         let _itemsMenuLinha: MenuItem[] = [];
@@ -87,7 +87,9 @@ const AdmProfilePage = () => {
 
         setItemsMenuLinha(_itemsMenuLinha);
 
-        menu.toggle(event);
+        if (menu.current){
+            menu.current.toggle(event);
+        }
     }
     
     const loadAdmPages = (profile: AdmProfile) => {
@@ -162,11 +164,13 @@ const AdmProfilePage = () => {
                 admProfileService.update(admProfile).then((obj: AdmProfile) => {
                     _admProfile = obj;
                     
-                    const index = admProfileService.findIndexById(listaAdmProfile, admProfile.id);
-                    _listaAdmProfile[index] = _admProfile;
+                    if (admProfile.id) {
+                        const index = admProfileService.findIndexById(listaAdmProfile, admProfile.id);
+                        _listaAdmProfile[index] = _admProfile;
 
-                    setListaAdmProfile(_listaAdmProfile);
-                    toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Perfil Atualizado', life: 3000 });                    
+                        setListaAdmProfile(_listaAdmProfile);
+                        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Perfil Atualizado', life: 3000 });                    
+                    }
                 });
             } else {
                 admProfileService.insert(admProfile).then((obj: AdmProfile) => {
@@ -197,9 +201,11 @@ const AdmProfilePage = () => {
   
         let excluiu = false;
         selectedAdmProfiles.forEach((item) => {
-            admProfileService.delete(item.id).then(obj => {
-                excluiu = true;
-            });
+            if (item.id){
+                admProfileService.delete(item.id).then(() => {
+                    excluiu = true;
+                });    
+            }
         });
     
         if (excluiu) {
@@ -210,11 +216,13 @@ const AdmProfilePage = () => {
   
     const confirmDelete = () => {
         setDeleteAdmProfileDialog(false);
-        admProfileService.delete(admProfile.id).then(obj => {
-            setListaAdmProfile(listaAdmProfile.filter(val => val.id !== admProfile.id));
-            setAdmProfile(emptyAdmProfile); 
-            toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Perfil excluído', life: 3000 });
-        });
+        if (admProfile.id){
+            admProfileService.delete(admProfile.id).then(() => {
+                setListaAdmProfile(listaAdmProfile.filter(val => val.id !== admProfile.id));
+                setAdmProfile(emptyAdmProfile); 
+                toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Perfil excluído', life: 3000 });
+            });    
+        }
     }
   
     const onChangedTypeReport = (typeReport: ItypeReport) => {
@@ -223,10 +231,13 @@ const AdmProfilePage = () => {
           forceDownload: selectedForceDownload });
     }
     
-    const onChangedForceDownload = (forceDownload: boolean) => {
-        setSelectedForceDownload(forceDownload);
-        setReportParamForm({ reportType: selectedTypeReport.type, 
-          forceDownload: forceDownload });
+    const onChangedForceDownload = (event: CheckboxChangeEvent) => {
+        const forceDownload = event.checked;
+        if (forceDownload){
+            setSelectedForceDownload(forceDownload);
+            setReportParamForm({ reportType: selectedTypeReport.type, 
+              forceDownload: forceDownload });    
+        }
     }
     
     const onExport = () => {
@@ -235,7 +246,7 @@ const AdmProfilePage = () => {
             detail: 'Perfil exportado', life: 3000 });
         });
     }
-
+/*
     const exportPdf = () => {
         const head: string[] = [];
         const data: any[] = [];
@@ -251,7 +262,7 @@ const AdmProfilePage = () => {
     const exportExcel = () => {
         exportService.exportExcel(listaAdmProfile, 'Parâmetros');
     }
-
+*/
     const onDescriptionInputChange = (e: React.FormEvent<HTMLInputElement>) => {
         const val = (e.target && e.currentTarget.value) || '';
         let _admProfile = { ...admProfile };
@@ -346,7 +357,7 @@ const AdmProfilePage = () => {
             return (
                 <>
                     <div className="flex">                        
-                        <Button link icon="pi pi-ellipsis-v" onClick={(event) => toggleMenu(popupMenu.current, event, rowData)} style={{ cursor: 'pointer' }} 
+                        <Button link icon="pi pi-ellipsis-v" onClick={(event) => toggleMenu(popupMenu, event, rowData)} style={{ cursor: 'pointer' }} 
                             aria-controls="popup_menu" aria-haspopup />                            
                     </div>
                 </>
@@ -390,7 +401,7 @@ const AdmProfilePage = () => {
                     <Toast ref={toast} />
                     <Panel header="Perfil" className="p-mb-2">
                         <ReportPanelComponent typeReportChange={e => onChangedTypeReport(e.value)}
-                            forceDownloadChange={e => onChangedForceDownload(e.checked)}
+                            forceDownloadChange={e => onChangedForceDownload(e)}
                         ></ReportPanelComponent>
                     </Panel>
 

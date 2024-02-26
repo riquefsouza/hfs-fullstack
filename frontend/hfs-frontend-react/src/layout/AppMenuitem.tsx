@@ -7,7 +7,7 @@ import { classNames } from 'primereact/utils';
 import React, { useEffect, useContext } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import { MenuContext } from './context/menucontext';
-import { AppMenuItemProps } from '@/types';
+import { AppMenuItemProps } from '../types';
 //import { usePathname, useSearchParams } from 'next/navigation';
 //import { AuthGuard } from '@/app/(main)/base/guard/AuthGuard';
 

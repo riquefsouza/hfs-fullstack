@@ -19,8 +19,8 @@ export interface AdmParameter {
 
     id?: number | null;
     code?: string;
-    description?: string;
+    description: string;
     value?: string;
-    admParameterCategory: AdmParameterCategory;
+    admParameterCategory?: AdmParameterCategory;
 
 }

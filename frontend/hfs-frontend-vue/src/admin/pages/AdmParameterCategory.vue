@@ -11,7 +11,7 @@ export default {
     setup() {
         const toast = useToast();
 
-        const listaAdmParameterCategory = ref();
+        const listaAdmParameterCategory = ref<AdmParameterCategory[]>([]);
         const admParameterCategoryDialog = ref(false);
         const deleteAdmParameterCategoryDialog = ref(false);
         const deleteAdmParameterCategorysDialog = ref(false);
@@ -60,9 +60,11 @@ export default {
                     admParameterCategoryService.update(admParameterCategory.value).then((obj: AdmParameterCategory) => {
                         admParameterCategory.value = obj;
 
-                        const index = admParameterCategoryService.findIndexById(listaAdmParameterCategory.value, admParameterCategory.value.id);
-                        listaAdmParameterCategory.value[index] = admParameterCategory.value;
-                        toast.add({severity:'success', summary: 'Successful', detail: 'Categoria de parâmetro Atualizada', life: 3000});
+                        if (admParameterCategory.value.id){
+                            const index = admParameterCategoryService.findIndexById(listaAdmParameterCategory.value, admParameterCategory.value.id);
+                            listaAdmParameterCategory.value[index] = admParameterCategory.value;
+                            toast.add({severity:'success', summary: 'Successful', detail: 'Categoria de parâmetro Atualizada', life: 3000});
+                        }
                     });            
                 } else {
                     admParameterCategoryService.insert(admParameterCategory.value).then((obj: AdmParameterCategory) => {
@@ -93,9 +95,11 @@ export default {
 
             let excluiu = false;
             selectedAdmParameterCategorys.value.forEach((item: AdmParameterCategory) => {
-                admParameterCategoryService.delete(item.id).then(obj => {
-                    excluiu = true;
-                });
+                if (item.id){
+                    admParameterCategoryService.delete(item.id).then(() => {
+                        excluiu = true;
+                    });
+                }
             });
 
             if (excluiu) {
@@ -106,11 +110,13 @@ export default {
 
         const confirmDelete = () => {
             deleteAdmParameterCategoryDialog.value = false;
-            admParameterCategoryService.delete(admParameterCategory.value.id).then(obj => {
-                listaAdmParameterCategory.value = listaAdmParameterCategory.value.filter((val: AdmParameterCategory) => val.id !== admParameterCategory.value.id);
-                admParameterCategory.value = emptyAdmParameterCategory;        
-                toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Categoria de parâmetro excluído', life: 3000 });
-            });
+            if (admParameterCategory.value.id){
+                admParameterCategoryService.delete(admParameterCategory.value.id).then(() => {
+                    listaAdmParameterCategory.value = listaAdmParameterCategory.value.filter((val: AdmParameterCategory) => val.id !== admParameterCategory.value.id);
+                    admParameterCategory.value = emptyAdmParameterCategory;        
+                    toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Categoria de parâmetro excluído', life: 3000 });
+                });
+            }    
         }
 
         const onTypeReportChange = (param: { pTypeReport: SelectItemGroup }) => {

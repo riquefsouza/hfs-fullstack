@@ -19,15 +19,14 @@ import { Menu } from 'primereact/menu';
 import { MenuItem } from 'primereact/menuitem';
 import { AdmParameterCategory } from '../api/AdmParameterCategory';
 import AdmParameterCategoryService from '../service/AdmParameterCategoryService';
-import { ExportService } from '../../base/services/ExportService';
-import { Dropdown } from 'primereact/dropdown';
-import { MyEventType } from "../../base/models/MyEventType";
+import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { CheckboxChangeEvent } from 'primereact/checkbox';
 
 const AdmParameterPage = () => {
 
     const admParameterService = new AdmParameterService();
     const admParameterCategoryService = new AdmParameterCategoryService();
-    const exportService = new ExportService();
+    //const exportService = new ExportService();
 
     const [listaAdmParameter, setListaAdmParameter] = useState<AdmParameter[]>([]);
     const [listaAdmParameterCategory, setListaAdmParameterCategory] = useState<AdmParameterCategory[]>([]);
@@ -38,8 +37,8 @@ const AdmParameterPage = () => {
     const [selectedAdmParameters, setSelectedAdmParameters] = useState<AdmParameter[]>([]);
 
     const [submitted, setSubmitted] = useState(false);
-    const [cols, setCols] = useState<any[]>([]);
-    const [exportColumns, setExportColumns] = useState<any[]>([]);
+    //const [cols, setCols] = useState<any[]>([]);
+    //const [exportColumns, setExportColumns] = useState<any[]>([]);
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
@@ -57,7 +56,7 @@ const AdmParameterPage = () => {
         admParameterService.findAll().then(item => setListaAdmParameter(item));
 
         setItemsMenuLinha([{ label: "Editar" }, { label: "Excluir" }]);
-
+/*
         setCols([
             { field: 'id', header: 'Id' },
             { field: 'admParameterCategory.description', header: 'Categoria de parâmetro' },
@@ -67,10 +66,10 @@ const AdmParameterPage = () => {
         ]);
       
         setExportColumns(cols.map(col => ({title: col.header, dataKey: col.field})));
-      
+*/      
     }, []);
 
-    const toggleMenu = (menu: Menu, event: any, rowData: AdmParameter) => {
+    const toggleMenu = (menu: React.RefObject<Menu>, event: any, rowData: AdmParameter) => {
         setItemsMenuLinha([]);
 
         let _itemsMenuLinha: MenuItem[] = [];
@@ -91,7 +90,9 @@ const AdmParameterPage = () => {
 
         setItemsMenuLinha(_itemsMenuLinha);
 
-        menu.toggle(event);
+        if (menu.current){
+            menu.current.toggle(event);
+        }
     }
     
     const onInsert = () => {
@@ -134,12 +135,14 @@ const AdmParameterPage = () => {
                 admParameterService.update(admParameter).then((obj: AdmParameter) => {
                     _admParameter = obj;
                     
-                    const index = admParameterService.findIndexById(listaAdmParameter, admParameter.id);
-                    _listaAdmParameter[index] = _admParameter;
-                    _listaAdmParameter[index].admParameterCategory = _admParameter.admParameterCategory;
+                    if (admParameter.id) {
+                        const index = admParameterService.findIndexById(listaAdmParameter, admParameter.id);
+                        _listaAdmParameter[index] = _admParameter;
+                        _listaAdmParameter[index].admParameterCategory = _admParameter.admParameterCategory;
 
-                    setListaAdmParameter(_listaAdmParameter);
-                    toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Parâmetro Atualizado', life: 3000 });                    
+                        setListaAdmParameter(_listaAdmParameter);
+                        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Parâmetro Atualizado', life: 3000 });                    
+                    }
                 });
             } else {
                 admParameterService.insert(admParameter).then((obj: AdmParameter) => {
@@ -170,9 +173,11 @@ const AdmParameterPage = () => {
   
         let excluiu = false;
         selectedAdmParameters.forEach((item) => {
-            admParameterService.delete(item.id).then(obj => {
-                excluiu = true;
-            });
+            if (item.id){
+                admParameterService.delete(item.id).then(() => {
+                    excluiu = true;
+                });
+            }
         });
     
         if (excluiu) {
@@ -183,11 +188,13 @@ const AdmParameterPage = () => {
   
     const confirmDelete = () => {
         setDeleteAdmParameterDialog(false);
-        admParameterService.delete(admParameter.id).then(obj => {
-            setListaAdmParameter(listaAdmParameter.filter(val => val.id !== admParameter.id));
-            setAdmParameter(emptyAdmParameter); 
-            toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Parâmetro excluído', life: 3000 });
-        });
+        if (admParameter.id){
+            admParameterService.delete(admParameter.id).then(() => {
+                setListaAdmParameter(listaAdmParameter.filter(val => val.id !== admParameter.id));
+                setAdmParameter(emptyAdmParameter); 
+                toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Parâmetro excluído', life: 3000 });
+            });
+        }
     }
   
     const onChangedTypeReport = (typeReport: ItypeReport) => {
@@ -196,10 +203,13 @@ const AdmParameterPage = () => {
           forceDownload: selectedForceDownload });
     }
     
-    const onChangedForceDownload = (forceDownload: boolean) => {
-        setSelectedForceDownload(forceDownload);
-        setReportParamForm({ reportType: selectedTypeReport.type, 
-          forceDownload: forceDownload });
+    const onChangedForceDownload = (event: CheckboxChangeEvent) => {
+        const forceDownload = event.checked;
+        if (forceDownload){
+            setSelectedForceDownload(forceDownload);
+            setReportParamForm({ reportType: selectedTypeReport.type, 
+              forceDownload: forceDownload });    
+        }
     }
     
     const onExport = () => {
@@ -208,7 +218,7 @@ const AdmParameterPage = () => {
             detail: 'Parâmetro exportado', life: 3000 });
         });
     }
-
+/*
     const exportPdf = () => {
         const head: string[] = [];
         const data: any[] = [];
@@ -224,8 +234,8 @@ const AdmParameterPage = () => {
     const exportExcel = () => {
         exportService.exportExcel(listaAdmParameter, 'Parâmetros');
     }
-
-    const onAdmParameterCategoryChange = (e: MyEventType) => {
+*/
+    const onAdmParameterCategoryChange = (e: DropdownChangeEvent) => {
         const val: any = e.value;
         let _admParameter = { ...admParameter };
         _admParameter.admParameterCategory = val;
@@ -303,12 +313,14 @@ const AdmParameterPage = () => {
     };    
 
     const admParameterCategoryDescriptionBodyTemplate = (rowData: AdmParameter) => {
-        return (
-            <>
-                <span className="p-column-title">Categoria do parâmetro</span>
-                {rowData.admParameterCategory.description}
-            </>
-        );
+        if (rowData.admParameterCategory){
+            return (
+                <>
+                    <span className="p-column-title">Categoria do parâmetro</span>                    
+                    {rowData.admParameterCategory.description}                    
+                </>
+            );
+        }
     };    
 
     const codeBodyTemplate = (rowData: AdmParameter) => {
@@ -343,7 +355,7 @@ const AdmParameterPage = () => {
             return (
                 <>
                     <div className="flex">                        
-                        <Button link icon="pi pi-ellipsis-v" onClick={(event) => toggleMenu(popupMenu.current, event, rowData)} style={{ cursor: 'pointer' }} 
+                        <Button link icon="pi pi-ellipsis-v" onClick={(event) => toggleMenu(popupMenu, event, rowData)} style={{ cursor: 'pointer' }} 
                             aria-controls="popup_menu" aria-haspopup />                            
                     </div>
                 </>
@@ -380,7 +392,7 @@ const AdmParameterPage = () => {
                     <Toast ref={toast} />
                     <Panel header="Parâmetro" className="p-mb-2">
                         <ReportPanelComponent typeReportChange={e => onChangedTypeReport(e.value)}
-                            forceDownloadChange={e => onChangedForceDownload(e.checked)}
+                            forceDownloadChange={e => onChangedForceDownload(e)}
                         ></ReportPanelComponent>
                     </Panel>
 

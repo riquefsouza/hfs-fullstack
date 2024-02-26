@@ -5,15 +5,16 @@ import { Button } from 'primereact/button';
 import { InputSwitch, InputSwitchChangeEvent } from 'primereact/inputswitch';
 import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton';
 import { classNames } from 'primereact/utils';
-import React, { useContext, useEffect, useState } from 'react';
-import { AppConfigProps, LayoutConfig, LayoutState } from '@/types';
+import { useContext, useEffect, useState } from 'react';
 import { LayoutContext } from './context/layoutcontext';
+import { LayoutConfig } from '../types';
 
-const AppConfig = (props: AppConfigProps) => {
+const AppConfig = () => {
     const [scales] = useState([12, 13, 14, 15, 16]);
-    const { layoutConfig, setLayoutConfig, layoutState, setLayoutState } = useContext(LayoutContext);
+    //const { layoutConfig, setLayoutConfig, layoutState, setLayoutState } = useContext(LayoutContext);
+    const { layoutConfig, setLayoutConfig } = useContext(LayoutContext);
     const { setRipple, changeTheme } = useContext(PrimeReactContext);
-
+/*
     const onConfigButtonClick = () => {
         setLayoutState((prevState: LayoutState) => ({ ...prevState, configSidebarVisible: true }));
     };
@@ -21,7 +22,7 @@ const AppConfig = (props: AppConfigProps) => {
     const onConfigSidebarHide = () => {
         setLayoutState((prevState: LayoutState) => ({ ...prevState, configSidebarVisible: false }));
     };
-
+*/
     const changeInputStyle = (e: RadioButtonChangeEvent) => {
         setLayoutConfig((prevState: LayoutConfig) => ({ ...prevState, inputStyle: e.value }));
     };

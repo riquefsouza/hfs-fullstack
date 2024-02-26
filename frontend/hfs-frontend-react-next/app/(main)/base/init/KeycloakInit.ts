@@ -34,8 +34,8 @@ export async function initializeKeycloak() {
         const authenticated = await keycloakService.getKeycloakInstance().init({
             onLoad: 'check-sso',
             checkLoginIframe: false,
-            silentCheckSsoRedirectUri:
-                window.location.origin + '/silent-check-sso.html'
+            //silentCheckSsoRedirectUri:
+            //    window.location.origin + '/silent-check-sso.html'
         });
     
         keycloakService.getKeycloakInstance().onTokenExpired = () => {
@@ -62,7 +62,7 @@ export async function initializeKeycloak() {
                     admProfileService.mountMenu(user.roles).then((menus: MenuItemDTO[]) => {
                         keycloakService.setMenus(menus);
                         sessionStorageService.persistObj('menus', menus);
-                        console.log(menus);
+                        //console.log(menus);
                     });
                 }            
             });

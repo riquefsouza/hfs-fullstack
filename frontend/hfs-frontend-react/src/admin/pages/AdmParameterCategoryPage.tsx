@@ -16,6 +16,7 @@ import { ReportParamForm, emptyReportParamForm } from '../../base/models/ReportP
 import { ItypeReport, PDFReport } from '../../base/services/ReportService';
 import { Panel } from 'primereact/panel';
 import ReportPanelComponent from '../../base/components/ReportPanel';
+import { CheckboxChangeEvent } from 'primereact/checkbox';
 
 const AdmParameterCategoryPage = () => {
 
@@ -29,7 +30,7 @@ const AdmParameterCategoryPage = () => {
     const [selectedAdmParameterCategorys, setSelectedAdmParameterCategorys] = useState<AdmParameterCategory[]>([]);
 
     const [submitted, setSubmitted] = useState(false);
-    const [cols, setCols] = useState<any[]>([]);
+    //const [cols, setCols] = useState<any[]>([]);
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
@@ -40,13 +41,13 @@ const AdmParameterCategoryPage = () => {
 
     useEffect(() => {
         admParameterCategoryService.findAll().then(item => setListaAdmParameterCategory(item));
-
+/*
         setCols([
             { field: 'id', header: 'Id' },
             { field: 'description', header: 'Descrição' },
             { field: 'order', header: 'Ordem' }
         ]);
-      
+*/      
     }, []);
 
     const onInsert = () => {
@@ -84,10 +85,12 @@ const AdmParameterCategoryPage = () => {
                 admParameterCategoryService.update(admParameterCategory).then((obj: AdmParameterCategory) => {
                     _admParameterCategory = obj;
                     
-                    const index = admParameterCategoryService.findIndexById(listaAdmParameterCategory, admParameterCategory.id);
-                    _listaAdmParameterCategory[index] = _admParameterCategory;
-                    setListaAdmParameterCategory(_listaAdmParameterCategory);
-                    toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Categoria de parâmetro Atualizada', life: 3000 });                    
+                    if (admParameterCategory.id){
+                        const index = admParameterCategoryService.findIndexById(listaAdmParameterCategory, admParameterCategory.id);
+                        _listaAdmParameterCategory[index] = _admParameterCategory;
+                        setListaAdmParameterCategory(_listaAdmParameterCategory);
+                        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Categoria de parâmetro Atualizada', life: 3000 });                        
+                    }
                 });
             } else {
                 admParameterCategoryService.insert(admParameterCategory).then((obj: AdmParameterCategory) => {
@@ -118,9 +121,11 @@ const AdmParameterCategoryPage = () => {
   
         let excluiu = false;
         selectedAdmParameterCategorys.forEach((item) => {
-            admParameterCategoryService.delete(item.id).then(obj => {
-                excluiu = true;
-            });
+            if (item.id){
+                admParameterCategoryService.delete(item.id).then(() => {
+                    excluiu = true;
+                });
+            }
         });
     
         if (excluiu) {
@@ -131,11 +136,13 @@ const AdmParameterCategoryPage = () => {
   
     const confirmDelete = () => {
         setDeleteAdmParameterCategoryDialog(false);
-        admParameterCategoryService.delete(admParameterCategory.id).then(obj => {
-            setListaAdmParameterCategory(listaAdmParameterCategory.filter(val => val.id !== admParameterCategory.id));
-            setAdmParameterCategory(emptyAdmParameterCategory); 
-            toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Categoria de parâmetro excluído', life: 3000 });
-        });
+        if (admParameterCategory.id){
+            admParameterCategoryService.delete(admParameterCategory.id).then(() => {
+                setListaAdmParameterCategory(listaAdmParameterCategory.filter(val => val.id !== admParameterCategory.id));
+                setAdmParameterCategory(emptyAdmParameterCategory); 
+                toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Categoria de parâmetro excluído', life: 3000 });
+            });
+        }
     }
   
     const onChangedTypeReport = (typeReport: ItypeReport) => {
@@ -144,10 +151,13 @@ const AdmParameterCategoryPage = () => {
           forceDownload: selectedForceDownload });
     }
     
-    const onChangedForceDownload = (forceDownload: boolean) => {
-        setSelectedForceDownload(forceDownload);
-        setReportParamForm({ reportType: selectedTypeReport.type, 
-          forceDownload: forceDownload });
+    const onChangedForceDownload = (event: CheckboxChangeEvent) => {
+        const forceDownload = event.checked;
+        if (forceDownload){
+            setSelectedForceDownload(forceDownload);
+            setReportParamForm({ reportType: selectedTypeReport.type, 
+              forceDownload: forceDownload });    
+        }
     }
     
     const onExport = () => {
@@ -273,7 +283,7 @@ const AdmParameterCategoryPage = () => {
                     <Toast ref={toast} />
                     <Panel header="Categoria de parâmetro de configuração" className="p-mb-2">
                         <ReportPanelComponent typeReportChange={e => onChangedTypeReport(e.value)}
-                            forceDownloadChange={e => onChangedForceDownload(e.checked)}
+                            forceDownloadChange={e => onChangedForceDownload(e)}
                         ></ReportPanelComponent>
                     </Panel>
 

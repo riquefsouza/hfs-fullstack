@@ -7,6 +7,7 @@ import { ReportParamForm } from "../../base/models/ReportParamsForm";
 import FileSaver from "file-saver";
 import { LazyTableParam } from "../../base/models/LazyTableParam";
 import { DataTableFilterMetaData } from "primevue/datatable";
+import { PaginationDTO } from "../../base/models/PaginationDTO";
 
 export default class FuncionarioService {
 
@@ -27,7 +28,7 @@ export default class FuncionarioService {
         return index;
     }
         
-    public async findAllPaginated(param: LazyTableParam): Promise<any[]> {
+    public async findAllPaginated(param: LazyTableParam): Promise<PaginationDTO> {
 
         let nome: string = "";
         let page: number = param.first / param.rows;
@@ -56,11 +57,11 @@ export default class FuncionarioService {
             url = `${this.PATH}/paged?page=${page}&size=${size}&sort=${sort},${direction}`;
         }
 
-        const response = await axios.get<any[]>(url);
+        const response = await axios.get<PaginationDTO>(url);
 
         if (response.status == HttpStatusCode.Ok){
             const json = response.data;            
-            const data = json as any[];
+            const data = json as PaginationDTO;
             return data;
         } else {
             const json = response.data as ErrorResponseDTO;

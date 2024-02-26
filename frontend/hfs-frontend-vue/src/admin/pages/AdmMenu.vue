@@ -21,7 +21,7 @@ export default {
         const deleteAdmMenusDialog = ref(false);
         const admMenu = ref<AdmMenu>(emptyAdmMenu);
         const selectedAdmMenu = ref<AdmMenu>(emptyAdmMenu);
-        const dt = ref(null);
+        //const dt = ref(null);
         const filters = ref({});
         const submitted = ref<boolean>(false);
 
@@ -38,7 +38,7 @@ export default {
         const listaNodeMenu = ref<TreeNode[]>([]);
         const expandedKeys = ref<TreeExpandedKeys>({});
         const selectedNodeMenu = ref<TreeNode>(emptyTreeNode);
-        const menuRoot = ref<TreeNode>(emptyTreeNode);
+        //const menuRoot = ref<TreeNode>(emptyTreeNode);
         const listaAdmPage = ref<AdmPage[]>([]);
         const listaAdmMenuParent = ref<AdmMenu[]>([]);
 
@@ -94,7 +94,9 @@ export default {
                     'data': itemMenu,
                     'children': mountSubMenu(listaMenu, itemMenu)
                 };
-                menuRoot.children.push(m);
+                if (menuRoot.children){
+                    menuRoot.children.push(m);
+                }                
             });
 
             _listaNodeMenu.push(menuRoot);
@@ -161,14 +163,16 @@ export default {
             admMenu.value = { ...param };
         } 
 
-        const confirmDelete = (admMenu: AdmMenu) => {
+        const confirmDelete = (param: AdmMenu) => {
             deleteAdmMenuDialog.value = false;
-            admMenuService.delete(admMenu.id).then(obj => {
-                listaAdmMenu.value = listaAdmMenu.value.filter((val: AdmMenu) => val.id !== admMenu.value.id);
-                admMenu = emptyAdmMenu;
-                updateMenusTree(listaAdmMenu.value);     
-                toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Menu excluído', life: 3000 });
-            });
+            if (param.id){
+                admMenuService.delete(param.id).then(() => {
+                    listaAdmMenu.value = listaAdmMenu.value.filter((val: AdmMenu) => val.id !== param.id);
+                    admMenu.value = emptyAdmMenu;
+                    updateMenusTree(listaAdmMenu.value);     
+                    toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Menu excluído', life: 3000 });
+                });
+            }
         }
 
         const hideDialog = () => {
@@ -179,10 +183,14 @@ export default {
         const onSave = () => {
             submitted.value = true;
             if (admMenu.value.admPage!=null){
-                admMenu.value.idPage = admMenu.value.admPage.id;
+                if (admMenu.value.admPage.id){
+                    admMenu.value.idPage = admMenu.value.admPage.id;
+                }
             }
             if (admMenu.value.admMenuParent!=null){
-                admMenu.value.idMenuParent = admMenu.value.admMenuParent.id;
+                if (admMenu.value.admMenuParent.id){
+                    admMenu.value.idMenuParent = admMenu.value.admMenuParent.id;
+                }
             }
 
             if (admMenu.value.description && admMenu.value.description.trim()) {
@@ -193,14 +201,16 @@ export default {
                         selectedNodeMenu.value.label = admMenu.value.description;
                         selectedNodeMenu.value.data = admMenu.value;
 
-                        const index = admMenuService.findIndexById(listaAdmMenu.value, admMenu.value.id);
-                        listaAdmMenu.value[index] = admMenu.value;
+                        if (admMenu.value.id){
+                            const index = admMenuService.findIndexById(listaAdmMenu.value, admMenu.value.id);
+                            listaAdmMenu.value[index] = admMenu.value;
 
-                        admMenuDialog.value = false;
-                        admMenu.value = emptyAdmMenu;
-                        updateMenusTree(listaAdmMenu.value);
+                            admMenuDialog.value = false;
+                            admMenu.value = emptyAdmMenu;
+                            updateMenusTree(listaAdmMenu.value);
 
-                        toast.add({severity:'success', summary: 'Successful', detail: 'Menu Atualizada', life: 3000});
+                            toast.add({severity:'success', summary: 'Successful', detail: 'Menu Atualizada', life: 3000});
+                        }
                     });            
                 } else {
                     admMenuService.insert(admMenu.value).then((obj: AdmMenu) => {
@@ -262,16 +272,18 @@ export default {
 
         const expandNode = (node: TreeNode) => {
             if (node.children && node.children.length) {
-                expandedKeys.value[node.key] = true;
+                if (node.key){
+                    expandedKeys.value[node.key] = true;
 
-                for (let child of node.children) {
-                    expandNode(child);
+                    for (let child of node.children) {
+                        expandNode(child);
+                    }
                 }
             }
         };
 
         return { listaAdmMenu, admMenu, filters, submitted, expandAll, collapseAll, listaAdmPage,
-            selectedAdmMenu, admMenuDialog, hideDialog, listaNodeMenu, selectedNodeMenu,
+            selectedAdmMenu, admMenuDialog, hideDialog, listaNodeMenu, selectedNodeMenu, listaAdmMenuParent,
             deleteAdmMenuDialog, confirmDelete, deleteAdmMenusDialog, onNodeSelect, expandedKeys,
             onInsert, onEdit, onDelete, onSave, onExport, onTypeReportChange, onForceDownloadChange }
     }

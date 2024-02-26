@@ -1,6 +1,6 @@
 'use client';
 import { Card } from 'primereact/card';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { UserAuthenticated, emptyUserAuthenticated } from '../../base/models/UserAuthenticated';
 //import { SessionStorageService } from '../../base/services/SessionStorageService';
 import keycloakService from '../../main';
@@ -10,13 +10,13 @@ const UsuarioPage = () => {
     //const sessionStorageService = new SessionStorageService();
     
     const [userAuthenticated, setUserAuthenticated] = useState<UserAuthenticated>(emptyUserAuthenticated);
-    const [listaRoles, setListaRoles] = useState<[]>([]);
+    const [listaRoles, setListaRoles] = useState<React.JSX.Element[]>([]);
 
     useEffect(() => {
         //setUserAuthenticated(sessionStorageService.getPersistedObj('userAuthenticated') as UserAuthenticated);
         setUserAuthenticated(keycloakService.getUserAuthenticated());
         
-        let lista: [] = [];
+        let lista: React.JSX.Element[] = [];
         keycloakService.getUserAuthenticated().roles.forEach((role, index) => {
             lista.push(<li key={index}>{role}</li>);
         });

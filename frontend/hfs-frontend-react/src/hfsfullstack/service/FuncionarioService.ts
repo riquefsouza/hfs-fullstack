@@ -6,7 +6,8 @@ import axios from "../../base/interceptors/AxiosRequestInterceptor";
 import { ReportParamForm } from "../../base/models/ReportParamsForm";
 import FileSaver from "file-saver";
 import { LazyTableState } from "../../base/models/LazyTableState";
-import { DataTableFilterMetaData, DataTableOperatorFilterMetaData } from "primereact/datatable";
+import { DataTableFilterMetaData } from "primereact/datatable";
+import { PaginationDTO } from "../../base/models/PaginationDTO";
 
 export default class FuncionarioService {
 
@@ -27,10 +28,10 @@ export default class FuncionarioService {
         return index;
     }
     
-    public async findAllPaginated(param: LazyTableState): Promise<any[]> {    
+    public async findAllPaginated(param: LazyTableState): Promise<PaginationDTO> {        
 
         let nome: string = "";
-        let page: number = param.page;
+        let page: number | undefined = param.page;
 
         page = param.first / param.rows;
         
@@ -53,12 +54,14 @@ export default class FuncionarioService {
         } else {
             url = `${this.PATH}/paged?page=${page}&size=${size}&sort=${sort},${direction}`;
         }
+
+        //console.log(url);
                 
-        const response = await axios.get<any[]>(url);
+        const response = await axios.get<PaginationDTO>(url);
 
         if (response.status == HttpStatusCode.Ok){
             const json = response.data;            
-            const data = json as any[];
+            const data = json as PaginationDTO;
             return data;
         } else {
             const json = response.data as ErrorResponseDTO;

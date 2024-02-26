@@ -4,18 +4,19 @@ import { ref, onMounted, onBeforeMount } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import AdmParameterService from '../../admin/service/AdmParameterService';
 import AdmParameterCategoryService from '../../admin/service/AdmParameterCategoryService';
-import { ExportService } from '../../base/services/ExportService';
+//import { ExportService } from '../../base/services/ExportService';
 import { AdmParameter, emptyAdmParameter } from '../api/AdmParameter';
 import { ReportParamForm, emptyReportParamForm } from '../../base/models/ReportParamsForm';
 import { ItypeReport, PDFReport, SelectItemGroup } from '../../base/services/ReportService';
 import { MenuItem } from '../../base/models/MenuItem';
+import { AdmParameterCategory } from '../api/AdmParameterCategory';
 
 export default {
     setup() {
         const toast = useToast();
 
-        const listaAdmParameterCategory = ref([]);
-        const listaAdmParameter = ref([]);
+        const listaAdmParameterCategory = ref<AdmParameterCategory[]>([]);
+        const listaAdmParameter = ref<AdmParameter[]>([]);
         const admParameterDialog = ref(false);
         const deleteAdmParameterDialog = ref(false);
         const deleteAdmParametersDialog = ref(false);
@@ -29,7 +30,7 @@ export default {
 
         const admParameterCategoryService = new AdmParameterCategoryService();
         const admParameterService = new AdmParameterService();
-        const exportService = new ExportService();
+        //const exportService = new ExportService();
 
         const selectedTypeReport = ref<ItypeReport>();
         const selectedForceDownload = ref(true);
@@ -68,14 +69,14 @@ export default {
 
             itemsMenuLinha.value.push({
                 label: 'Editar',
-                command: (event: any) => {
+                command: () => {
                     onEdit(rowData);
                 }
             });
 
             itemsMenuLinha.value.push({
                 label: 'Excluir',
-                command: (event: any) => {
+                command: () => {
                     onDelete(rowData);
                 }
             });
@@ -111,11 +112,13 @@ export default {
                     admParameterService.update(admParameter.value).then((obj: AdmParameter) => {
                         admParameter.value = obj;
 
-                        const index = admParameterService.findIndexById(listaAdmParameter.value, admParameter.value.id);
-                        listaAdmParameter.value[index] = admParameter.value;
-                        listaAdmParameter.value[index].admParameterCategory = admParameter.value.admParameterCategory;
+                        if (admParameter.value.id){    
+                            const index = admParameterService.findIndexById(listaAdmParameter.value, admParameter.value.id);
+                            listaAdmParameter.value[index] = admParameter.value;
+                            listaAdmParameter.value[index].admParameterCategory = admParameter.value.admParameterCategory;
 
-                        toast.add({severity:'success', summary: 'Successful', detail: 'Parâmetro Atualizada', life: 3000});
+                            toast.add({severity:'success', summary: 'Successful', detail: 'Parâmetro Atualizada', life: 3000});
+                        }
                     });            
                 } else {
                     admParameterService.insert(admParameter.value).then((obj: AdmParameter) => {
@@ -146,9 +149,11 @@ export default {
 
             let excluiu = false;
             selectedAdmParameters.value.forEach((item: AdmParameter) => {
-                admParameterService.delete(item.id).then(obj => {
-                    excluiu = true;
-                });
+                if (item.id){
+                    admParameterService.delete(item.id).then(() => {
+                        excluiu = true;
+                    });
+                }    
             });
 
             if (excluiu) {
@@ -159,11 +164,13 @@ export default {
 
         const confirmDelete = () => {
             deleteAdmParameterDialog.value = false;
-            admParameterService.delete(admParameter.value.id).then(obj => {
-                listaAdmParameter.value = listaAdmParameter.value.filter((val: AdmParameter) => val.id !== admParameter.value.id);
-                admParameter.value = emptyAdmParameter;        
-                toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Parâmetro excluído', life: 3000 });
-            });
+            if (admParameter.value.id){
+                admParameterService.delete(admParameter.value.id).then(() => {
+                    listaAdmParameter.value = listaAdmParameter.value.filter((val: AdmParameter) => val.id !== admParameter.value.id);
+                    admParameter.value = emptyAdmParameter;        
+                    toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Parâmetro excluído', life: 3000 });
+                });
+            }
         }
 
         const onTypeReportChange = (param: { pTypeReport: SelectItemGroup }) => {
@@ -192,7 +199,7 @@ export default {
                 global: { value: null, matchMode: FilterMatchMode.CONTAINS }
             };
         };
-
+/*
         const exportPdf = () => {
             const head: string[] = [];
             const data: any[] = [];
@@ -208,7 +215,7 @@ export default {
         const exportExcel = () => {
             exportService.exportExcel(listaAdmParameter.value, 'parametros');
         }
-
+*/
 
         return { listaAdmParameter, admParameter, filters, submitted, itemsMenuLinha, toggleMenu, popupMenu,
             selectedAdmParameters, deleteSelected, admParameterDialog, hideDialog, listaAdmParameterCategory,

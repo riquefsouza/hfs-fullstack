@@ -3,12 +3,11 @@ import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import AdmPageService from '../../admin/service/AdmPageService';
-import { ExportService } from '../../base/services/ExportService';
 import { AdmPage, cleanAdmPage, emptyAdmPage } from '../api/AdmPage';
 import { ReportParamForm, emptyReportParamForm } from '../../base/models/ReportParamsForm';
 import { ItypeReport, PDFReport, SelectItemGroup } from '../../base/services/ReportService';
 import { MenuItem } from '../../base/models/MenuItem';
-import { AdmProfile, emptyAdmProfile } from '../api/AdmProfile';
+import { AdmProfile } from '../api/AdmProfile';
 import AdmProfileService from '../service/AdmProfileService';
 
 export default {
@@ -29,7 +28,7 @@ export default {
 
         const admPageService = new AdmPageService();
         const admProfileService = new AdmProfileService();
-        const exportService = new ExportService();
+        //const exportService = new ExportService();
 
         const selectedTypeReport = ref<ItypeReport>();
         const selectedForceDownload = ref(true);
@@ -67,14 +66,14 @@ export default {
 
             itemsMenuLinha.value.push({
                 label: 'Editar',
-                command: (event: any) => {
+                command: () => {
                     onEdit(rowData);
                 }
             });
 
             itemsMenuLinha.value.push({
                 label: 'Excluir',
-                command: (event: any) => {
+                command: () => {
                     onDelete(rowData);
                 }
             });
@@ -86,21 +85,20 @@ export default {
             let sourceProfiles: AdmProfile[] = [];
             let targetProfiles: AdmProfile[] = [];
 
-            if (admPage.id == null) {
+            if (admPage) {
+                if (admPage.id == null) {
+                    admProfileService.findAll().then(profiles => pageProfiles.value = [profiles, []]);
+                } else {
+                    admProfileService.findProfilesByPage(admPage).then(item => {
+                        targetProfiles = item;
 
-                admProfileService.findAll().then(profiles => pageProfiles.value = [profiles, []]);
-
-            } else {
-                admProfileService.findProfilesByPage(admPage).then(item => {
-                    targetProfiles = item;
-
-                    admProfileService.findAll().then(profiles => {
-                        sourceProfiles = profiles.filter(profile => !item.find(target => target.id === profile.id));
-
-                        pageProfiles.value = [sourceProfiles, targetProfiles];
-                    });
-                });                            
-            }        
+                        admProfileService.findAll().then(profiles => {
+                            sourceProfiles = profiles.filter(profile => !item.find(target => target.id === profile.id));
+                            pageProfiles.value = [sourceProfiles, targetProfiles];
+                        });
+                    });                            
+                }        
+            }
         }
 
         const mostrarListar = () => {
@@ -148,7 +146,9 @@ export default {
 
                 sourceProfiles.forEach((value: AdmProfile) => {
                     let targetProfile: AdmProfile = value;
-                    admPage.value.admIdProfiles.push(targetProfile.id);
+                    if (targetProfile.id){
+                        admPage.value.admIdProfiles.push(targetProfile.id);
+                    }                    
                 });
             });
 
@@ -157,10 +157,12 @@ export default {
                     admPageService.update(admPage.value).then((obj: AdmPage) => {
                         admPage.value = obj;
 
-                        const index = admPageService.findIndexById(listaAdmPage.value, admPage.value.id);
-                        listaAdmPage.value[index] = admPage.value;
+                        if(admPage.value.id){
+                            const index = admPageService.findIndexById(listaAdmPage.value, admPage.value.id);
+                            listaAdmPage.value[index] = admPage.value;
 
-                        toast.add({severity:'success', summary: 'Successful', detail: 'Página Atualizada', life: 3000});
+                            toast.add({severity:'success', summary: 'Successful', detail: 'Página Atualizada', life: 3000});
+                        }
                     });            
                 } else {
                     admPageService.insert(admPage.value).then((obj: AdmPage) => {
@@ -191,9 +193,11 @@ export default {
 
             let excluiu = false;
             selectedAdmPages.value.forEach((item: AdmPage) => {
-                admPageService.delete(item.id).then(obj => {
-                    excluiu = true;
-                });
+                if (item.id){
+                    admPageService.delete(item.id).then(() => {
+                        excluiu = true;
+                    });
+                }
             });
 
             if (excluiu) {
@@ -204,11 +208,13 @@ export default {
 
         const confirmDelete = () => {
             deleteAdmPageDialog.value = false;
-            admPageService.delete(admPage.value.id).then(obj => {
-                listaAdmPage.value = listaAdmPage.value.filter((val: AdmPage) => val.id !== admPage.value.id);
-                admPage.value = emptyAdmPage;        
-                toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Página excluída', life: 3000 });
-            });
+            if (admPage.value.id){
+                admPageService.delete(admPage.value.id).then(() => {
+                    listaAdmPage.value = listaAdmPage.value.filter((val: AdmPage) => val.id !== admPage.value.id);
+                    admPage.value = emptyAdmPage;        
+                    toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Página excluída', life: 3000 });
+                });
+            }
         }
 
         const onTypeReportChange = (param: { pTypeReport: SelectItemGroup }) => {
@@ -237,7 +243,7 @@ export default {
                 global: { value: null, matchMode: FilterMatchMode.CONTAINS }
             };
         };
-
+/*
         const exportPdf = () => {
             const head: string[] = [];
             const data: any[] = [];
@@ -253,7 +259,7 @@ export default {
         const exportExcel = () => {
             exportService.exportExcel(listaAdmPage.value, 'paginas');
         }
-
+*/
 
         return { listaAdmPage, admPage, filters, submitted, itemsMenuLinha, toggleMenu, popupMenu,
             selectedAdmPages, deleteSelected, admPageDialog, hideDialog, mostrarListar, mostrarEditar, onClean,

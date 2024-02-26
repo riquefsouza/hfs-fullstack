@@ -2,7 +2,7 @@
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable, DataTableSelectionSingleChangeEvent, DataTableSelectAllChangeEvent, 
-    DataTableFilterEvent, DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primereact/datatable';
+    DataTableFilterEvent, DataTablePageEvent, DataTableSortEvent } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
@@ -41,10 +41,10 @@ const FuncionarioPage = () => {
     const [submitted, setSubmitted] = useState(false);
     const [cols, setCols] = useState<any[]>([]);
     const [exportColumns, setExportColumns] = useState<any[]>([]);
-    const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
+    //const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
-    const [date, setDate] = useState<Nullable<Date>>(null);
+    const [, setDate] = useState<Nullable<Date>>(null);
 
     const [selectedTypeReport, setSelectedTypeReport] = useState<ItypeReport>(PDFReport);
     const [selectedForceDownload, setSelectedForceDownload] = useState(true);
@@ -67,12 +67,12 @@ const FuncionarioPage = () => {
             'nome': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
         }
     });    
-
+/*
     const [filters, setFilters] = useState<DataTableFilterMeta>({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         'nome': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     });    
-
+*/
     useEffect(() => {
         setCols([
             { field: 'id', header: 'Código' },
@@ -99,32 +99,56 @@ const FuncionarioPage = () => {
         setLoading(true);
 
         funcionarioService.findAllPaginated(lazyState).then((data) => {
-            setListaFuncionario(data['content']);
-            setTotalRecords(data['totalElements']);
+            setListaFuncionario(data.content);
+            setTotalRecords(data.totalElements);
             setLoading(false);
         });
 
     }
 
     const onPage = (event: DataTablePageEvent) => {
-        setlazyState(event);
+        //setlazyState(event);
+        
+        setlazyState({
+            first: event.first,
+            rows: event.rows,
+            page: event.page,
+            sortField: lazyState.sortField,
+            sortOrder: lazyState.sortOrder,
+            filters: lazyState.filters
+        });
+        
     };
 
     const onSort = (event: DataTableSortEvent) => {
-        setlazyState(event);
+        setlazyState({
+            first: lazyState.first,
+            rows: lazyState.rows,
+            page: lazyState.page,
+            sortField: event.sortField,
+            sortOrder: event.sortOrder,
+            filters: lazyState.filters
+        });
     };
 
     const onFilter = (event: DataTableFilterEvent) => {
         event['first'] = 0;
-        setlazyState(event);
+        setlazyState({
+            first: lazyState.first,
+            rows: lazyState.rows,
+            page: lazyState.page,
+            sortField: lazyState.sortField,
+            sortOrder: lazyState.sortOrder,
+            filters: event.filters
+        });
     };    
 
-    const onSelectionChange = (event: DataTableSelectionSingleChangeEvent<[]>) => {
+    const onSelectionChange = (event: DataTableSelectionSingleChangeEvent<any[]>) => {
         const value = event.value;
 
-        setSelectAll(event.length === totalRecords);
         setSelectedFuncionarios(value);
-    }
+        setSelectAll(event.length === totalRecords);
+    };
 
     const onSelectAllChange = (event: DataTableSelectAllChangeEvent) => {
         const checked = event.checked;
@@ -193,10 +217,12 @@ const FuncionarioPage = () => {
                 funcionarioService.update(funcionario).then((obj: Funcionario) => {
                     _funcionario = obj;
                     
-                    const index = funcionarioService.findIndexById(listaFuncionario, funcionario.id);
-                    _listaFuncionario[index] = _funcionario;
-                    setListaFuncionario(_listaFuncionario);
-                    toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Funcionário Atualizado', life: 3000 });                    
+                    if(funcionario.id){
+                        const index = funcionarioService.findIndexById(listaFuncionario, funcionario.id);
+                        _listaFuncionario[index] = _funcionario;
+                        setListaFuncionario(_listaFuncionario);
+                        toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Funcionário Atualizado', life: 3000 });
+                    }    
                 });
             } else {
                 funcionarioService.insert(funcionario).then((obj: Funcionario) => {
@@ -227,9 +253,11 @@ const FuncionarioPage = () => {
   
         let excluiu = false;
         selectedFuncionarios.forEach((item) => {
-            funcionarioService.delete(item.id).then(obj => {
-                excluiu = true;
-            });
+            if (item.id){
+                funcionarioService.delete(item.id).then(() => {
+                    excluiu = true;
+                });
+            }
         });
     
         if (excluiu) {
@@ -240,11 +268,13 @@ const FuncionarioPage = () => {
   
     const confirmDelete = () => {
         setDeleteFuncionarioDialog(false);
-        funcionarioService.delete(funcionario.id).then(obj => {
-            setListaFuncionario(listaFuncionario.filter(val => val.id !== funcionario.id));
-            setFuncionario(emptyFuncionario); 
-            toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Funcionário excluído', life: 3000 });
-        });
+        if (funcionario.id){
+            funcionarioService.delete(funcionario.id).then(() => {
+                setListaFuncionario(listaFuncionario.filter(val => val.id !== funcionario.id));
+                setFuncionario(emptyFuncionario); 
+                toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Funcionário excluído', life: 3000 });
+            });
+        }
     }
   
     const onChangedTypeReport = (typeReport: ItypeReport) => {
@@ -253,10 +283,13 @@ const FuncionarioPage = () => {
           forceDownload: selectedForceDownload });
     }
     
-    const onChangedForceDownload = (forceDownload: boolean) => {
-        setSelectedForceDownload(forceDownload);
-        setReportParamForm({ reportType: selectedTypeReport.type, 
-          forceDownload: forceDownload });
+    const onChangedForceDownload = (event: CheckboxChangeEvent) => {
+        const forceDownload = event.checked;
+        if (forceDownload){
+            setSelectedForceDownload(forceDownload);
+            setReportParamForm({ reportType: selectedTypeReport.type, 
+              forceDownload: forceDownload });    
+        }
     }
     
     const onExport = () => {
@@ -265,7 +298,7 @@ const FuncionarioPage = () => {
             detail: 'Funcionário exportada', life: 3000 });
         });
     }
-
+/*
     const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         let _filters = { ...filters };
@@ -276,9 +309,11 @@ const FuncionarioPage = () => {
         setFilters(_filters);
         setGlobalFilterValue(value);
     };
-
-    const exportCSV = (selectionOnly) => {
-        dt.current.exportCSV(selectionOnly);
+*/
+    const exportCSV = (param: boolean) => {
+        if (dt.current){
+            dt.current.exportCSV({ selectionOnly: param });
+        }
     };
 
     const exportPdf = () => {
@@ -364,7 +399,9 @@ const FuncionarioPage = () => {
 
     const onAtivoChange = (e: CheckboxChangeEvent) => {        
         let _funcionario = { ...funcionario };
-        _funcionario.ativo = e.checked;
+        if (e.checked!==undefined){
+            _funcionario.ativo = e.checked;
+        }
         
         setFuncionario(_funcionario);
     }
@@ -400,7 +437,7 @@ const FuncionarioPage = () => {
                     className="p-button-success mr-2" tooltip="XLS" tooltipOptions={{ position: 'bottom' }} />
                 <Button type="button" icon="pi pi-file-pdf" onClick={exportPdf} data-pr-tooltip="PDF"
                     className="p-button-warning mr-2" tooltip="PDF" tooltipOptions={{ position: 'bottom' }} />
-                <Button type="button" icon="pi pi-filter" onClick={() => exportCSV({ selectionOnly: true })} data-pr-tooltip="CSV"
+                <Button type="button" icon="pi pi-filter" onClick={() => exportCSV(true)} data-pr-tooltip="CSV"
                     className="p-button-info mr-2" tooltip="Somente Seleção" tooltipOptions={{ position: 'bottom' }} />
             </div>        
         </div>
@@ -567,23 +604,23 @@ const FuncionarioPage = () => {
                     <Toast ref={toast} />
                     <Panel header="Funcionário" className="p-mb-2">
                         <ReportPanelComponent typeReportChange={e => onChangedTypeReport(e.value)}
-                            forceDownloadChange={e => onChangedForceDownload(e.checked)}
+                            forceDownloadChange={e => onChangedForceDownload(e)}
                         ></ReportPanelComponent>
                     </Panel>
 
                     <Toolbar className="mb-4" start={leftToolbarTemplate} end={rightToolbarTemplate}></Toolbar>
-
-                    <DataTable ref={dt} value={listaFuncionario} lazy selection={selectedFuncionarios} paginatorPosition="both"                        
-                        dataKey="id" paginator rows={10} rowsPerPageOptions={[10,30,50,100,150,200]} className="datatable-responsive"
+    
+                    <DataTable value={listaFuncionario} lazy filterDisplay="row" dataKey="id" paginator
+                        first={lazyState.first} rows={10} totalRecords={totalRecords} onPage={onPage} 
+                        onSort={onSort} sortField={lazyState.sortField} sortOrder={lazyState.sortOrder}
+                        onFilter={onFilter} filters={lazyState.filters} loading={loading} tableStyle={{ minWidth: '75rem' }}
+                        selection={selectedFuncionarios} onSelectionChange={onSelectionChange} selectAll={selectAll} onSelectAllChange={onSelectAllChange}
+                        paginatorPosition="both" rowsPerPageOptions={[10,30,50,100,150,200]} className="datatable-responsive"
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Mostrando {first} até {last} de {totalRecords} entradas" 
                         globalFilterFields={['nome']} emptyMessage="Nenhum registro encontrado."
-                        header={tabelaHeader} footer={tabelaFooter} responsiveLayout="scroll"
-                        totalRecords={totalRecords} onPage={onPage} filterDisplay="row" first={lazyState.first}
-                        onSort={onSort} sortField={lazyState.sortField} sortOrder={lazyState.sortOrder}
-                        onFilter={onFilter} filters={lazyState.filters} loading={loading} tableStyle={{ minWidth: '75rem' }}
-                        onSelectionChange={onSelectionChange} selectAll={selectAll} onSelectAllChange={onSelectAllChange}
-                    >
+                        header={tabelaHeader} footer={tabelaFooter} responsiveLayout="scroll"                        
+                    >                            
                         <Column selectionMode="multiple" headerStyle={{ width: '4rem' }}></Column>
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column field="id" header="Id" sortable headerStyle={{ width: '14%', minWidth: '10rem' }} body={idBodyTemplate}></Column>

@@ -3,7 +3,6 @@ import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import AdmProfileService from '../../admin/service/AdmProfileService';
-import { ExportService } from '../../base/services/ExportService';
 import { AdmProfile, cleanAdmProfile, emptyAdmProfile } from '../api/AdmProfile';
 import { ReportParamForm, emptyReportParamForm } from '../../base/models/ReportParamsForm';
 import { ItypeReport, PDFReport, SelectItemGroup } from '../../base/services/ReportService';
@@ -29,7 +28,7 @@ export default {
 
         const admProfileService = new AdmProfileService();
         const admPageService = new AdmPageService();
-        const exportService = new ExportService();
+        //const exportService = new ExportService();
 
         const selectedTypeReport = ref<ItypeReport>();
         const selectedForceDownload = ref(true);
@@ -66,14 +65,14 @@ export default {
 
             itemsMenuLinha.value.push({
                 label: 'Editar',
-                command: (event: any) => {
+                command: () => {
                     onEdit(rowData);
                 }
             });
 
             itemsMenuLinha.value.push({
                 label: 'Excluir',
-                command: (event: any) => {
+                command: () => {
                     onDelete(rowData);
                 }
             });
@@ -150,10 +149,12 @@ export default {
                     admProfileService.update(admProfile.value).then((obj: AdmProfile) => {
                         admProfile.value = obj;
 
-                        const index = admProfileService.findIndexById(listaAdmProfile.value, admProfile.value.id);
-                        listaAdmProfile.value[index] = admProfile.value;
+                        if (admProfile.value.id){
+                            const index = admProfileService.findIndexById(listaAdmProfile.value, admProfile.value.id);
+                            listaAdmProfile.value[index] = admProfile.value;
 
-                        toast.add({severity:'success', summary: 'Successful', detail: 'Perfil Atualizada', life: 3000});
+                            toast.add({severity:'success', summary: 'Successful', detail: 'Perfil Atualizada', life: 3000});
+                        }    
                     });            
                 } else {
                     admProfileService.insert(admProfile.value).then((obj: AdmProfile) => {
@@ -184,9 +185,11 @@ export default {
 
             let excluiu = false;
             selectedAdmProfiles.value.forEach((item: AdmProfile) => {
-                admProfileService.delete(item.id).then(obj => {
-                    excluiu = true;
-                });
+                if (item.id){
+                    admProfileService.delete(item.id).then(() => {
+                        excluiu = true;
+                    });
+                }
             });
 
             if (excluiu) {
@@ -197,11 +200,13 @@ export default {
 
         const confirmDelete = () => {
             deleteAdmProfileDialog.value = false;
-            admProfileService.delete(admProfile.value.id).then(obj => {
-                listaAdmProfile.value = listaAdmProfile.value.filter((val: AdmProfile) => val.id !== admProfile.value.id);
-                admProfile.value = emptyAdmProfile;        
-                toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Perfil excluído', life: 3000 });
-            });
+            if (admProfile.value.id){
+                admProfileService.delete(admProfile.value.id).then(() => {
+                    listaAdmProfile.value = listaAdmProfile.value.filter((val: AdmProfile) => val.id !== admProfile.value.id);
+                    admProfile.value = emptyAdmProfile;        
+                    toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Perfil excluído', life: 3000 });
+                });
+            }
         }
 
         const onTypeReportChange = (param: { pTypeReport: SelectItemGroup }) => {
@@ -230,7 +235,7 @@ export default {
                 global: { value: null, matchMode: FilterMatchMode.CONTAINS }
             };
         };
-
+/*
         const exportPdf = () => {
             const head: string[] = [];
             const data: any[] = [];
@@ -246,7 +251,7 @@ export default {
         const exportExcel = () => {
             exportService.exportExcel(listaAdmProfile.value, 'perfis');
         }
-
+*/
 
         return { listaAdmProfile, admProfile, filters, submitted, itemsMenuLinha, toggleMenu, popupMenu,
             selectedAdmProfiles, deleteSelected, admProfileDialog, hideDialog, mostrarListar, mostrarEditar, onClean,

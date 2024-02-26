@@ -1,5 +1,5 @@
-import React, { useState, createContext } from 'react';
-import { ChildContainerProps, MenuContextProps } from '@/types';
+import { useState, createContext } from 'react';
+import { ChildContainerProps, MenuContextProps } from '../../types';
 
 export const MenuContext = createContext({} as MenuContextProps);
 

@@ -78,7 +78,7 @@ const FuncionarioPage = () => {
         setLoading(true);
 
         funcionarioService.findAllPaginated(lazyState).then((data) => {
-            setListaFuncionario(data.content);            
+            setListaFuncionario(data.content);
             setTotalRecords(data.totalElements);
             setLoading(false);
         });

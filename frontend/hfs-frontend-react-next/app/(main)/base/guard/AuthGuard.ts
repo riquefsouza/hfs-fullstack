@@ -5,9 +5,9 @@ export default class AuthGuard extends KeycloakAuthGuard {
   public async isAccessAllowed(url: string, roles: []): Promise<boolean> {
 
     if (!this.authenticated) {
-      await this.login({
-        redirectUri: window.location.origin + url
-      });
+      //await this.login({
+        //redirectUri: window.location.origin + url
+      //});
     }
 
     // Get the roles required from the route.
