@@ -5,6 +5,7 @@ export interface ItypeReport {
 }
 
 export interface SelectItemGroup {
+  id: number; 
   label: string;
   value?: ItypeReport;
   items?: SelectItemGroup[];
@@ -20,13 +21,16 @@ export class ReportService {
 
     this.typeReport = [
       {
+        id: 1,
         label: 'Documents',
         items: [
           {
+            id: 11,
             label: 'Portable Document Format (.pdf)',
             value: PDFReport
           },
           {
+            id: 12,
             label: 'Microsoft Word XML (.docx)',
             value: {
               type: 'DOCX',
@@ -35,10 +39,12 @@ export class ReportService {
             }
           },
           {
+            id: 13,
             label: 'Rich Text Format (.rtf)',
             value: { type: 'RTF', typeContent: 'application/rtf', description: 'Rich Text Format (.rtf)' }
           },
           {
+            id: 14,
             label: 'OpenDocument Text (.odt)',
             value: {
               type: 'ODT', typeContent: 'application/vnd.oasis.opendocument.text',
@@ -48,9 +54,11 @@ export class ReportService {
         ]
       },
       {
+        id: 2,
         label: 'Spreadsheets',
         items: [
           {
+            id: 21,
             label: 'Microsoft Excel XML (.xlsx)',
             value: {
               type: 'XLSX', typeContent: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -58,6 +66,7 @@ export class ReportService {
             }
           },
           {
+            id: 22,
             label: 'OpenDocument Spreadsheet (.ods)',
             value: {
               type: 'ODS', typeContent: 'application/vnd.oasis.opendocument.spreadsheet',
@@ -67,9 +76,11 @@ export class ReportService {
         ]
       },
       {
+        id: 3,
         label: 'Pure Text',
         items: [
           {
+            id: 31,
             label: 'Comma Separated Values (.csv)',
             value: {
               type: 'CSV', typeContent: 'text/plain',
@@ -77,6 +88,7 @@ export class ReportService {
             }
           },
           {
+            id: 32,
             label: 'Text Only (.txt)',
             value: {
               type: 'TXT', typeContent: 'text/plain',
@@ -85,10 +97,12 @@ export class ReportService {
           }
         ]
       },
-      {
+      {        
+        id: 4,
         label: 'Others',
         items: [
           {
+            id: 41,
             label: 'Microsoft Powerpoint XML (.pptx)',
             value: {
               type: 'PPTX',
@@ -97,6 +111,7 @@ export class ReportService {
             }
           },
           {
+            id: 42,
             label: 'Hypertext Markup Language (.html)',
             value: {
               type: 'HTML',

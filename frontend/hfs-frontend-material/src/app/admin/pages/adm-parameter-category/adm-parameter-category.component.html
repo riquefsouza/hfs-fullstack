@@ -1,0 +1,36 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+
+            <mat-card styleClass="p-mb-2">
+                <mat-card-header>
+                    <mat-card-title>Categoria de parâmetro de configuração</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <app-report-panel (typeReportChange)="onChangedTypeReport($event)" (forceDownloadChange)="onChangedForceDownload($event)"></app-report-panel>
+                </mat-card-content>
+            </mat-card>    
+
+            <mat-toolbar styleClass="mb-4">
+                <div class="my-2">
+                    <button mat-button color="primary" class="mr-2" (click)="onInsert()">
+                        <mat-icon>add</mat-icon> Adicionar
+                    </button>
+                    <button mat-button color="warn" (click)="deleteSelected()" 
+                        [disabled]="!selectedAdmParameterCategories || !selectedAdmParameterCategories.length">
+                        <mat-icon>delete</mat-icon> Excluir
+                    </button>
+                </div>
+
+                <span class="spacer"></span>
+
+                <button mat-button class="p-button-help" (click)="onExport()">
+                    <mat-icon>upload</mat-icon> Exportar
+                </button>
+            </mat-toolbar>
+
+
+        </div>
+
+    </div>
+</div>

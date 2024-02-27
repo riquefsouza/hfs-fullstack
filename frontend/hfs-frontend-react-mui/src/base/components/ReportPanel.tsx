@@ -1,16 +1,20 @@
 import React from "react";
-import { PDFReport, ReportService } from "../services/ReportService";
-import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
-import { CheckboxChangeEvent } from 'primereact/checkbox';
+import { PDFReport, ReportService, SelectItemGroup } from "../services/ReportService";
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import ListSubheader from "@mui/material/ListSubheader";
 
 interface ReportPanelProps {
-  typeReportChange?(e: DropdownChangeEvent): void,
-  forceDownloadChange?(e: CheckboxChangeEvent): void
+  typeReportChange?(e: SelectChangeEvent): void,
+  forceDownloadChange?(e: React.ChangeEvent<HTMLInputElement>): void
 }
 
 class ReportPanelComponent extends React.Component<ReportPanelProps,any> {
 
-  private reportService: ReportService;
+  private reportService: ReportService;  
+  private lista: React.JSX.Element[] = [];
 
   constructor(props: ReportPanelProps) {
     super(props);
@@ -21,18 +25,26 @@ class ReportPanelComponent extends React.Component<ReportPanelProps,any> {
       selectedTypeReport: PDFReport,
       selectedForceDownload: true
     }
+
+    this.state.typeReport.forEach((group: SelectItemGroup) => {
+        this.lista.push(<ListSubheader key={group.id} style={{fontWeight: "bold"}}>{group.label}</ListSubheader>);        
+        group.items?.forEach((item: SelectItemGroup) => {
+          this.lista.push(<MenuItem key={item.id} value={item.value}>{item.label}</MenuItem>);  
+        });
+    });
+
   }
 
-  private typeReportChange(e: DropdownChangeEvent): void {
-    this.setState({ selectedTypeReport: e.value });
+  private typeReportChange(e: SelectChangeEvent): void {
+    this.setState({ selectedTypeReport: e.target.value });
 
     if (this.props.typeReportChange) {
       this.props.typeReportChange(e);
     }
   }
 /*
-  private forceDownloadChange(e: CheckboxChangeEvent): void {
-    this.setState({ selectedForceDownload: e.checked });
+  private forceDownloadChange(e: React.ChangeEvent<HTMLInputElement>): void {
+    this.setState({ selectedForceDownload: e.target.checked });
 
     if (this.props.forceDownloadChange) {
       this.props.forceDownloadChange(e);
@@ -43,10 +55,12 @@ class ReportPanelComponent extends React.Component<ReportPanelProps,any> {
     return (
       <div className="p-fluid formgrid grid">
           <div className="field col-4 md-4">
-              <label htmlFor="cmbTypeReport">Escolha o tipo de relatório:</label>
-              <Dropdown value={this.state.selectedTypeReport} options={this.state.typeReport} 
-                  onChange={e => this.typeReportChange(e)} 
-                  optionLabel="label" optionGroupLabel="label" optionGroupChildren="items" />
+            <FormControl sx={{ m: 1, minWidth: 400 }}>
+              <InputLabel htmlFor="cmbTypeReport">Escolha o tipo de relatório:</InputLabel>
+              <Select defaultValue="" id="cmbTypeReport" label="Grouping" onChange={e => this.typeReportChange(e)} >
+                {this.lista}
+              </Select>
+            </FormControl>
           </div>
           {/*
           <div className="field col-4 md-4">

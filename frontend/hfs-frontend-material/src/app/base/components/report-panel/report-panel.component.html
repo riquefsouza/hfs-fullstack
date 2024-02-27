@@ -1,8 +1,19 @@
-<div class="p-fluid formgrid grid">
-    <div class="field col-4 md-4">
-        <label for="cmbTypeReport">Escolha o tipo de relatório:</label>    
-        <p-dropdown id="cmbTypeReport" [options]="typeReport" [(ngModel)]="selectedTypeReport" [group]="true" 
-            (onChange)="typeReportChangedSource.next($event.value)"></p-dropdown>
+<div class="p-fluid formgrid grid">    
+    <div class="field col-6 md-6">
+        <label for="cmbTypeReport"></label>
+        <mat-form-field style="width: 400px;">
+            <mat-label>Escolha o tipo de relatório:</mat-label>
+            <mat-select [formControl]="cmbTypeReport" (onChange)="typeReportChangedSource.next($event.value)"
+                [(value)]="selectedTypeReport">
+                @for (group of typeReport; track group) {
+                    <mat-optgroup [label]="group.label" style="font-weight: bold;">
+                        @for (item of group.items; track item) {
+                            <mat-option [value]="item.value">{{item.label}}</mat-option>
+                        }
+                    </mat-optgroup>
+                }
+            </mat-select>
+        </mat-form-field>    
     </div>
     <!--
     <div class="field col-4 md-4">

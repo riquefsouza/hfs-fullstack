@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DropdownModule } from 'primeng/dropdown';
-import { CheckboxModule } from 'primeng/checkbox';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { ReportPanelComponent } from './report-panel/report-panel.component';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatGridListModule} from '@angular/material/grid-list';
 
 @NgModule({
     declarations: [
@@ -11,9 +13,8 @@ import { ReportPanelComponent } from './report-panel/report-panel.component';
     ],
     imports: [
         CommonModule,
-        FormsModule,
-        DropdownModule,
-        CheckboxModule,
+        FormsModule, ReactiveFormsModule, 
+        MatFormFieldModule, MatSelectModule, MatInputModule, MatGridListModule
     ],
     exports: [ReportPanelComponent]
 })

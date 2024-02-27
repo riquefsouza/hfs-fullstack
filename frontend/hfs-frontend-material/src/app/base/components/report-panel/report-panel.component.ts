@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { SelectItemGroup } from 'primeng/api';
 import { Subject } from 'rxjs';
-import { ItypeReport, PDFReport, ReportService } from '../../services/ReportService';
+import { ItypeReport, PDFReport, ReportService, SelectItemGroup } from '../../services/ReportService';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-report-panel',
@@ -10,6 +10,8 @@ import { ItypeReport, PDFReport, ReportService } from '../../services/ReportServ
   providers: [ReportService]
 })
 export class ReportPanelComponent implements OnInit {
+
+  cmbTypeReport = new FormControl('');
 
   typeReport: SelectItemGroup[];
 

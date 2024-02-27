@@ -1,10 +1,15 @@
 import { Injectable } from '@angular/core';
-import { SelectItemGroup } from 'primeng/api';
 
 export interface ItypeReport {
   type: string;
   typeContent: string;
   description: string;
+}
+
+export interface SelectItemGroup {
+  label: string;
+  value?: ItypeReport;
+  items?: SelectItemGroup[];
 }
 
 export const PDFReport = { type: 'PDF', typeContent: 'application/pdf', description: 'Portable Document Format (.pdf)' };

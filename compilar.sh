@@ -16,11 +16,19 @@ cd frontend/hfs-frontend-jest
 npm install
 
 cd ../../
+cd frontend/hfs-frontend-material
+npm install
+
+cd ../../
 cd frontend/hfs-frontend-react-next
 npm install
 
 cd ../../
 cd frontend/hfs-frontend-react
+npm install
+
+cd ../../
+cd frontend/hfs-frontend-react-mui
 npm install
 
 cd ../../
