@@ -1,0 +1,21 @@
+<div class="layout-topbar">
+    <a class="layout-topbar-logo" routerLink="">
+        <span>HFS FULLSTACK</span>
+    </a>
+
+    <button mat-icon-button #menubutton class="p-link layout-menu-button" (click)="layoutService.onMenuToggle()">
+        <mat-icon>menu</mat-icon>
+    </button>
+
+    <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
+        <button mat-icon-button class="p-link" [routerLink]="'/system/usuario'">
+            <mat-icon>person</mat-icon>
+        </button>
+        <button mat-icon-button class="p-link" [routerLink]="'/system/config'">
+            <mat-icon>settings</mat-icon>
+        </button>
+        <button mat-icon-button class="p-link" (click)="logout()">
+            <mat-icon>logout</mat-icon>
+        </button>
+    </div>
+</div>

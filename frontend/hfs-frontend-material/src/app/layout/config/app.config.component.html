@@ -1,0 +1,60 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+
+            <h5>Esquema de cor</h5>
+            <div class="grid">
+                <div class="col-2">
+                    <button mat-icon-button class="p-link w-4rem h-2rem" (click)="changeTheme('lara-light-indigo', 'light')">
+                        <mat-icon style="font-size: 1.8rem">light_mode</mat-icon>
+                    </button>
+                    <button mat-icon-button class="p-link w-4rem h-2rem" (click)="changeTheme('lara-dark-indigo', 'dark')">
+                        <mat-icon style="font-size: 1.8rem">dark_mode</mat-icon>
+                    </button>
+                </div>
+            </div>
+        
+            <h5>Escala</h5>
+            <div class="grid">
+                <div class="col-2">
+                    <button mat-icon-button (click)="decrementScale()" class="p-button-text p-button-rounded w-2rem h-2rem mr-2" [disabled]="scale === scales[0]">
+                        <mat-icon style="font-size: 1.8rem">remove</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="incrementScale()" class="p-button-text p-button-rounded w-2rem h-2rem ml-2" [disabled]="scale === scales[scales.length - 1]">
+                        <mat-icon style="font-size: 1.8rem">add</mat-icon>
+                    </button>
+                </div>
+            </div>
+            
+            <ng-container *ngIf="!minimal">
+                <h5>Tipo de menu</h5>
+                <mat-radio-group aria-label="Tipo de menu">
+                    <div class="field-radiobutton">
+                        <mat-radio-button name="static" value="static" [(ngModel)]="menuMode" id="mode1"></mat-radio-button>
+                        <label for="mode1">Static</label>
+                    </div>
+                    <div class="field-radiobutton">
+                        <mat-radio-button name="overlay" value="overlay" [(ngModel)]="menuMode" id="mode2"></mat-radio-button>
+                        <label for="mode2">Overlay</label>
+                    </div>
+                </mat-radio-group>
+            </ng-container>
+
+            <ng-container *ngIf="!minimal">
+                <h5>Estilo de entrada</h5>
+                <div class="flex">
+                    <mat-radio-group aria-label="Tipo de menu">
+                        <div class="field-radiobutton flex-1">
+                            <mat-radio-button name="inputStyle" value="outlined" [(ngModel)]="inputStyle" id="outlined_input"></mat-radio-button>
+                            <label for="outlined_input">Outlined</label>
+                        </div>
+                        <div class="field-radiobutton flex-1">
+                            <mat-radio-button name="inputStyle" value="filled" [(ngModel)]="inputStyle" id="filled_input"></mat-radio-button>
+                            <label for="filled_input">Filled</label>
+                        </div>    
+                    </mat-radio-group>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
