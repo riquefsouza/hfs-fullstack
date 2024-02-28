@@ -13,7 +13,7 @@ export class AppConfigComponent {
 
     constructor(
         public layoutService: LayoutService,
-        public menuService: MenuService
+        public menuService: MenuService        
     ) {}
 
     get visible(): boolean {
@@ -96,4 +96,13 @@ export class AppConfigComponent {
     incrementScale() {
         this.scale++;
     }
+
+    changeMenuMode(valor: string) {
+        this.menuMode = valor;
+        
+    };
+
+    changeInputStyle(valor: string) {
+        this.inputStyle = valor;
+    };
 }

@@ -6,6 +6,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatGridListModule} from '@angular/material/grid-list';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 @NgModule({
     declarations: [
@@ -13,7 +14,7 @@ import {MatGridListModule} from '@angular/material/grid-list';
     ],
     imports: [
         CommonModule,
-        FormsModule, ReactiveFormsModule, 
+        FormsModule, ReactiveFormsModule, MatCheckboxModule,
         MatFormFieldModule, MatSelectModule, MatInputModule, MatGridListModule
     ],
     exports: [ReportPanelComponent]

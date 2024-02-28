@@ -1,7 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Subject } from 'rxjs';
 import { ItypeReport, PDFReport, ReportService, SelectItemGroup } from '../../services/ReportService';
-import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-report-panel',
@@ -10,8 +9,6 @@ import { FormControl } from '@angular/forms';
   providers: [ReportService]
 })
 export class ReportPanelComponent implements OnInit {
-
-  cmbTypeReport = new FormControl('');
 
   typeReport: SelectItemGroup[];
 

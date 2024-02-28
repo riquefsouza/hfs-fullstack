@@ -15,6 +15,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UploadIcon from '@mui/icons-material/Upload';
 import { SelectChangeEvent } from '@mui/material/Select';
+import Typography from '@mui/material/Typography';
 
 const AdmParameterCategoryPage = () => {
 
@@ -142,7 +143,10 @@ const AdmParameterCategoryPage = () => {
     }
   
     const onChangedTypeReport = (event: SelectChangeEvent) => {
-        let typeReport: ItypeReport = event.target.value;
+        let typeReport: ItypeReport = event.target.value as unknown as ItypeReport;
+
+        console.log(typeReport);
+
         setSelectedTypeReport(typeReport);
         setReportParamForm({ reportType: typeReport.type, 
           forceDownload: selectedForceDownload });
@@ -159,19 +163,19 @@ const AdmParameterCategoryPage = () => {
             <div className="col-12">
                 <div className="card">
                     <Card className="p-mb-2">
-                        <CardHeader title="Categoria de parâmetro de configuração"/>
+                        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>Categoria de parâmetro de configuração</Typography>
                         <CardContent>
                             <ReportPanelComponent typeReportChange={e => onChangedTypeReport(e)}></ReportPanelComponent>
                         </CardContent>
                     </Card>
                     <Toolbar className="mb-4">
                         <div className="my-2">
-                            <Button startIcon={<AddIcon />} color="primary" className="mr-2" onClick={onInsert}>Adicionar</Button>
-                            <Button startIcon={<DeleteIcon />} color="secondary" onClick={deleteSelected}
+                            <Button startIcon={<AddIcon />} variant="contained" color="success" sx={{marginRight: "10px;"}} onClick={onInsert}>Adicionar</Button>
+                            <Button startIcon={<DeleteIcon />} variant="contained" color="secondary" onClick={deleteSelected}
                                 disabled={!selectedAdmParameterCategorys || !(selectedAdmParameterCategorys as any).length} >Excluir</Button>
                         </div>
                         <span style={{flex: "1 1 auto"}}></span>
-                        <Button startIcon={<UploadIcon />} className="p-button-help" onClick={onExport}>Exportar</Button>
+                        <Button startIcon={<UploadIcon />} variant="contained" onClick={onExport}>Exportar</Button>
                     </Toolbar>
 
                 </div>

@@ -28,13 +28,13 @@
             
             <ng-container *ngIf="!minimal">
                 <h5>Tipo de menu</h5>
-                <mat-radio-group aria-label="Tipo de menu">
+                <mat-radio-group aria-label="Tipo de menu" [(ngModel)]="menuMode">
                     <div class="field-radiobutton">
-                        <mat-radio-button name="static" value="static" [(ngModel)]="menuMode" id="mode1"></mat-radio-button>
+                        <mat-radio-button id="mode1" value="static" (click)="changeMenuMode('static')"></mat-radio-button>
                         <label for="mode1">Static</label>
                     </div>
                     <div class="field-radiobutton">
-                        <mat-radio-button name="overlay" value="overlay" [(ngModel)]="menuMode" id="mode2"></mat-radio-button>
+                        <mat-radio-button id="mode2" value="overlay" (click)="changeMenuMode('overlay')"></mat-radio-button>
                         <label for="mode2">Overlay</label>
                     </div>
                 </mat-radio-group>
@@ -43,13 +43,13 @@
             <ng-container *ngIf="!minimal">
                 <h5>Estilo de entrada</h5>
                 <div class="flex">
-                    <mat-radio-group aria-label="Tipo de menu">
+                    <mat-radio-group aria-label="Tipo de menu" [(ngModel)]="inputStyle">
                         <div class="field-radiobutton flex-1">
-                            <mat-radio-button name="inputStyle" value="outlined" [(ngModel)]="inputStyle" id="outlined_input"></mat-radio-button>
+                            <mat-radio-button id="outlined_input" value="outlined" (click)="changeInputStyle('outlined')"></mat-radio-button>
                             <label for="outlined_input">Outlined</label>
                         </div>
                         <div class="field-radiobutton flex-1">
-                            <mat-radio-button name="inputStyle" value="filled" [(ngModel)]="inputStyle" id="filled_input"></mat-radio-button>
+                            <mat-radio-button id="filled_input" value="filled" (click)="changeInputStyle('filled')" ></mat-radio-button>
                             <label for="filled_input">Filled</label>
                         </div>    
                     </mat-radio-group>

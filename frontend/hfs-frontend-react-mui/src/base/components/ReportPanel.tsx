@@ -5,6 +5,8 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import ListSubheader from "@mui/material/ListSubheader";
+import Grid from '@mui/material/Grid';
+import Checkbox from "@mui/material/Checkbox";
 
 interface ReportPanelProps {
   typeReportChange?(e: SelectChangeEvent): void,
@@ -42,7 +44,7 @@ class ReportPanelComponent extends React.Component<ReportPanelProps,any> {
       this.props.typeReportChange(e);
     }
   }
-/*
+
   private forceDownloadChange(e: React.ChangeEvent<HTMLInputElement>): void {
     this.setState({ selectedForceDownload: e.target.checked });
 
@@ -50,26 +52,24 @@ class ReportPanelComponent extends React.Component<ReportPanelProps,any> {
       this.props.forceDownloadChange(e);
     }
   }
-  */
+
   render() {
     return (
-      <div className="p-fluid formgrid grid">
-          <div className="field col-4 md-4">
+      <Grid container spacing={30}>
+        <Grid item xs={6}>
             <FormControl sx={{ m: 1, minWidth: 400 }}>
               <InputLabel htmlFor="cmbTypeReport">Escolha o tipo de relatório:</InputLabel>
-              <Select defaultValue="" id="cmbTypeReport" label="Grouping" onChange={e => this.typeReportChange(e)} >
+              <Select value={this.state.selectedTypeReport} id="cmbTypeReport" label="Grouping" onChange={e => this.typeReportChange(e)} >
                 {this.lista}
               </Select>
             </FormControl>
-          </div>
-          {/*
-          <div className="field col-4 md-4">
-              <label htmlFor="forceDownload" style={{margin: '4px'}}>Forçar download:</label>
-              <Checkbox id="forceDownload" onChange={e => this.forceDownloadChange(e)} 
-                  checked={this.state.selectedForceDownload}></Checkbox>
-          </div>
-          */}
-      </div>
+        </Grid>
+        <Grid item xs={6}>
+            <InputLabel htmlFor="forceDownload">Forçar download:</InputLabel>
+            <Checkbox id="forceDownload" onChange={e => this.forceDownloadChange(e)} 
+                  checked={this.state.selectedForceDownload}></Checkbox>      
+        </Grid>
+      </Grid>
     );
   }
 }

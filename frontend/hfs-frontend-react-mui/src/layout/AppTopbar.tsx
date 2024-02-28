@@ -34,11 +34,11 @@ const AppTopbar = forwardRef<AppTopbarRef>(() => {
             <IconButton ref={menubuttonRef} type="button" className="p-link layout-menu-button layout-topbar-button" onClick={onMenuToggle}>
                 <MenuIcon fontSize="inherit" />
             </IconButton>            
-
+{/*
             <button ref={topbarmenubuttonRef} type="button" className="p-link layout-topbar-menu-button layout-topbar-button" onClick={showProfileSidebar}>
                 <i className="pi pi-ellipsis-v" />
             </button>
-
+ */}
             <div ref={topbarmenuRef} className={classNames('layout-topbar-menu', { 'layout-topbar-menu-mobile-active': layoutState.profileSidebarVisible })}>
                 <Link to="/system/usuario">
                     <IconButton type="button" className="p-link layout-topbar-button" aria-label="Perfil">

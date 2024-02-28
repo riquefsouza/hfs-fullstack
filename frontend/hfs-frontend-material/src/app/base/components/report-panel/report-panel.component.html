@@ -1,9 +1,9 @@
-<div class="p-fluid formgrid grid">    
-    <div class="field col-6 md-6">
-        <label for="cmbTypeReport"></label>
+<mat-grid-list cols="3" rowHeight="80px">
+    <mat-grid-tile>
+
         <mat-form-field style="width: 400px;">
             <mat-label>Escolha o tipo de relatório:</mat-label>
-            <mat-select [formControl]="cmbTypeReport" (onChange)="typeReportChangedSource.next($event.value)"
+            <mat-select (selectionChange)="typeReportChangedSource.next($event.value)"
                 [(value)]="selectedTypeReport">
                 @for (group of typeReport; track group) {
                     <mat-optgroup [label]="group.label" style="font-weight: bold;">
@@ -14,12 +14,13 @@
                 }
             </mat-select>
         </mat-form-field>    
-    </div>
-    <!--
-    <div class="field col-4 md-4">
+
+    </mat-grid-tile>
+    <mat-grid-tile>
+
         <label for="forceDownload" style="margin: 4px;">Forçar download:</label>
-        <p-checkbox id="forceDownload" [(ngModel)]="selectedForceDownload" binary="true" inputId="forceDownload" 
-            (onChange)="forceDownloadChangedSource.next($event.checked)"></p-checkbox>    
-    </div>
-    -->
-</div>
+        <mat-checkbox id="forceDownload" [checked]="selectedForceDownload" 
+            (change)="forceDownloadChangedSource.next($event.checked)"></mat-checkbox>
+            
+    </mat-grid-tile>
+</mat-grid-list>

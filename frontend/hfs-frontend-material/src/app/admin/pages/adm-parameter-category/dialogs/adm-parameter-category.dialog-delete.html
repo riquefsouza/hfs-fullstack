@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>Confirme</h2>
+<mat-dialog-content>
+    <div class="flex align-items-center justify-content-center">
+        <mat-icon style="font-size: 2rem">exclamation</mat-icon>
+        <span>Tem certeza de que deseja excluir <b>{{data.entidade.description}}</b>?</span>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-raised-button style="margin-right: 10px;" (click)="onNoClick()">
+        <mat-icon>cancel</mat-icon> Não
+    </button>
+    <button mat-raised-button color="primary" [mat-dialog-close]="data.entidade" cdkFocusInitial (click)="confirmDelete()">
+        <mat-icon>check</mat-icon> Sim
+    </button>
+</mat-dialog-actions>
