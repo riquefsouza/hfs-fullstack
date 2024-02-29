@@ -6,17 +6,22 @@ import { ReportParamForm, emptyReportParamForm } from '../../base/models/ReportP
 import { ItypeReport, PDFReport } from '../../base/services/ReportService';
 import ReportPanelComponent from '../../base/components/ReportPanel';
 import Button from '@mui/material/Button';
-import snackBar from '../../base/components/AutohideSnackbar';
 import CardContent from '@mui/material/CardContent';
 import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
 import Toolbar from '@mui/material/Toolbar';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UploadIcon from '@mui/icons-material/Upload';
 import { SelectChangeEvent } from '@mui/material/Select';
 import Typography from '@mui/material/Typography';
-
+import { useSnackbar } from "notistack";
+import { DataGrid, GridColDef, GridFilterModel, GridRenderCellParams, GridRowSelectionModel, GridToolbar } from '@mui/x-data-grid';
+import IconButton from '@mui/material/IconButton';
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, FormControl, InputLabel } from '@mui/material';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckIcon from '@mui/icons-material/Check';
+  
 const AdmParameterCategoryPage = () => {
 
     const admParameterCategoryService = new AdmParameterCategoryService();
@@ -29,23 +34,32 @@ const AdmParameterCategoryPage = () => {
     const [selectedAdmParameterCategorys, setSelectedAdmParameterCategorys] = useState<AdmParameterCategory[]>([]);
 
     const [submitted, setSubmitted] = useState(false);
-    //const [cols, setCols] = useState<any[]>([]);
-    const [globalFilter, setGlobalFilter] = useState('');
 
     const [selectedTypeReport, setSelectedTypeReport] = useState<ItypeReport>(PDFReport);
     const [selectedForceDownload, setSelectedForceDownload] = useState(true);
     const [reportParamForm, setReportParamForm] = useState<ReportParamForm>(emptyReportParamForm);    
 
+    const { enqueueSnackbar } = useSnackbar();
+    const [options, setOptions] = useState({ page: 0, search: "", perPage: 10, rowsPerPage: [10, 30, 50, 100, 150, 200] });
+    //const { fetching, setFetching } = useState<boolean>(true);
+    let loading = false;
+    const [columns, setColumns] = useState<GridColDef[]>([]);
+
     useEffect(() => {
-        admParameterCategoryService.findAll().then(item => setListaAdmParameterCategory(item));
-/*
-        setCols([
-            { field: 'id', header: 'Id' },
-            { field: 'description', header: 'Descrição' },
-            { field: 'order', header: 'Ordem' }
+        loading = true;
+        admParameterCategoryService.findAll().then(item => {            
+            setListaAdmParameterCategory(item);
+            loading = false;
+        });
+
+        setColumns([
+            { field: 'id', headerName: 'Id', sortable: true, width: 100 },
+            { field: 'description', headerName: 'Descrição', sortable: true, flex: 1 },
+            { field: 'order', headerName: 'Ordem', type: 'number', sortable: true, width: 120 },
+            { field: '', headerName: "Ações", type: "string", width: 100, renderCell: renderActionsCell },
         ]);
-*/      
-    }, []);
+
+    }, [loading]);
 
     const onInsert = () => {
         setAdmParameterCategory(emptyAdmParameterCategory);
@@ -86,7 +100,7 @@ const AdmParameterCategoryPage = () => {
                         const index = admParameterCategoryService.findIndexById(listaAdmParameterCategory, admParameterCategory.id);
                         _listaAdmParameterCategory[index] = _admParameterCategory;
                         setListaAdmParameterCategory(_listaAdmParameterCategory);
-                        snackBar('Categoria de parâmetro Atualizada', 'Sucesso', 3000);
+                        enqueueSnackbar('Categoria de parâmetro Atualizada', { variant: "success", transitionDuration: 3000 });
                     }
                 });
             } else {
@@ -94,7 +108,7 @@ const AdmParameterCategoryPage = () => {
                     _admParameterCategory = obj;
                     _listaAdmParameterCategory.push(_admParameterCategory);
                     setListaAdmParameterCategory(_listaAdmParameterCategory);
-                    snackBar('Categoria de parâmetro Criada', 'Sucesso', 3000);
+                    enqueueSnackbar('Categoria de parâmetro Criada', { variant: "success", transitionDuration: 3000 });
                 });
             }
             
@@ -126,7 +140,7 @@ const AdmParameterCategoryPage = () => {
         });
     
         if (excluiu) {
-            snackBar('Categorias de parâmetro excluídos', 'Sucesso', 3000);
+            enqueueSnackbar('Categorias de parâmetro excluídos', { variant: "success", transitionDuration: 3000 });
             setSelectedAdmParameterCategorys([]);
         }
     }
@@ -137,7 +151,7 @@ const AdmParameterCategoryPage = () => {
             admParameterCategoryService.delete(admParameterCategory.id).then(() => {
                 setListaAdmParameterCategory(listaAdmParameterCategory.filter(val => val.id !== admParameterCategory.id));
                 setAdmParameterCategory(emptyAdmParameterCategory); 
-                snackBar('Categoria de parâmetro excluído', 'Sucesso', 3000);
+                enqueueSnackbar('Categoria de parâmetro excluído', { variant: "success", transitionDuration: 3000 });
             });
         }
     }
@@ -154,8 +168,62 @@ const AdmParameterCategoryPage = () => {
         
     const onExport = () => {
         admParameterCategoryService.report(reportParamForm).then(() => {
-            snackBar('Categoria de parâmetro exportada', 'Sucesso', 3000);
+            enqueueSnackbar('Categoria de parâmetro exportada', { variant: "success", transitionDuration: 3000 });
         });
+    }
+  
+    const onDescriptionInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const val = (e.target && e.target.value) || '';
+        let _admParameterCategory = { ...admParameterCategory };
+        _admParameterCategory.description = val;
+
+        setAdmParameterCategory(_admParameterCategory);
+    };
+
+    const onOrderInputNumberChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const val = (e.target && e.target.value) || '';
+        if (val.length > 0){
+            let _admParameterCategory = { ...admParameterCategory };        
+            _admParameterCategory.order = parseInt(val);
+    
+            setAdmParameterCategory(_admParameterCategory);    
+        }
+    };
+
+    function handleFilterChange(filterModel: GridFilterModel) {
+      if (!filterModel.quickFilterValues?.length) {
+        return setOptions({ ...options, search: "" });
+      }
+  
+      const search = filterModel.quickFilterValues.join("");
+      setOptions({ ...options, search });
+    }
+
+    function renderActionsCell(params: GridRenderCellParams) {
+        return (
+            <div>
+                <IconButton color="primary" onClick={() => onEdit(params.row)} style={{ marginRight: "10px;" }}>
+                    <EditIcon />
+                </IconButton>
+                <IconButton color="error" onClick={() => onDelete(params.row)} >
+                    <DeleteIcon />
+                </IconButton>
+            </div>
+        );
+    }
+    
+    function handleRowSelectionModelChange(rowSelectionModel: GridRowSelectionModel): void {
+        let lista: AdmParameterCategory[] = [];
+
+        if (rowSelectionModel.length > 0){            
+            lista = listaAdmParameterCategory.filter(val => {
+                if (val.id){
+                    return rowSelectionModel.includes(val.id);
+                }
+            });
+        }
+        
+        setSelectedAdmParameterCategorys(lista);
     }
 
     return (
@@ -170,13 +238,99 @@ const AdmParameterCategoryPage = () => {
                     </Card>
                     <Toolbar className="mb-4">
                         <div className="my-2">
-                            <Button startIcon={<AddIcon />} variant="contained" color="success" sx={{marginRight: "10px;"}} onClick={onInsert}>Adicionar</Button>
-                            <Button startIcon={<DeleteIcon />} variant="contained" color="secondary" onClick={deleteSelected}
+                            <Button startIcon={<AddIcon />} variant="contained" color="success" sx={{marginRight: '10px'}} onClick={onInsert}>Adicionar</Button>
+                            <Button startIcon={<DeleteIcon />} variant="contained" color="error" onClick={deleteSelected}
                                 disabled={!selectedAdmParameterCategorys || !(selectedAdmParameterCategorys as any).length} >Excluir</Button>
                         </div>
                         <span style={{flex: "1 1 auto"}}></span>
                         <Button startIcon={<UploadIcon />} variant="contained" onClick={onExport}>Exportar</Button>
                     </Toolbar>
+
+                    <DataGrid
+                        rows={listaAdmParameterCategory}
+                        rowCount={listaAdmParameterCategory.length}                        
+                        columns={columns}
+                        initialState={{ pagination: { paginationModel: { page: options.page, pageSize: options.perPage } } }}
+                        pageSizeOptions={options.rowsPerPage}
+                        //filterMode="server"                        
+                        loading={loading}
+                        paginationMode="server"
+                        checkboxSelection={true}
+                        disableColumnFilter={false}
+                        disableColumnSelector={true}
+                        disableDensitySelector={true}
+                        disableRowSelectionOnClick={true}
+                        onFilterModelChange={handleFilterChange}
+                        onRowSelectionModelChange={handleRowSelectionModelChange}
+                        slots={{ toolbar: GridToolbar }}
+                        slotProps={{
+                            toolbar: {
+                                showQuickFilter: true,
+                                quickFilterProps: { debounceMs: 500 },
+                              },                                              
+                        }}
+                    />
+
+                    <Dialog open={admParameterCategoryDialog} onClose={hideDialog} 
+                        aria-labelledby="delete-dlg-title" aria-describedby="delete-dlg-description">
+                        <DialogTitle id="delete-dlg-title">Detalhes da categoria de parâmetro</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText id="delete-dlg-description">
+                                <FormControl sx={{ width: '100%' }}>
+                                    <TextField id="description" label="Descrição" variant="outlined" multiline required 
+                                            rows={3} sx={{marginTop: '10px', marginBottom: '10px'}}
+                                            value={admParameterCategory.description} onChange={(e) => onDescriptionInputChange(e)} />
+                                        {submitted && !admParameterCategory.description && <small className="p-invalid">A descrição é obrigatória.</small>}
+                                </FormControl>
+                                <FormControl sx={{ width: '100%' }}>
+                                    <TextField id="order" label="Ordem" variant="outlined" sx={{marginTop: '10px', marginBottom: '10px'}}
+                                        value={admParameterCategory.order && admParameterCategory.order.toString()} 
+                                        onChange={(e) => onOrderInputNumberChange(e)} />
+                                </FormControl>
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button startIcon={<CancelIcon />} variant="contained" color="secondary" sx={{marginRight: "10px;"}} 
+                                onClick={hideDialog}> Cancelar</Button>
+                            <Button startIcon={<CheckIcon />} variant="contained" color="primary" autoFocus onClick={onSave}> Salvar</Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog open={deleteAdmParameterCategoryDialog} onClose={hideDeleteAdmParameterCategoryDialog} 
+                        aria-labelledby="delete-dlg-title" aria-describedby="delete-dlg-description">
+                        <DialogTitle id="delete-dlg-title"><h2>Confirme</h2></DialogTitle>
+                        <DialogContent>
+                            <DialogContentText id="delete-dlg-description">
+                                <div className="flex align-items-center justify-content-center">
+                                    <DeleteIcon style={{fontSize: "2rem"}} />
+                                    <span>Tem certeza de que deseja excluir <b>{admParameterCategory.description}</b>?</span>
+                                </div>
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button startIcon={<CancelIcon />} variant="contained" color="secondary" sx={{marginRight: "10px;"}} 
+                                onClick={hideDeleteAdmParameterCategoryDialog}>Não</Button>
+                            <Button startIcon={<CheckIcon />} variant="contained" color="primary" autoFocus onClick={confirmDelete}>Sim</Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog open={deleteAdmParameterCategorysDialog} onClose={hideDeleteAdmParameterCategorysDialog} 
+                        aria-labelledby="delete-dlg-title" aria-describedby="delete-dlg-description">
+                        <DialogTitle id="delete-dlg-title"><h2>Confirme</h2></DialogTitle>
+                        <DialogContent>
+                            <DialogContentText id="delete-dlg-description">
+                                <div className="flex align-items-center justify-content-center">
+                                    <DeleteIcon style={{fontSize: "2rem"}} />
+                                    <span>Tem certeza de que deseja excluir as categorias de parâmetros selecionadas?</span>
+                                </div>
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button startIcon={<CancelIcon />} variant="contained" color="secondary" sx={{marginRight: "10px;"}} 
+                                onClick={hideDeleteAdmParameterCategorysDialog}>Não</Button>
+                            <Button startIcon={<CheckIcon />} variant="contained" color="primary" autoFocus onClick={confirmDeleteSelected}>Sim</Button>
+                        </DialogActions>
+                    </Dialog>
 
                 </div>
             </div>
