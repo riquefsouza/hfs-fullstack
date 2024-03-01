@@ -50,3 +50,8 @@ cd ../../
 cd frontend/hfs-frontend-vue
 rm -r node_modules/
 rm -r dist/
+
+cd ../../
+cd frontend/hfs-frontend-vuetify
+rm -r node_modules/
+rm -r dist/

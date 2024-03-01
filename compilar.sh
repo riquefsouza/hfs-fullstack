@@ -34,3 +34,7 @@ npm install
 cd ../../
 cd frontend/hfs-frontend-vue
 npm install
+
+cd ../../
+cd frontend/hfs-frontend-vuetify
+npm install
