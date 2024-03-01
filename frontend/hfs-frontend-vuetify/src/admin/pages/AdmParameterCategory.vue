@@ -4,10 +4,12 @@ import AdmParameterCategoryService from '../../admin/service/AdmParameterCategor
 import { AdmParameterCategory, emptyAdmParameterCategory } from '../api/AdmParameterCategory';
 import { ReportParamForm, emptyReportParamForm } from '../../base/models/ReportParamsForm';
 import { ItypeReport, PDFReport, SelectItemGroup } from '../../base/services/ReportService';
-import snackBar from '../../base/components/EnqueueSnackbar.vue';
+import { SnackbarMessage, emptySnackbarMessage } from '../../base/models/SnackbarMessage';
 
 export default {
     setup() {
+        const snackbar = ref<SnackbarMessage>(emptySnackbarMessage);
+
         const listaAdmParameterCategory = ref<AdmParameterCategory[]>([]);
         const admParameterCategoryDialog = shallowRef(false)
         const deleteAdmParameterCategoryDialog = ref(false);
@@ -50,6 +52,12 @@ export default {
                 totalItems.value = listaAdmParameterCategory.value.length;
                 loading.value = false;
             });
+        }
+
+        const snackBar = (msg: string, duration: number) => {
+            snackbar.value.open = true;
+            snackbar.value.message = msg;
+            snackbar.value.timeout = duration;
         }
 
         const onInsert = () => {
@@ -164,14 +172,15 @@ export default {
         const onExport = () => {
             admParameterCategoryService.report(reportParamForm.value).then(() => {
                 snackBar('Categoria de parâmetro exportada', 3000);
-            });
+            });            
         }
 
         return { listaAdmParameterCategory, admParameterCategory, submitted,
             selectedAdmParameterCategorys, deleteSelected, admParameterCategoryDialog, hideDialog,
             deleteAdmParameterCategoryDialog, confirmDelete, deleteAdmParameterCategorysDialog,
             onInsert, onEdit, onDelete, onSave, onExport, onTypeReportChange, onForceDownloadChange,
-            confirmDeleteSelected, itemsPerPage, columns, loading, totalItems, search }
+            confirmDeleteSelected, itemsPerPage, columns, loading, totalItems, search,
+            snackbar }
     }
 }        
 </script>
@@ -180,6 +189,12 @@ export default {
     <div class="grid">
         <div class="col-12">
             <div class="card px-6 py-6">
+                <v-snackbar v-model="snackbar.open" :timeout="snackbar.timeout" location="top">
+                    {{ snackbar.message }}
+                    <template v-slot:actions>
+                        <v-btn color="red" density="compact" icon="close" @click="snackbar.open = false"></v-btn>
+                    </template>
+                </v-snackbar>
                 <v-card-item>
                     <v-card-title>Categoria de parâmetro de configuração</v-card-title>
                 </v-card-item>
