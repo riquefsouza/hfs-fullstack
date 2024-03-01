@@ -6,17 +6,18 @@ import keycloakService from '../main';
 import { classNames } from '../base/util/LayoutUtils';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 
-const AppTopbar = forwardRef<AppTopbarRef>(() => {
+const AppTopbar = forwardRef<AppTopbarRef>((_props, ref) => {
     const { layoutState, onMenuToggle, showProfileSidebar } = useContext(LayoutContext);
     const menubuttonRef = useRef(null);
     const topbarmenuRef = useRef(null);
     const topbarmenubuttonRef = useRef(null);
     
-    useImperativeHandle(undefined, () => ({
+    useImperativeHandle(ref, () => ({
         menubutton: menubuttonRef.current,
         topbarmenu: topbarmenuRef.current,
         topbarmenubutton: topbarmenubuttonRef.current
@@ -34,24 +35,27 @@ const AppTopbar = forwardRef<AppTopbarRef>(() => {
             <IconButton ref={menubuttonRef} type="button" className="p-link layout-menu-button layout-topbar-button" onClick={onMenuToggle}>
                 <MenuIcon fontSize="inherit" />
             </IconButton>            
-{/*
-            <button ref={topbarmenubuttonRef} type="button" className="p-link layout-topbar-menu-button layout-topbar-button" onClick={showProfileSidebar}>
-                <i className="pi pi-ellipsis-v" />
-            </button>
- */}
+
+            <IconButton ref={topbarmenubuttonRef} type="button" className="p-link layout-topbar-menu-button layout-topbar-button" onClick={showProfileSidebar}>
+                <MoreVertIcon fontSize="inherit" />
+            </IconButton>
+
             <div ref={topbarmenuRef} className={classNames('layout-topbar-menu', { 'layout-topbar-menu-mobile-active': layoutState.profileSidebarVisible })}>
                 <Link to="/system/usuario">
                     <IconButton type="button" className="p-link layout-topbar-button" aria-label="Perfil">
                         <PersonIcon fontSize="inherit" />
+                        <span>Perfil</span>
                     </IconButton>
                 </Link>                    
                 <Link to="/system/config">
                     <IconButton type="button" className="p-link layout-topbar-button" aria-label="Configurações">
                         <SettingsIcon fontSize="inherit" />
+                        <span>Configurações</span>
                     </IconButton>
                 </Link>                    
                 <IconButton type="button" className="p-link layout-topbar-button" onClick={logout} aria-label="Sair">
                     <LogoutIcon fontSize="inherit" />
+                    <span>Sair</span>
                 </IconButton>
             </div>
              

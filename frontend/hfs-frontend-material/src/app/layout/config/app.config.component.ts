@@ -98,8 +98,7 @@ export class AppConfigComponent {
     }
 
     changeMenuMode(valor: string) {
-        this.menuMode = valor;
-        
+        this.menuMode = valor;        
     };
 
     changeInputStyle(valor: string) {

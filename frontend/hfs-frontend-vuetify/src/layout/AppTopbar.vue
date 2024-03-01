@@ -82,11 +82,20 @@ const isOutsideClicked = (event) => {
         <v-btn icon="more_vert" class="layout-topbar-menu-button" @click="onTopBarMenuButton()"></v-btn>
 
         <div class="layout-topbar-menu" :class="topbarMenuClasses">
-            <v-btn icon="person" :style="{ marginRight: '10px' }" @click="onUsuarioClick()"></v-btn>
+            <button :style="{ marginRight: '10px' }" @click="onUsuarioClick()" class="p-link layout-topbar-button">
+                <v-icon icon="person"></v-icon>
+                <span>Perfil</span>
+            </button>
 
-            <v-btn icon="settings" :style="{ marginRight: '10px' }" @click="onConfigClick()"></v-btn>
+            <button :style="{ marginRight: '10px' }" @click="onConfigClick()" class="p-link layout-topbar-button">
+                <v-icon icon="settings"></v-icon>
+                <span>Configurações</span>
+            </button>
 
-            <v-btn icon="logout" :style="{ marginRight: '10px' }" @click="logout()"></v-btn>
+            <button :style="{ marginRight: '10px' }" @click="logout()" class="p-link layout-topbar-button">
+                <v-icon icon="logout"></v-icon>
+                <span>Sair</span>
+            </button>
         </div>
     </div>
 </template>
