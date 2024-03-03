@@ -7,6 +7,14 @@ import { RouterModule } from '@angular/router';
             loadChildren: () => import('./pages/adm-parameter-category/adm-parameter-category.module')
             .then(m => m.AdmParameterCategoryModule) 
         },
+        { path: 'admParameter', 
+            loadChildren: () => import('./pages/adm-parameter/adm-parameter.module')
+            .then(m => m.AdmParameterModule) 
+        },
+        { path: 'admMenu', 
+            loadChildren: () => import('./pages/adm-menu/adm-menu.module')
+            .then(m => m.AdmMenuModule) 
+        },
         { path: '**', redirectTo: '/notfound' }
     ])],
     exports: [RouterModule]

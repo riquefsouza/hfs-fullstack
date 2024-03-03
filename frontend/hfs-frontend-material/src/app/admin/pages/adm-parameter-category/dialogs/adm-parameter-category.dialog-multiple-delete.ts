@@ -1,12 +1,10 @@
 import { Component, Inject } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { AdmParameterCategory } from "src/app/admin/api/AdmParameterCategory";
-import { AdmParameterCategoryService } from "src/app/admin/service/AdmParameterCategoryService";
 
 @Component({
     selector: 'adm-parameter-category.dialog-multiple-delete',
-    templateUrl: 'adm-parameter-category.dialog-multiple-delete.html',
-    providers: [AdmParameterCategoryService]
+    templateUrl: 'adm-parameter-category.dialog-multiple-delete.html'
 })
 export class AdmParameterCategoryDialogMultipleDelete {
     constructor(
@@ -14,8 +12,7 @@ export class AdmParameterCategoryDialogMultipleDelete {
         @Inject(MAT_DIALOG_DATA) public data: {
             lista: AdmParameterCategory[],
             selecao: AdmParameterCategory[]
-        },
-        private admParameterCategoryService: AdmParameterCategoryService
+        }
     ) { }
 
     onNoClick(): void {

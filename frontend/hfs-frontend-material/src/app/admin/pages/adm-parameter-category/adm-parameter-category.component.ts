@@ -98,17 +98,15 @@ export class AdmParameterCategoryComponent implements OnInit, AfterViewInit {
     });
   }
 
-  openDialogDetails(insert: boolean, param: AdmParameterCategory){
+  openDialogDetails(param: AdmParameterCategory){
     const dialogRef = this.dialog.open(AdmParameterCategoryDialogDetails, { 
       data: { 
-        lista: this.listaAdmParameterCategory, 
         entidade: param
       } 
     });
     
     dialogRef.afterClosed().subscribe(result => {
       if (result){
-        this.listaAdmParameterCategory = result.lista;
         this.admParameterCategory = result.entidade;
         this.onSave();
       }
@@ -117,15 +115,15 @@ export class AdmParameterCategoryComponent implements OnInit, AfterViewInit {
 
   onInsert() {
     this.admParameterCategory = emptyAdmParameterCategory;
-    this.openDialogDetails(true, emptyAdmParameterCategory);
+    this.openDialogDetails(emptyAdmParameterCategory);
   }
 
   onEdit(admParameterCategory: AdmParameterCategory) {
     this.admParameterCategory = { ...admParameterCategory };
-    this.openDialogDetails(false, this.admParameterCategory);
+    this.openDialogDetails(this.admParameterCategory);
   }
 
-  onSave() {
+  onSave() {    
     if (this.admParameterCategory.description.trim()) {
         if (this.admParameterCategory.id) {
           this.admParameterCategoryService.update(this.admParameterCategory).then((obj: AdmParameterCategory) => {

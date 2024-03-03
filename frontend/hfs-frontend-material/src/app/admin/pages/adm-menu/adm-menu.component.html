@@ -1,0 +1,62 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+
+            <mat-card styleClass="p-mb-2">
+                <mat-card-header>
+                    <mat-card-title>Categoria de parâmetro de configuração</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <app-report-panel (typeReportChange)="onChangedTypeReport($event)" (forceDownloadChange)="onChangedForceDownload($event)"></app-report-panel>
+                </mat-card-content>
+            </mat-card>    
+
+            <mat-toolbar styleClass="mb-4">
+                <div class="my-2">
+                    <button mat-raised-button color="primary" style="margin-right: 10px;" (click)="onInsert()">
+                        <mat-icon>add</mat-icon> Adicionar
+                    </button>
+
+                    <button mat-raised-button color="accent" style="margin-right: 10px;" (click)="onEdit(selectedAdmMenu)"
+                        [disabled]="!selectedAdmMenu || !listaAdmMenu || !listaAdmMenu.length">
+                        <mat-icon>edit</mat-icon> Editar
+                    </button>
+
+                    <button mat-raised-button color="warn" (click)="onDelete(selectedAdmMenu)" 
+                        [disabled]="!selectedAdmMenu || !listaAdmMenu || !listaAdmMenu.length">
+                        <mat-icon>delete</mat-icon> Excluir
+                    </button>
+                </div>
+
+                <span class="spacer"></span>
+
+                <button mat-raised-button style="margin-right: 10px;" (click)="expandAll()">
+                    Expandir todos
+                </button>
+                <button mat-raised-button style="margin-right: 10px;" (click)="collapseAll()">
+                    Recolher todos
+                </button>
+                <button mat-raised-button (click)="onExport()">
+                    <mat-icon>upload</mat-icon> Exportar
+                </button>
+            </mat-toolbar>
+
+            <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+                <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding (click)="nodeSelect(node)">
+                  <button mat-icon-button disabled></button>
+                  <div [class.tree-item-select]="node.select" (click)="itemSelect(node)" style="cursor: pointer;">{{node.name}}</div>
+                </mat-tree-node>
+                <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding (click)="nodeParentSelect(node)">
+                  <button mat-icon-button matTreeNodeToggle
+                          [attr.aria-label]="'Toggle ' + node.name">
+                    <mat-icon class="mat-icon-rtl-mirror">
+                      {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                    </mat-icon>
+                  </button>
+                  <div [class.tree-item-select]="node.select" (click)="itemParentSelect(node)" style="cursor: pointer;">{{node.name}}</div>
+                </mat-tree-node>
+            </mat-tree>
+                            
+        </div>
+    </div>
+</div>

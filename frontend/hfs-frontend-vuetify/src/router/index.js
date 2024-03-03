@@ -2,8 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import AppLayout from '@/layout/AppLayout.vue';
 //import Funcionario from "@/hfsfullstack/pages/Funcionario.vue";
 import AdmParameterCategory from "@/admin/pages/AdmParameterCategory.vue";
-/*
 import AdmParameter from "@/admin/pages/AdmParameter.vue";
+/*
 import AdmProfile from "@/admin/pages/AdmProfile.vue";
 import AdmPage from "@/admin/pages/AdmPage.vue";
 import AdmMenu from "@/admin/pages/AdmMenu.vue";
@@ -22,7 +22,7 @@ const router = createRouter({
                 { path: '/', name: 'dashboard', component: () => import('@/views/Dashboard.vue') },
                 { path: '/hfs/funcionario', name: 'funcionario' },
                 { path: '/admin/admParameterCategory', name: 'admParameterCategory', component: AdmParameterCategory },
-                { path: '/admin/admParameter', name: 'admParameter' },
+                { path: '/admin/admParameter', name: 'admParameter', component: AdmParameter },
                 { path: '/admin/admProfile', name: 'admProfile' },
                 { path: '/admin/admPage', name: 'admPage' },
                 { path: '/admin/admMenu', name: 'admMenu' },

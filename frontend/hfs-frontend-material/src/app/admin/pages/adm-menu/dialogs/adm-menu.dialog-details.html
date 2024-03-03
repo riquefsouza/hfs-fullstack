@@ -1,0 +1,50 @@
+<h2 mat-dialog-title>Detalhes do menu</h2>
+<mat-dialog-content>
+    <mat-form-field style="width: 500px;">
+        <mat-label>Página</mat-label>
+        <mat-select [(ngModel)]="data.entidade.admPage && data.entidade.admPage.id">
+            <mat-option></mat-option>
+            @for (item of data.listaAdmPage; track item) {
+                <mat-option [value]="item.id">{{item.description}}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+    <br> 
+    <mat-form-field style="width: 500px;">
+        <mat-label>Nome do menu</mat-label>
+        <input matInput [(ngModel)]="data.entidade.description" required
+            [ngClass]="{'ng-invalid ng-dirty' : !data.entidade.description}">
+        @if (!data.entidade.description) {
+            <mat-error>O nome do menu é obrigatório.</mat-error>
+        }
+    </mat-form-field>
+    <br>
+    <mat-form-field style="width: 500px;">
+        <mat-label>Menu pai</mat-label>
+        <mat-select [(ngModel)]="data.entidade.admMenuParent && data.entidade.admMenuParent.id">
+            <mat-option></mat-option>
+            @for (item of data.listaAdmMenuParent; track item) {
+                <mat-option [value]="item.id">{{item.description}}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+    <br> 
+    <mat-form-field>
+        <mat-label>Ordem</mat-label>
+        <input type="number" matInput [(ngModel)]="data.entidade.order" required
+            [ngClass]="{'ng-invalid ng-dirty' : !data.entidade.order}">
+        @if (!data.entidade.description) {
+            <mat-error>A ordem é obrigatória.</mat-error>
+        }
+    </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <span class="spacer"></span>
+
+    <button mat-raised-button style="margin-right: 10px;" (click)="onNoClick()">
+        <mat-icon>cancel</mat-icon> Cancelar
+    </button>
+    <button mat-raised-button color="primary" (click)="onSave()">
+        <mat-icon>check</mat-icon> Salvar
+    </button>
+</mat-dialog-actions>

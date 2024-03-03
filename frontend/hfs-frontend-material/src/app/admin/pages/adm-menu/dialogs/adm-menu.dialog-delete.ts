@@ -1,16 +1,17 @@
 import { Component, Inject } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { AdmParameterCategory } from "src/app/admin/api/AdmParameterCategory";
+import { AdmMenu } from "src/app/admin/api/AdmMenu";
 
 @Component({
-    selector: 'adm-parameter-category.dialog-delete',
-    templateUrl: 'adm-parameter-category.dialog-delete.html'
+    selector: 'adm-menu.dialog-delete',
+    templateUrl: 'adm-menu.dialog-delete.html'
 })
-export class AdmParameterCategoryDialogDelete {
+export class AdmMenuDialogDelete {
     constructor(
-        public dialogRef: MatDialogRef<AdmParameterCategoryDialogDelete>,
+        public dialogRef: MatDialogRef<AdmMenuDialogDelete>,
         @Inject(MAT_DIALOG_DATA) public data: {
-            entidade: AdmParameterCategory
+            lista: AdmMenu[],
+            entidade: AdmMenu
         },
     ) { }
 

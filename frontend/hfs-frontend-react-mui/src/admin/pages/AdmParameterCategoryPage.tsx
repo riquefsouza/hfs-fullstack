@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AdmParameterCategoryService from '../service/AdmParameterCategoryService';
 import { AdmParameterCategory, emptyAdmParameterCategory } from '../api/AdmParameterCategory';
 import { ReportParamForm, emptyReportParamForm } from '../../base/models/ReportParamsForm';
@@ -18,7 +18,7 @@ import Typography from '@mui/material/Typography';
 import { useSnackbar } from "notistack";
 import { DataGrid, GridColDef, GridFilterModel, GridRenderCellParams, GridRowSelectionModel, GridToolbar } from '@mui/x-data-grid';
 import IconButton from '@mui/material/IconButton';
-import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, FormControl, InputLabel } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, FormControl } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckIcon from '@mui/icons-material/Check';
   
@@ -159,8 +159,6 @@ const AdmParameterCategoryPage = () => {
     const onChangedTypeReport = (event: SelectChangeEvent) => {
         let typeReport: ItypeReport = event.target.value as unknown as ItypeReport;
 
-        console.log(typeReport);
-
         setSelectedTypeReport(typeReport);
         setReportParamForm({ reportType: typeReport.type, 
           forceDownload: selectedForceDownload });
@@ -254,7 +252,7 @@ const AdmParameterCategoryPage = () => {
                         pageSizeOptions={options.rowsPerPage}
                         //filterMode="server"                        
                         loading={loading}
-                        paginationMode="server"
+                        //paginationMode="server"
                         checkboxSelection={true}
                         disableColumnFilter={false}
                         disableColumnSelector={true}
@@ -279,8 +277,9 @@ const AdmParameterCategoryPage = () => {
                                 <FormControl sx={{ width: '100%' }}>
                                     <TextField id="description" label="Descrição" variant="outlined" multiline required 
                                             rows={3} sx={{marginTop: '10px', marginBottom: '10px'}}
-                                            value={admParameterCategory.description} onChange={(e) => onDescriptionInputChange(e)} />
-                                        {submitted && !admParameterCategory.description && <small className="p-invalid">A descrição é obrigatória.</small>}
+                                            value={admParameterCategory.description} onChange={(e) => onDescriptionInputChange(e)} 
+                                            />
+                                    {submitted && !admParameterCategory.description && <small style={{color: "red"}}>A descrição é obrigatória.</small>}
                                 </FormControl>
                                 <FormControl sx={{ width: '100%' }}>
                                     <TextField id="order" label="Ordem" variant="outlined" sx={{marginTop: '10px', marginBottom: '10px'}}

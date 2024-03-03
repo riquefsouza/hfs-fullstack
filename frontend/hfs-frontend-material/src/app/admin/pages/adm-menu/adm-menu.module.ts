@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdmParameterCategoryComponent } from './adm-parameter-category.component';
+import { AdmMenuComponent } from './adm-menu.component';
 import { FormsModule } from '@angular/forms';
 import { BaseComponentsModule } from 'src/app/base/components/base.components.module';
-import { AdmParameterCategoryRoutingModule } from './adm-parameter-category-routing.module';
+import { AdmMenuRoutingModule } from './adm-menu-routing.module';
 import { ErrorService } from 'src/app/base/services/error.service';
 import { ExportService } from 'src/app/base/services/export.service';
 import { AuthService } from 'src/app/base/services/auth.service';
@@ -19,25 +19,24 @@ import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatDividerModule} from '@angular/material/divider';  
-import { AdmParameterCategoryDialogDelete } from './dialogs/adm-parameter-category.dialog-delete';
-import { AdmParameterCategoryDialogDetails } from './dialogs/adm-parameter-category.dialog-details';
-import { AdmParameterCategoryDialogMultipleDelete } from './dialogs/adm-parameter-category.dialog-multiple-delete';
+import { AdmMenuDialogDelete } from './dialogs/adm-menu.dialog-delete';
+import { AdmMenuDialogDetails } from './dialogs/adm-menu.dialog-details';
+import {MatTreeModule} from '@angular/material/tree';
+import {MatSelectModule} from '@angular/material/select';
 
 @NgModule({
     imports: [
         CommonModule,
-        AdmParameterCategoryRoutingModule,
+        AdmMenuRoutingModule,
         BaseComponentsModule,
-        FormsModule,
+        FormsModule, MatTreeModule, MatSelectModule,
         MatCardModule, MatIconModule, MatButtonModule, MatToolbarModule,
         MatPaginatorModule, MatTableModule, MatSortModule, MatCheckboxModule,
         MatInputModule, MatFormFieldModule, MatDialogModule, MatDividerModule
     ],
-    declarations: [AdmParameterCategoryComponent, 
-        AdmParameterCategoryDialogDetails, AdmParameterCategoryDialogDelete, 
-        AdmParameterCategoryDialogMultipleDelete],
+    declarations: [AdmMenuComponent, AdmMenuDialogDetails, AdmMenuDialogDelete],
     providers: [
         ExportService, ErrorService, AuthService
     ]
 })
-export class AdmParameterCategoryModule { }
+export class AdmMenuModule { }

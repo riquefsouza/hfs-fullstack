@@ -4,6 +4,7 @@ import Dashboard from "./Dashboard";
 import NotFoundPage from "./system/notfound/NotFoundPage";
 import UsuarioPage from "./system/usuario/UsuarioPage";
 import AdmParameterCategoryPage from "./admin/pages/AdmParameterCategoryPage";
+import AdmParameterPage from "./admin/pages/AdmParameterPage";
 
 function App() {
 
@@ -13,7 +14,7 @@ function App() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/hfs/funcionario" />
         <Route path="/admin/admParameterCategory" element={<AdmParameterCategoryPage />} />
-        <Route path="/admin/admParameter" />
+        <Route path="/admin/admParameter" element={<AdmParameterPage />} />
         <Route path="/admin/admProfile" />
         <Route path="/admin/admPage" />
         <Route path="/admin/admMenu" />
