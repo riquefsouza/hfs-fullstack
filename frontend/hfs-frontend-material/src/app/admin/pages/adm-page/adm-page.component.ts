@@ -14,7 +14,6 @@ import { AdmPageDialogMultipleDelete } from './dialogs/adm-page.dialog-multiple-
 import { ExportService } from 'src/app/base/services/export.service';
 import { AdmProfile } from '../../api/AdmProfile';
 import { AdmProfileService } from '../../service/AdmProfileService';
-import { MatListOption, MatSelectionList } from '@angular/material/list';
 
 @Component({
   templateUrl: './adm-page.component.html',
@@ -44,9 +43,6 @@ export class AdmPageComponent implements OnInit, AfterViewInit {
 
   sourceProfiles: AdmProfile[];
   targetProfiles: AdmProfile[];
-
-  @ViewChild('source') source: MatSelectionList;
-  @ViewChild('target') target: MatSelectionList;
 
   constructor(private admPageService: AdmPageService,
     private admProfileService: AdmProfileService,
@@ -292,44 +288,6 @@ export class AdmPageComponent implements OnInit, AfterViewInit {
 
   exportExcel() {
     this.exportService.exportExcel(this.listaAdmPage, 'Páginas');
-  }
-
-  addTarget() {
-    let items: MatListOption[] = this.source.selectedOptions.selected;
-    if (items.length > 0){
-      items.forEach(item => {
-          this.targetProfiles.push(item.value);
-
-          let index = this.admProfileService.findIndexById(this.sourceProfiles, item.value.id);
-          this.sourceProfiles.splice(index, 1);
-      });
-    }    
-  }
-
-  addAllTarget() {
-    this.sourceProfiles.forEach(item => {
-      this.targetProfiles.push(item); 
-    });
-    this.sourceProfiles = [];
-  }
-
-  addSource() {
-    let items: MatListOption[] = this.target.selectedOptions.selected;
-    if (items.length > 0){
-      items.forEach(item => {
-          this.sourceProfiles.push(item.value);
-
-          let index = this.admProfileService.findIndexById(this.targetProfiles, item.value.id);
-          this.targetProfiles.splice(index, 1);
-      });
-    }    
-  }
-
-  addAllSource() {
-    this.targetProfiles.forEach(item => {
-      this.sourceProfiles.push(item); 
-    });
-    this.targetProfiles = [];
   }
 
 }

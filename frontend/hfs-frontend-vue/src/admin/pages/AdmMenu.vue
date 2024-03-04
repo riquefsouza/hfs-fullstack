@@ -332,7 +332,7 @@ export default {
                         <small class="p-invalid" v-if="submitted && !admMenu.description">O nome do menu é obrigatório.</small>
                     </div>
                     <div class="field">
-                        <label for="admMenuParent">Página:</label>
+                        <label for="admMenuParent">Menu pai:</label>
                         <Dropdown id="admMenuParent" v-model="admMenu.admMenuParent" :options="listaAdmMenuParent" optionLabel="description"></Dropdown>
                     </div>
                     <div class="field">

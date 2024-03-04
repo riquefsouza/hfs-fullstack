@@ -1,3 +1,5 @@
+import { Entidade } from "src/app/base/models/Entidade";
+
 export const emptyAdmPage: AdmPage = {
     id: null,
     description: '',
@@ -13,7 +15,7 @@ export const cleanAdmPage: AdmPage = {
     pageProfiles: ''
 };
 
-export interface AdmPage {
+export interface AdmPage extends Entidade {
     id?: number | null;
     description: string;
     url: string;

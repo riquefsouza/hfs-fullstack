@@ -129,61 +129,7 @@
                 <br>
                 <div style="width: 100%;">
                     <mat-label style="font-weight: bold;">Perfil(s) da página:</mat-label>
-                    <mat-grid-list cols="9" rowHeight="300px">
-                        <mat-grid-tile colspan="4">
-
-                            <mat-card style="width: 100%; height: 100%;">
-                                <mat-card-header>
-                                    <mat-card-title style="font-weight: bold; font-size: medium;">Disponível</mat-card-title>
-                                </mat-card-header>
-                                <mat-card-content  style="border-style: solid; border-width: 1px; border-radius: 10px;width: 100%; height: 100%;">
-                                    <mat-selection-list #source>
-                                        @for (source of sourceProfiles; track source) {
-                                            @if (source){
-                                                <mat-list-option [value]="source">{{source.description}}</mat-list-option>
-                                            }                                          
-                                        }
-                                    </mat-selection-list>        
-                                </mat-card-content>
-                            </mat-card>    
-        
-                        </mat-grid-tile>
-                        <mat-grid-tile>
-                            <div style="margin-top: 80px;">
-                                <button mat-raised-button color="primary" class="verticalButtons" (click)="addTarget()">
-                                    <mat-icon>keyboard_arrow_right</mat-icon>
-                                </button>
-                                <button mat-raised-button color="primary" class="verticalButtons" (click)="addAllTarget()">
-                                    <mat-icon>keyboard_double_arrow_right</mat-icon>
-                                </button>
-                                <button mat-raised-button color="primary" class="verticalButtons" (click)="addSource()">
-                                    <mat-icon>keyboard_arrow_left</mat-icon>
-                                </button>
-                                <button mat-raised-button color="primary" class="verticalButtons" (click)="addAllSource()">
-                                    <mat-icon>keyboard_double_arrow_left</mat-icon>
-                                </button>
-                            </div>    
-                        </mat-grid-tile>
-                        <mat-grid-tile colspan="4">
-
-                            <mat-card style="width: 100%; height: 100%;">
-                                <mat-card-header>
-                                    <mat-card-title style="font-weight: bold; font-size: medium;">Selecionada</mat-card-title>
-                                </mat-card-header>
-                                <mat-card-content  style="border-style: solid; border-width: 1px; border-radius: 10px; width: 100%; height: 100%;">
-                                    <mat-selection-list #target>
-                                        @for (target of targetProfiles; track target) {
-                                            @if (target){
-                                                <mat-list-option [value]="target">{{target.description}}</mat-list-option>
-                                            }
-                                        }
-                                    </mat-selection-list>        
-                                </mat-card-content>
-                            </mat-card>    
-        
-                        </mat-grid-tile>
-                    </mat-grid-list>
-
+                    <pickList [sourceLista]="sourceProfiles" [targetLista]="targetProfiles"></pickList>
                 </div>
             </div>
         </div>

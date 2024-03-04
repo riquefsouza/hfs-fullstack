@@ -323,7 +323,7 @@ export default {
 
                 <Dialog v-model:visible="admParameterDialog" :style="{ width: '650px' }" header="Detalhes do parâmetro" :modal="true" class="p-fluid">
                     <div class="field">
-                        <label for="admParameterCategory">Parameter Category:</label>
+                        <label for="admParameterCategory">Categoria do parâmetro</label>
                         <Dropdown id="admParameterCategory" v-model="admParameter.admParameterCategory" :options="listaAdmParameterCategory"
                             optionLabel="description" placeholder="Selecione uma categoria de parâmetro"></Dropdown>
                     </div>
