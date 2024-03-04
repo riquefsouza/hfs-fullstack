@@ -5,6 +5,7 @@ import NotFoundPage from "./system/notfound/NotFoundPage";
 import UsuarioPage from "./system/usuario/UsuarioPage";
 import AdmParameterCategoryPage from "./admin/pages/AdmParameterCategoryPage";
 import AdmParameterPage from "./admin/pages/AdmParameterPage";
+import AdmMenuPage from "./admin/pages/AdmMenuPage";
 
 function App() {
 
@@ -17,7 +18,7 @@ function App() {
         <Route path="/admin/admParameter" element={<AdmParameterPage />} />
         <Route path="/admin/admProfile" />
         <Route path="/admin/admPage" />
-        <Route path="/admin/admMenu" />
+        <Route path="/admin/admMenu" element={<AdmMenuPage />} />
         <Route path="/system/usuario" element={<UsuarioPage />} />
         <Route path="/system/config" element={<ConfigPage />} />
         <Route path="*" element={<NotFoundPage />} />

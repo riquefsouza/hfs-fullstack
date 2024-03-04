@@ -1,0 +1,192 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6" [style]="mostrarListar()">
+
+            <mat-card styleClass="p-mb-2">
+                <mat-card-header>
+                    <mat-card-title>Página</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <app-report-panel (typeReportChange)="onChangedTypeReport($event)" (forceDownloadChange)="onChangedForceDownload($event)"></app-report-panel>
+                </mat-card-content>
+            </mat-card>    
+
+            <mat-toolbar styleClass="mb-4">
+                <div class="my-2">
+                    <button mat-raised-button color="primary" style="margin-right: 10px;" (click)="onInsert()">
+                        <mat-icon>add</mat-icon> Adicionar
+                    </button>
+                    <button mat-raised-button color="warn" (click)="deleteSelected()" 
+                        [disabled]="!selection.selected || !selection.selected.length">
+                        <mat-icon>delete</mat-icon> Excluir
+                    </button>
+                </div>
+
+                <span class="spacer"></span>
+
+                <button mat-raised-button (click)="onExport()">
+                    <mat-icon>upload</mat-icon> Exportar
+                </button>
+            </mat-toolbar>
+
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="onEdit()">Editar</button>
+                <button mat-menu-item (click)="onDelete()">Excluir</button>
+            </mat-menu>
+
+            <div class="mat-elevation-z8">
+                <mat-paginator [pageSizeOptions]="[10,30,50,100,150,200]"
+                               showFirstLastButtons
+                               aria-label="Selecione a página de elementos periódicos">
+                </mat-paginator>
+
+                <table mat-table [dataSource]="dataSource" style="width: 100%;" matSort>
+                    <ng-container matColumnDef="select">
+                        <th mat-header-cell *matHeaderCellDef>
+                            <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
+                                [indeterminate]="selection.hasValue() && !isAllSelected()">
+                            </mat-checkbox>
+                        </th>
+                        <td mat-cell *matCellDef="let row">
+                            <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+                                [checked]="selection.isSelected(row)">
+                            </mat-checkbox>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
+                        <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="url">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Página </th>
+                        <td mat-cell *matCellDef="let element"> {{element.url}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="description">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Descrição </th>
+                        <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="pageProfiles">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Perfil(s) da página </th>
+                        <td mat-cell *matCellDef="let element"> {{element.pageProfiles}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="actions" style="width:10%; min-width:8rem;">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let row">
+                            <div class="flex">
+                                <button mat-button [matMenuTriggerFor]="menu" (click)="toggleMenu(row)">
+                                    <mat-icon>more_vert</mat-icon>
+                                </button>
+                            </div>
+                        </td>
+                    </ng-container>
+                
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+
+                <mat-divider></mat-divider>
+
+                <div style="margin-left: 30px; font-weight: bold;">
+                    No total existem {{listaAdmPage ? listaAdmPage.length : 0 }} páginas.
+                </div>
+            </div>
+        </div>
+
+        <div [style]="mostrarEditar()">
+            <h2 mat-dialog-title>Detalhes da página</h2>
+            <mat-toolbar styleClass="mb-4">
+                <div class="my-2">
+                    <button mat-raised-button style="margin-right: 10px;" (click)="hideDialog()">
+                        <mat-icon>cancel</mat-icon> Cancelar
+                    </button>
+                    <button mat-raised-button style="margin-right: 10px;" (click)="onClean()">
+                        <mat-icon>star</mat-icon> Limpar
+                    </button>
+                    <button mat-raised-button color="primary" (click)="onSave()">
+                        <mat-icon>check</mat-icon> Salvar
+                    </button>    
+                </div>
+            </mat-toolbar>
+
+            <div class="card p-fluid">
+                <mat-form-field style="width: 100%;">
+                    <mat-label>Página</mat-label>
+                    <input matInput [(ngModel)]="admPage.url" required
+                        [ngClass]="{'ng-invalid ng-dirty' : !admPage.url}">
+                    @if (!admPage.url) {
+                        <mat-error>A página é obrigatória.</mat-error>
+                    }        
+                </mat-form-field>
+                <br>
+                <mat-form-field style="width: 100%;">
+                    <mat-label>Descrição</mat-label>
+                    <input matInput [(ngModel)]="admPage.description" required
+                        [ngClass]="{'ng-invalid ng-dirty' : !admPage.description}">
+                    @if (!admPage.description) {
+                        <mat-error>A descrição é obrigatória.</mat-error>
+                    }
+                </mat-form-field>
+                <br>
+                <div style="width: 100%;">
+                    <mat-label style="font-weight: bold;">Perfil(s) da página:</mat-label>
+                    <mat-grid-list cols="9" rowHeight="300px">
+                        <mat-grid-tile colspan="4">
+
+                            <mat-card style="width: 100%; height: 100%;">
+                                <mat-card-header>
+                                    <mat-card-title style="font-weight: bold; font-size: medium;">Disponível</mat-card-title>
+                                </mat-card-header>
+                                <mat-card-content  style="border-style: solid; border-width: 1px; border-radius: 10px;width: 100%; height: 100%;">
+                                    <mat-selection-list #source>
+                                        @for (source of sourceProfiles; track source) {
+                                            @if (source){
+                                                <mat-list-option [value]="source">{{source.description}}</mat-list-option>
+                                            }                                          
+                                        }
+                                    </mat-selection-list>        
+                                </mat-card-content>
+                            </mat-card>    
+        
+                        </mat-grid-tile>
+                        <mat-grid-tile>
+                            <div style="margin-top: 80px;">
+                                <button mat-raised-button color="primary" class="verticalButtons" (click)="addTarget()">
+                                    <mat-icon>keyboard_arrow_right</mat-icon>
+                                </button>
+                                <button mat-raised-button color="primary" class="verticalButtons" (click)="addAllTarget()">
+                                    <mat-icon>keyboard_double_arrow_right</mat-icon>
+                                </button>
+                                <button mat-raised-button color="primary" class="verticalButtons" (click)="addSource()">
+                                    <mat-icon>keyboard_arrow_left</mat-icon>
+                                </button>
+                                <button mat-raised-button color="primary" class="verticalButtons" (click)="addAllSource()">
+                                    <mat-icon>keyboard_double_arrow_left</mat-icon>
+                                </button>
+                            </div>    
+                        </mat-grid-tile>
+                        <mat-grid-tile colspan="4">
+
+                            <mat-card style="width: 100%; height: 100%;">
+                                <mat-card-header>
+                                    <mat-card-title style="font-weight: bold; font-size: medium;">Selecionada</mat-card-title>
+                                </mat-card-header>
+                                <mat-card-content  style="border-style: solid; border-width: 1px; border-radius: 10px; width: 100%; height: 100%;">
+                                    <mat-selection-list #target>
+                                        @for (target of targetProfiles; track target) {
+                                            @if (target){
+                                                <mat-list-option [value]="target">{{target.description}}</mat-list-option>
+                                            }
+                                        }
+                                    </mat-selection-list>        
+                                </mat-card-content>
+                            </mat-card>    
+        
+                        </mat-grid-tile>
+                    </mat-grid-list>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -6,8 +6,8 @@ import AdmParameter from "@/admin/pages/AdmParameter.vue";
 /*
 import AdmProfile from "@/admin/pages/AdmProfile.vue";
 import AdmPage from "@/admin/pages/AdmPage.vue";
-import AdmMenu from "@/admin/pages/AdmMenu.vue";
 */
+import AdmMenu from "@/admin/pages/AdmMenu.vue";
 import UsuarioPage from "@/system/usuario/UsuarioPage.vue";
 import ConfigPage from "@/system/config/ConfigPage.vue";
 
@@ -25,7 +25,7 @@ const router = createRouter({
                 { path: '/admin/admParameter', name: 'admParameter', component: AdmParameter },
                 { path: '/admin/admProfile', name: 'admProfile' },
                 { path: '/admin/admPage', name: 'admPage' },
-                { path: '/admin/admMenu', name: 'admMenu' },
+                { path: '/admin/admMenu', name: 'admMenu', component: AdmMenu },
                 { path: '/system/usuario', name: 'usuario', component: UsuarioPage },
                 { path: '/system/config', name: 'config', component: ConfigPage },
             ]

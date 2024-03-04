@@ -197,7 +197,7 @@ const AdmParameterPage = () => {
         return elementosAdmParameterCategory;
     }
 	
-    const onAdmParameterCategoryChange = (e: SelectChangeEvent<number>) => {
+    const onAdmParameterCategoryChange = (e: SelectChangeEvent<number | null>) => {
         let val = e.target.value as number;
         let _admParameter = { ...admParameter };
 
