@@ -21,7 +21,7 @@ export const cleanAdmProfile: AdmProfile = {
 export interface AdmProfile extends Entidade {
     id?: number | null;
     administrator?: boolean;
-    description?: string;
+    description: string;
     general?: boolean;
     admPages?: AdmPage[];
     profilePages?: string;

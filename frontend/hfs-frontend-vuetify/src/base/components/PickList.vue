@@ -5,7 +5,7 @@
                 <v-card style="width: 100%; height: 100%;">
                     <v-card-title style="font-weight: bold; font-size: medium;">Disponível</v-card-title>                    
                     <v-card-text style="border-style: solid; border-width: 1px; border-radius: 10px;width: 100%; height: 300px;">
-                        <v-list select-strategy="classic">
+                        <v-list select-strategy="classic" style="overflow: auto;  height: 290px">
                             <v-list-item v-for="(item, index) in sourceLista" :value="item" @click="sourceHandleToggle(index)">
                                 <template v-slot:prepend="{ isActive }">
                                     <v-list-item-action start>
@@ -33,7 +33,7 @@
                 <v-card style="width: 100%; height: 100%;">
                     <v-card-title style="font-weight: bold; font-size: medium;">Selecionada</v-card-title>                    
                     <v-card-text style="border-style: solid; border-width: 1px; border-radius: 10px;width: 100%; height: 300px;">
-                        <v-list select-strategy="classic">
+                        <v-list select-strategy="classic" style="overflow: auto;  height: 290px">
                             <v-list-item v-for="(item, index) in targetLista" :value="item" @click="targetHandleToggle(index)">
                                 <template v-slot:prepend="{ isActive }">
                                     <v-list-item-action start>

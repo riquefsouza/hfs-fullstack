@@ -19,6 +19,10 @@ import { RouterModule } from '@angular/router';
             loadChildren: () => import('./pages/adm-page/adm-page.module')
             .then(m => m.AdmPageModule) 
         },
+        { path: 'admProfile', 
+            loadChildren: () => import('./pages/adm-profile/adm-profile.module')
+            .then(m => m.AdmProfileModule) 
+        },
         { path: '**', redirectTo: '/notfound' }
     ])],
     exports: [RouterModule]

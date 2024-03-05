@@ -146,7 +146,7 @@ const PickListComponent = <T extends Entidade>(props: PickListProps<T>) => {
         <Card sx={{ width: "100%", height: "100%" }}>
           <Typography sx={{ fontWeight: "bold", fontSize: "medium" }}>Disponível</Typography>
           <CardContent sx={{ borderStyle: "solid", borderWidth: "1px", borderRadius: "10px", width: "100%", height: "300px" }}>
-            <List component="nav" aria-label="Disponível" sx={{ height: '300px' }}>
+            <List component="nav" aria-label="Disponível" sx={{ overflow: "auto",  height: "270px" }}>
 
               {sourceLista.map((item: T, index: number) => {
                 return <ListItem key={index} disablePadding>
@@ -186,7 +186,7 @@ const PickListComponent = <T extends Entidade>(props: PickListProps<T>) => {
         <Card sx={{ width: "100%", height: "100%" }}>
           <Typography sx={{ fontWeight: "bold", fontSize: "medium" }}>Selecionada</Typography>
           <CardContent sx={{ borderStyle: "solid", borderWidth: "1px", borderRadius: "10px", width: "100%", height: "300px" }}>
-            <List component="nav" aria-label="Selecionada" sx={{ height: '300px' }}>
+            <List component="nav" aria-label="Selecionada" sx={{ overflow: "auto",  height: "270px" }}>
 
               {targetLista.map((item: T, index: number) => {
                 return <ListItem key={index} disablePadding>

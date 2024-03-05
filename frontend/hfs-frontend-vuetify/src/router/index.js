@@ -3,9 +3,7 @@ import AppLayout from '@/layout/AppLayout.vue';
 //import Funcionario from "@/hfsfullstack/pages/Funcionario.vue";
 import AdmParameterCategory from "@/admin/pages/AdmParameterCategory.vue";
 import AdmParameter from "@/admin/pages/AdmParameter.vue";
-/*
 import AdmProfile from "@/admin/pages/AdmProfile.vue";
-*/
 import AdmPage from "@/admin/pages/AdmPage.vue";
 import AdmMenu from "@/admin/pages/AdmMenu.vue";
 import UsuarioPage from "@/system/usuario/UsuarioPage.vue";
@@ -23,7 +21,7 @@ const router = createRouter({
                 { path: '/hfs/funcionario', name: 'funcionario' },
                 { path: '/admin/admParameterCategory', name: 'admParameterCategory', component: AdmParameterCategory },
                 { path: '/admin/admParameter', name: 'admParameter', component: AdmParameter },
-                { path: '/admin/admProfile', name: 'admProfile' },
+                { path: '/admin/admProfile', name: 'admProfile', component: AdmProfile },
                 { path: '/admin/admPage', name: 'admPage', component: AdmPage },
                 { path: '/admin/admMenu', name: 'admMenu', component: AdmMenu },
                 { path: '/system/usuario', name: 'usuario', component: UsuarioPage },
