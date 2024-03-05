@@ -65,6 +65,8 @@ const AdmMenuPage = () => {
         ]);
       
         setExportColumns(cols.map(col => ({title: col.header, dataKey: col.field})));
+
+        expandAll();
     }, []);
 
     const atualizarArvore = () => {
@@ -123,7 +125,7 @@ const AdmMenuPage = () => {
 
         listaNodeMenu.map((node) => (
             listaTreeItem.push(<TreeItem key={node.key} nodeId={node.key} label={node.label}>{montaTreeItem(node)}</TreeItem>)
-        ))
+        ));
 
         return listaTreeItem;
     };
@@ -352,9 +354,7 @@ const AdmMenuPage = () => {
     const expandAll = () => {
         const ids: string[] = listaAdmMenuParent.map(item => item.id?.toString());
 
-        setExpanded((oldExpanded) =>
-            oldExpanded.length === 0 ? ids : [],
-        );  
+        setExpanded(ids);  
     };
 
     const collapseAll = () => {

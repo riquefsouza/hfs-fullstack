@@ -1,3 +1,4 @@
+import { Entidade } from '../../base/models/Entidade';
 import { AdmPage } from './AdmPage';
 
 export const emptyAdmProfile: AdmProfile = {
@@ -17,7 +18,7 @@ export const cleanAdmProfile: AdmProfile = {
     profilePages: ''
 };
 
-export interface AdmProfile {
+export interface AdmProfile extends Entidade {
     id?: number | null;
     administrator: boolean;
     description: string;

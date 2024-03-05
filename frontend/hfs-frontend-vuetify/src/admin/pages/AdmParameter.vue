@@ -28,7 +28,7 @@ export default {
         const selectedForceDownload = ref(true);
         const reportParamForm = ref<ReportParamForm>(emptyReportParamForm);
 
-        const exportColumns = ref([]);
+        //const exportColumns = ref([]);
 
         const itemsPerPage = ref(10);
         const columns = ref();        
@@ -103,7 +103,7 @@ export default {
                             listaAdmParameter.value[index] = admParameter.value;
                             listaAdmParameter.value[index].admParameterCategory = admParameter.value.admParameterCategory;
 
-                            snackBar('Categoria de parâmetro Atualizada', 3000);
+                            snackBar('Parâmetro Atualizado', 3000);
                         }
                     });            
                 } else {
@@ -111,7 +111,7 @@ export default {
                         admParameter.value = obj;
 
                         listaAdmParameter.value.push(admParameter.value);
-                        snackBar('Categoria de parâmetro Criada', 3000);
+                        snackBar('Parâmetro Criado', 3000);
                     });            
                 }
 
@@ -150,7 +150,7 @@ export default {
                         admParameterService.delete(item.id).then(() => {
 
                             if (selecionados.length == (index+1)){
-                                snackBar('Categorias de parâmetro excluídos', 3000);
+                                snackBar('Parâmetros excluídos', 3000);
                                 selectedAdmParameters.value = [];
                             }
 
@@ -167,7 +167,7 @@ export default {
                 admParameterService.delete(admParameter.value.id).then(() => {
                     listaAdmParameter.value = listaAdmParameter.value.filter((val: AdmParameter) => val.id !== admParameter.value.id);
                     admParameter.value = emptyAdmParameter;        
-                    snackBar('Categoria de parâmetro excluído', 3000);
+                    snackBar('Parâmetro excluído', 3000);
                 });
             }    
         }
@@ -188,7 +188,7 @@ export default {
 
         const onExport = () => {
             admParameterService.report(reportParamForm.value).then(() => {
-                snackBar('Categoria de parâmetro exportada', 3000);
+                snackBar('Parâmetro exportado', 3000);
             });            
         }
 
@@ -213,7 +213,7 @@ export default {
                     </template>
                 </v-snackbar>
                 <v-card-item>
-                    <v-card-title>Categoria de parâmetro de configuração</v-card-title>
+                    <v-card-title>Parâmetro</v-card-title>
                 </v-card-item>
                 <v-card-text>
                     <ReportPanel @changeTypeReport="onTypeReportChange" @changeForceDownload="onForceDownloadChange"></ReportPanel>
@@ -261,7 +261,7 @@ export default {
 
 
                 <v-dialog v-model="admParameterDialog" width="500">
-                    <v-card title="Detalhes da categoria de parâmetro">
+                    <v-card title="Detalhes do parâmetro">
                         <v-card-text>
                             <v-row>
                                 <v-select label="Categoria do parâmetro" v-model="admParameter.admParameterCategory"
@@ -338,4 +338,4 @@ export default {
 .spacer {
     flex: 1 1 auto;
 }
-</style>../service/AdmParameterService
+</style>

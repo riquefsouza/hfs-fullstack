@@ -6,6 +6,7 @@ import UsuarioPage from "./system/usuario/UsuarioPage";
 import AdmParameterCategoryPage from "./admin/pages/AdmParameterCategoryPage";
 import AdmParameterPage from "./admin/pages/AdmParameterPage";
 import AdmMenuPage from "./admin/pages/AdmMenuPage";
+import AdmPagePage from "./admin/pages/AdmPagePage";
 
 function App() {
 
@@ -17,7 +18,7 @@ function App() {
         <Route path="/admin/admParameterCategory" element={<AdmParameterCategoryPage />} />
         <Route path="/admin/admParameter" element={<AdmParameterPage />} />
         <Route path="/admin/admProfile" />
-        <Route path="/admin/admPage" />
+        <Route path="/admin/admPage" element={<AdmPagePage />} />
         <Route path="/admin/admMenu" element={<AdmMenuPage />} />
         <Route path="/system/usuario" element={<UsuarioPage />} />
         <Route path="/system/config" element={<ConfigPage />} />
