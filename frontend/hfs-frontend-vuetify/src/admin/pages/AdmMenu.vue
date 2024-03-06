@@ -8,6 +8,7 @@ import { SnackbarMessage, emptySnackbarMessage } from '../../base/models/Snackba
 import AdmPageService from '../service/AdmPageService';
 import { TreeNode, emptyTreeNode } from '../../base/models/TreeNode';
 import { AdmPage } from '../api/AdmPage';
+import TreeView from '../../base/components/TreeView.vue';
 
 export default {
     setup() {
@@ -69,13 +70,14 @@ export default {
         const updateMenusTree = (listaMenu: AdmMenu[]): void => {
             const _listaNodeMenu: TreeNode[] = [];
             let _listaAdmMenuParent: AdmMenu[] = [];
+            /*
             const menuRoot: TreeNode = {
                 'key': '0',
                 'label': 'Menu do sistema',
                 'data': '0',
                 'children': []
             };
-
+            */
             _listaAdmMenuParent = listaMenu.filter(menu => menu.idMenuParent == null);    
 
             _listaAdmMenuParent.forEach((itemMenu: AdmMenu) => {
@@ -85,13 +87,15 @@ export default {
                     'data': itemMenu,
                     'children': mountSubMenu(listaMenu, itemMenu)
                 };
+                /*
                 if (menuRoot.children){
                     menuRoot.children.push(m);
-                }                
+                } 
+                */               
+
+                _listaNodeMenu.push(m);
             });
-
-            _listaNodeMenu.push(menuRoot);
-
+            
             listaNodeMenu.value = _listaNodeMenu;
 
             expandAll();
@@ -136,6 +140,12 @@ export default {
             snackbar.value.open = true;
             snackbar.value.message = msg;
             snackbar.value.timeout = duration;
+        }
+
+        const onNodeSelected = (param: { node: TreeNode }) => {
+            const _menu: AdmMenu = param.node.data as AdmMenu;
+            selectedAdmMenu.value = _menu;            
+            selectedNodeMenu.value = param.node;
         }
 
         const onInsert = () => {
@@ -247,10 +257,8 @@ export default {
         const collapseAll = () => {
         };
 
-        const expandNode = (node: TreeNode) => {
-        };
-
-        return { listaAdmMenu, admMenu, submitted, snackbar, admMenuDialog, hideDialog, listaAdmPage, listaAdmMenuParent,
+        return { listaAdmMenu, admMenu, submitted, snackbar, admMenuDialog, hideDialog, listaAdmPage, 
+            listaAdmMenuParent, listaNodeMenu, onNodeSelected,
             deleteAdmMenuDialog, confirmDelete, selectedAdmMenu, emptyAdmMenu, expandAll, collapseAll,
             onInsert, onEdit, onDelete, onSave, onExport, onTypeReportChange, onForceDownloadChange }
     }
@@ -288,6 +296,8 @@ export default {
 
                     <v-btn prepend-icon="upload" @click="onExport" variant="elevated" color="indigo-darken-3">Exportar</v-btn>
                 </v-toolbar>
+
+                <TreeView :menuRoot="listaNodeMenu" @onNodeSelected="onNodeSelected"></TreeView>
 
                 <v-dialog v-model="admMenuDialog" width="500">
                     <v-card title="Detalhes da categoria de parâmetro">

@@ -8,6 +8,7 @@ import AdmProfileService from "./admin/service/AdmProfileService";
 import { MenuItemDTO } from "./base/models/MenuItemDTO";
 import ReportPanel from './base/components/ReportPanel.vue';
 import PickList from './base/components/PickList.vue';
+import TreeView from './base/components/TreeView.vue';
 import '@/assets/styles.scss';
 
 // Vuetify
@@ -42,6 +43,7 @@ app.use(vuetify);
 app.component('DataView', DataView);
 app.component('ReportPanel', ReportPanel);
 app.component('PickList', PickList);
+app.component('TreeView', TreeView);
 
 const keycloakService: KeycloakService = new KeycloakService();
 
