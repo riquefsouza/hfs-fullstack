@@ -5,9 +5,8 @@ import { Funcionario } from "../api/Funcionario";
 import axios from "../../base/interceptors/AxiosRequestInterceptor";
 import { ReportParamForm } from "../../base/models/ReportParamsForm";
 import FileSaver from "file-saver";
-import { LazyTableState } from "../../base/models/LazyTableState";
-import { DataTableFilterMetaData } from "primereact/datatable";
 import { PaginationDTO } from "../../base/models/PaginationDTO";
+import { LazyTableParam, DataTableFilterMetaData } from "../../base/models/LazyTableParam";
 
 export default class FuncionarioService {
 
@@ -28,15 +27,19 @@ export default class FuncionarioService {
         return index;
     }
     
-    public async findAllPaginated(param: LazyTableState): Promise<PaginationDTO> {        
+    public async findAllPaginated(param: LazyTableParam): Promise<PaginationDTO> {        
 
         let nome: string = "";
-        let page: number | undefined = param.page;
+        let page: number = param.first;
 
-        page = param.first / param.rows;
+        //page = param.first / param.rows;
         
-        if(param.sortField === undefined){
+        if(param.sortField === null || param.sortField === undefined){
             param.sortField = 'id';
+        }
+
+        if(param.sortOrder === null || param.sortOrder === undefined){
+            param.sortOrder = 1;
         }
 
         if (param.filters['nome'] !== undefined){
@@ -45,17 +48,18 @@ export default class FuncionarioService {
         }
 
         let size: number = param.rows;
-        let sort: string = param.sortField;
+        let sort: string = '';
+        if (param.sortField){
+            sort = param.sortField;
+        }        
         let direction: string = (param.sortOrder === 1 ? 'asc' : 'desc');
-            
+
         let url = '';
         if (nome){
             url = `${this.PATH}/paged?nome=${nome}&=page=${page}&size=${size}&sort=${sort},${direction}`;
         } else {
             url = `${this.PATH}/paged?page=${page}&size=${size}&sort=${sort},${direction}`;
         }
-
-        //console.log(url);
                 
         const response = await axios.get<PaginationDTO>(url);
 

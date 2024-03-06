@@ -8,6 +8,7 @@ import AdmParameterPage from "./admin/pages/AdmParameterPage";
 import AdmMenuPage from "./admin/pages/AdmMenuPage";
 import AdmPagePage from "./admin/pages/AdmPagePage";
 import AdmProfilePage from "./admin/pages/AdmProfilePage";
+import FuncionarioPage from "./hfsfullstack/pages/FuncionarioPage";
 
 function App() {
 
@@ -15,7 +16,7 @@ function App() {
     <main>
       <Routes>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/hfs/funcionario" />
+        <Route path="/hfs/funcionario" element={<FuncionarioPage />} />
         <Route path="/admin/admParameterCategory" element={<AdmParameterCategoryPage />} />
         <Route path="/admin/admParameter" element={<AdmParameterPage />} />
         <Route path="/admin/admProfile" element={<AdmProfilePage />} />

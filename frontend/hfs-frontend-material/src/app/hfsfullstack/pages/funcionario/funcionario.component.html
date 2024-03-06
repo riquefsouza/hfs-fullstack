@@ -1,0 +1,274 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6" [style]="mostrarListar()">
+
+            <mat-card styleClass="p-mb-2">
+                <mat-card-header>
+                    <mat-card-title>Funcionário</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <app-report-panel (typeReportChange)="onChangedTypeReport($event)" (forceDownloadChange)="onChangedForceDownload($event)"></app-report-panel>
+                </mat-card-content>
+            </mat-card>    
+
+            <mat-toolbar styleClass="mb-4">
+                <div class="my-2">
+                    <button mat-raised-button color="primary" style="margin-right: 10px;" (click)="onInsert()">
+                        <mat-icon>add</mat-icon> Adicionar
+                    </button>
+                    <button mat-raised-button color="warn" (click)="deleteSelected()" 
+                        [disabled]="!selection.selected || !selection.selected.length">
+                        <mat-icon>delete</mat-icon> Excluir
+                    </button>
+                </div>
+
+                <span class="spacer"></span>
+
+                <button mat-raised-button (click)="onExport()">
+                    <mat-icon>upload</mat-icon> Exportar
+                </button>
+            </mat-toolbar>
+
+            <mat-toolbar styleClass="mb-4">
+                <mat-form-field style="width: 400px;">                    
+                    <mat-label>Pesquisar pelo nome:</mat-label>
+                    <input matInput placeholder="Pesquisar..." #input type="text" [(ngModel)]="valorInputPesquisa">
+                    @if (valorInputPesquisa) {
+                        <button matSuffix mat-icon-button aria-label="limpar" (click)="onInputPesquisaClick()">
+                        <mat-icon>close</mat-icon>
+                        </button>
+                    }
+                </mat-form-field>                
+
+                <span class="spacer"></span>
+                
+                <button mat-icon-button style="margin-right: 10px;" (click)="exportPdf()">
+                    <mat-icon>picture_as_pdf</mat-icon>
+                </button>
+                <button mat-icon-button style="margin-right: 10px;" (click)="exportExcel()">
+                    <mat-icon>description</mat-icon>
+                </button>        
+
+            </mat-toolbar>
+
+            <div class="spinner-container" *ngIf="dataSource.loading$ | async">
+                <mat-spinner></mat-spinner>
+            </div>
+
+            <mat-paginator
+                [length]="totalRecords"    
+                [pageSize]="10" 
+                showFirstLastButtons
+                [pageSizeOptions]="[10,30,50,100,150,200]"
+                aria-label="Selecione a página de elementos periódicos">
+            </mat-paginator>
+
+            <mat-sidenav-container fxFlex="0 1 auto">
+
+                <mat-sidenav #sidenav position="start" mode="side" opened="false" class="width-30 p-6">
+                    
+                </mat-sidenav>
+
+                <mat-sidenav-content>
+
+                    <div class="mat-elevation-z8 m-12">
+                        <div class="table-container">
+                            
+                            <table mat-table [dataSource]="dataSource" style="width: 100%;" matSort matSortActive="nome" matSortDirection="asc" matSortDisableClear>
+                                <ng-container matColumnDef="select">
+                                    <th mat-header-cell *matHeaderCellDef>
+                                        <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
+                                            [indeterminate]="selection.hasValue() && !isAllSelected()">
+                                        </mat-checkbox>
+                                    </th>
+                                    <td mat-cell *matCellDef="let row">
+                                        <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+                                            [checked]="selection.isSelected(row)">
+                                        </mat-checkbox>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="actions" style="width:10%; min-width:8rem;">
+                                    <th mat-header-cell *matHeaderCellDef style="min-width: 140px;"> Ações </th>
+                                    <td mat-cell *matCellDef="let row" style="min-width: 140px;">
+                                        <div class="flex">
+                                            <button mat-icon-button color="accent" style="margin-right: 10px;" (click)="onEdit(row)">
+                                                <mat-icon>edit</mat-icon>
+                                            </button>
+                                            <button mat-icon-button color="warn" (click)="onDelete(row)">
+                                                <mat-icon>delete</mat-icon>
+                                            </button>
+                                        </div>    
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="id">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 5rem;"> Id </th>
+                                    <td mat-cell *matCellDef="let element"  style="min-width: 5rem;"> {{element.id}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="nome">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 20rem;"> Nome </th>
+                                    <td mat-cell *matCellDef="let element" style="min-width: 20rem;"> {{element.nome}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="cpfFormatado">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 10rem;"> Cpf </th>
+                                    <td mat-cell *matCellDef="let element" style="min-width: 10rem;"> {{element.cpfFormatado}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="email">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 10rem;"> Email </th>
+                                    <td mat-cell *matCellDef="let element" style="min-width: 10rem;"> {{element.email}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="telefone">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 10rem;"> Telefone </th>
+                                    <td mat-cell *matCellDef="let element" style="min-width: 10rem;"> {{element.telefone}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="celular">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 10rem;"> Celular </th>
+                                    <td mat-cell *matCellDef="let element" style="min-width: 10rem;"> {{element.celular}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="setor">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 10rem;"> Setor </th>
+                                    <td mat-cell *matCellDef="let element" style="min-width: 10rem;"> {{element.setor}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="codCargo">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 10rem;"> CodCargo </th>
+                                    <td mat-cell *matCellDef="let element" style="min-width: 10rem;"> {{element.codCargo}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="cargo">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 20rem;"> Cargo </th>
+                                    <td mat-cell *matCellDef="let element" style="min-width: 20rem;"> {{element.cargo}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="dataAdmissaoFormatada" style="min-width: 12rem;">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 12rem;"> Data Admissão </th>
+                                    <td mat-cell *matCellDef="let element"> {{element.dataAdmissaoFormatada}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="dataSaidaFormatada">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 10rem;"> Data Saída </th>
+                                    <td mat-cell *matCellDef="let element" style="min-width: 10rem;"> {{element.dataSaidaFormatada}} </td>
+                                </ng-container>
+                                <ng-container matColumnDef="ativo">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 10rem;"> Ativo </th>
+                                    <td mat-cell *matCellDef="let element" style="min-width: 10rem;"> {{element.ativo}} </td>
+                                </ng-container>
+                            
+                                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </mat-sidenav-content>
+
+            </mat-sidenav-container>
+
+            <mat-divider></mat-divider>
+
+            <div style="margin-left: 30px; font-weight: bold;">
+                No total existem {{listaFuncionario ? listaFuncionario.length : 0 }} funcionários.
+            </div>
+
+        </div>
+
+        <div [style]="mostrarEditar()">
+
+            <mat-card styleClass="p-mb-2">
+                <mat-card-header>
+                    <mat-card-title>Detalhes do funcionário</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+
+                    <mat-toolbar styleClass="mb-4">
+                        <span class="spacer"></span>
+                        
+                        <button mat-raised-button style="margin-right: 10px;" (click)="hideDialog()">
+                            <mat-icon>cancel</mat-icon> Cancelar
+                        </button>
+                        <button mat-raised-button style="margin-right: 10px;" (click)="onClean()">
+                            <mat-icon>star</mat-icon> Limpar
+                        </button>
+                        <button mat-raised-button color="primary" (click)="onSave()">
+                            <mat-icon>check</mat-icon> Salvar
+                        </button>
+                    
+                    </mat-toolbar>                      
+
+                    <div class="card p-fluid">
+                        <mat-form-field style="width: 100%;">
+                            <mat-label>Nome</mat-label>
+                            <input matInput [(ngModel)]="funcionario.nome" required autofocus
+                                [ngClass]="{'ng-invalid ng-dirty' : submitted && !funcionario.nome}">
+                            @if (!funcionario.nome) {
+                                <mat-error>O Nome é obrigatório.</mat-error>
+                            }
+                        </mat-form-field>
+                        <br>
+                        <mat-form-field style="width: 100%;">
+                            <mat-label>Email</mat-label>
+                            <input matInput [(ngModel)]="funcionario.email">
+                        </mat-form-field>    
+                        <br>
+                        <mat-grid-list cols="2" rowHeight="80px" gutterSize="20px">
+                            <mat-grid-tile>
+                                <mat-form-field style="width: 100%;">
+                                    <mat-label>Cpf</mat-label>
+                                    <input matInput [(ngModel)]="funcionario.cpfFormatado" required
+                                    [ngClass]="{'ng-invalid ng-dirty' : submitted && !funcionario.cpfFormatado}">
+                                    @if (!funcionario.cpfFormatado) {
+                                        <mat-error>CPF é obrigatório.</mat-error>
+                                    }
+                                </mat-form-field>
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                <mat-form-field style="width: 100%;">
+                                    <mat-label>Telefone</mat-label>
+                                    <input matInput [(ngModel)]="funcionario.telefone">
+                                </mat-form-field>        
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                <mat-form-field style="width: 100%;">
+                                    <mat-label>Celular</mat-label>
+                                    <input matInput [(ngModel)]="funcionario.celular">
+                                </mat-form-field>
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                <mat-form-field style="width: 100%;">
+                                    <mat-label>Setor</mat-label>
+                                    <input matInput [(ngModel)]="funcionario.setor">
+                                </mat-form-field>        
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                <mat-form-field style="width: 100%;">
+                                    <mat-label>CodCargo</mat-label>
+                                    <input type="number" matInput [(ngModel)]="funcionario.codCargo">
+                                </mat-form-field>    
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                <mat-form-field style="width: 100%;">
+                                    <mat-label>Cargo</mat-label>
+                                    <input matInput [(ngModel)]="funcionario.cargo">
+                                </mat-form-field>        
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                <mat-form-field style="width: 100%;">
+                                    <mat-label>Data Admissão</mat-label>
+                                    <input type="date" matInput [(ngModel)]="funcionario.dataAdmissao">
+                                </mat-form-field>    
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                                <mat-form-field style="width: 100%;">
+                                    <mat-label>Data Saída</mat-label>
+                                    <input type="date" matInput [(ngModel)]="funcionario.dataSaida">
+                                </mat-form-field>        
+                            </mat-grid-tile>
+                        </mat-grid-list>
+                            
+                        <mat-checkbox [(ngModel)]="funcionario.ativo">Ativo</mat-checkbox>
+                    </div>                
+                            
+                </mat-card-content>
+            </mat-card>    
+
+        </div>
+
+    </div>
+</div>

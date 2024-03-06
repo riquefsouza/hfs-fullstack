@@ -26,7 +26,7 @@ export class BaseUtilService {
         return -1;
     }
 
-    public dataStringToDate(sdata: string): Date | null {
+    public dataStringToDate(sdata: string): Date | undefined {
         if (sdata != null) {
             if (sdata.length == 10) {
                 let dia: string = sdata.substring(0, 2);
@@ -41,7 +41,7 @@ export class BaseUtilService {
             }
         }
 
-        return null;
+        return undefined;
     }
 
     public readFileContent(file: File): Promise<string> {

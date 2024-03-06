@@ -31,7 +31,8 @@ export default class FuncionarioService {
     public async findAllPaginated(param: LazyTableParam): Promise<PaginationDTO> {
 
         let nome: string = "";
-        let page: number = param.first / param.rows;
+        let page: number = param.first;
+        //let page: number = param.first / param.rows;
         
         if(param.sortField === null || param.sortField === undefined){
             param.sortField = 'id';

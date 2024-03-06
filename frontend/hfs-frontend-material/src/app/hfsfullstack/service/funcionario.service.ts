@@ -7,6 +7,8 @@ import * as FileSaver from 'file-saver';
 import { tap, catchError, of } from 'rxjs';
 import { ReportParamForm } from '../../base/models/ReportParamsForm';
 import { ErrorService } from '../../base/services/error.service';
+import { DataTableFilterMetaData, LazyTableParam } from 'src/app/base/models/LazyTableParam';
+import { PaginationDTO } from 'src/app/base/models/PaginationDTO';
 
 @Injectable()
 export class FuncionarioService {
@@ -47,25 +49,46 @@ export class FuncionarioService {
         return index;
     }
 
-    public async findAllPaginated(nome: string,
-        page: number, size: number, sort: string, direction: string): Promise<any[]> {
-            let params: HttpParams;
+    public async findAllPaginated(param: LazyTableParam): Promise<PaginationDTO> {
 
+        let nome: string = "";
+        //let page: number = param.first / param.rows;
+        let page: number = param.first;
+        
+        if(param.sortField === null || param.sortField === undefined){
+            param.sortField = 'id';
+        }
+
+        if(param.sortOrder === null || param.sortOrder === undefined){
+            param.sortOrder = 1;
+        }
+
+        if (param.filters['nome'] !== undefined){
+            let filtro: DataTableFilterMetaData = param.filters['nome'] as DataTableFilterMetaData;
+            nome = filtro.value;
+        }
+
+        let size: number = param.rows;
+        let sort: string = param.sortField;
+        let direction: string = (param.sortOrder === 1 ? 'asc' : 'desc');
+        
+        let params: HttpParams;
+        let url = `${this.PATH}/paged`;
+        
         if (nome){
             params = new HttpParams()
             .append('nome', nome)
             .append('page', page.toString())
-            .append("size", size.toString())
-            .append("sort", `${sort},${direction}`);            
+            .append('size', size.toString())
+            .append('sort', `${sort},${direction}`);            
         } else {
             params = new HttpParams()
             .append('page', page.toString())
-            .append("size", size.toString())
-            .append("sort", `${sort},${direction}`);
+            .append('size', size.toString())
+            .append('sort', `${sort},${direction}`);
         }
 
-        const url = `${this.PATH}/paged`;
-        const resultado$ = this.http.get<any[]>(url, { headers: this.headers, params })
+        const resultado$ = this.http.get<PaginationDTO>(url, { headers: this.headers, params })
         .pipe(
             catchError((error: HttpErrorResponse) => {
                 return of();

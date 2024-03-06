@@ -208,6 +208,17 @@ const FuncionarioPage = () => {
 
     const onSave = () => {
         setSubmitted(true);
+        /*
+        if (funcionario.cpfFormatado){
+            funcionario.cpf = baseUtilService.cpfFormatadoParaCpf(funcionario.cpfFormatado);
+        }
+        if (funcionario.dataAdmissaoFormatada){
+            funcionario.dataAdmissao = baseUtilService.dataStringToDate(funcionario.dataAdmissaoFormatada);
+        }
+        if (funcionario.dataSaidaFormatada){
+            funcionario.dataSaida = baseUtilService.dataStringToDate(funcionario.dataSaidaFormatada);
+        } 
+        */       
     
         if (funcionario.nome.trim()) {
             let _listaFuncionario = [...listaFuncionario];
@@ -683,7 +694,7 @@ const FuncionarioPage = () => {
                                     <InputNumber id="codCargo" value={funcionario.codCargo} locale="pt-BR" onValueChange={(e) => onCodCargoInputNumberChange(e)} />
                                 </div>
                                 <div className="field col">
-                                    <label htmlFor="cargo">Cargor</label>
+                                    <label htmlFor="cargo">Cargo</label>
                                     <InputText id="cargo" value={funcionario.cargo} onChange={(e) => onCargoInputChange(e)} />
                                 </div>
                             </div>

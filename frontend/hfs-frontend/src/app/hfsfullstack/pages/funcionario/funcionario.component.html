@@ -161,7 +161,7 @@
                     </div>
                     <div class="formgrid grid">
                         <div class="field col">
-                            <label for="cpf">cpf</label>
+                            <label for="cpf">Cpf</label>
                             <p-inputMask mask="999.999.999-99" id="cpf" [(ngModel)]="funcionario.cpfFormatado" required
                                 [ngClass]="{'ng-invalid ng-dirty' : submitted && !funcionario.cpfFormatado}"></p-inputMask>
                             <small class="ng-dirty ng-invalid" *ngIf="submitted && !funcionario.cpfFormatado">CPF é obrigatório.</small>    

@@ -1,0 +1,17 @@
+.spacer {
+    flex: 1 1 auto;
+}
+
+.mat-column-select {
+    overflow: initial;
+}
+
+.table-container {
+    width: 100vw;
+}
+
+.mat-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+}

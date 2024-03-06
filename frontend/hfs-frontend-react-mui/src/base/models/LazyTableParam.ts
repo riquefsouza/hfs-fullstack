@@ -22,3 +22,4 @@ export const emptyLazyTableParam: LazyTableParam = {
     sortOrder: null,
     filters: {}
 }
+

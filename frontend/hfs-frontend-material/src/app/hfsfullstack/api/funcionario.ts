@@ -32,3 +32,21 @@ export const cleanFuncionario: Funcionario = {
 	dataAdmissaoFormatada: '',
 	dataSaidaFormatada: ''
 };
+
+export const emptyFuncionario: Funcionario = {    
+    id: null,
+    nome: '',
+    cpf: 0,
+    email: '',
+    telefone: '',
+	celular: '',
+	setor: '',
+	codCargo: 0,
+	cargo: '',
+	dataAdmissao: null,
+	dataSaida: null,
+    ativo: false,
+	cpfFormatado: '',
+	dataAdmissaoFormatada: '',
+	dataSaidaFormatada: ''
+};

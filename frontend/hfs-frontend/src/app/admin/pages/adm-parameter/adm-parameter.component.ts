@@ -38,7 +38,7 @@ export class AdmParameterComponent implements OnInit {
 
   deleteAdmParametersDialog: boolean = false;
 
-  itemsMenuLinha: MenuItem[];  
+  itemsMenuLinha: MenuItem[];
 
   constructor(private messageService: MessageService,
     private admParameterService: AdmParameterService,

@@ -73,7 +73,7 @@
                             {{admParameter.description}}
                         </td>
                         <td style="width: 10px;">
-                            <div class="flex">                                
+                            <div class="flex">
                                 <a *ngIf="itemsMenuLinha" (click)="toggleMenu(popupMenu, $event, admParameter)" style="cursor: pointer;">
                                     <i class="pi pi-ellipsis-v"></i>
                                 </a>
@@ -93,7 +93,7 @@
             <ng-template pTemplate="content">
                 <div class="field">
                     <label for="admParameterCategory">Categoria do Parâmetro:</label>
-                    <p-dropdown id="admParameterCategory" [(ngModel)]="admParameter.admParameterCategory"
+                    <p-dropdown id="admParameterCategory" [(ngModel)]="admParameter.admParameterCategory" autofocus
                         [options]="listaAdmParameterCategory" optionLabel="description"></p-dropdown>
                 </div>
                 <div class="field">
@@ -110,7 +110,7 @@
                 </div>
                 <div class="field">
                     <label for="description">Descrição</label>
-                    <textarea id="description" pInputTextarea [(ngModel)]="admParameter.description" required autofocus rows="3" cols="20"
+                    <textarea id="description" pInputTextarea [(ngModel)]="admParameter.description" required rows="3" cols="20"
                     [ngClass]="{'ng-invalid ng-dirty' : submitted && !admParameter.description}"></textarea>
                     <small class="ng-dirty ng-invalid" *ngIf="submitted && !admParameter.description">A descrição é obrigatória.</small>
                 </div>
