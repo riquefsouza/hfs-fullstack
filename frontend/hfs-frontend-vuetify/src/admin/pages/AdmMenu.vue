@@ -291,9 +291,6 @@ export default {
                         
                     <span class="spacer"></span>
 
-                    <v-btn @click="expandAll" variant="elevated" :style="{ marginRight: '10px' }">Expandir todos</v-btn>
-                    <v-btn @click="collapseAll" variant="elevated" :style="{ marginRight: '10px' }">Recolher todos</v-btn>
-
                     <v-btn prepend-icon="upload" @click="onExport" variant="elevated" color="indigo-darken-3">Exportar</v-btn>
                 </v-toolbar>
 
